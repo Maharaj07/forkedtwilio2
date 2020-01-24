@@ -1,7 +1,13 @@
 package unofficial.twilio.flutter.twilio_unofficial_programmable_video
 
-import com.twilio.video.*
-import io.flutter.plugin.common.EventChannel.EventSink
+import com.twilio.video.RemoteAudioTrack
+import com.twilio.video.RemoteAudioTrackPublication
+import com.twilio.video.RemoteDataTrack
+import com.twilio.video.RemoteDataTrackPublication
+import com.twilio.video.RemoteParticipant
+import com.twilio.video.RemoteVideoTrack
+import com.twilio.video.RemoteVideoTrackPublication
+import com.twilio.video.TwilioException
 
 class RemoteParticipantListener : BaseListener(), RemoteParticipant.Listener {
     override fun onAudioTrackDisabled(remoteParticipant: RemoteParticipant, remoteAudioTrackPublication: RemoteAudioTrackPublication) {
@@ -97,14 +103,17 @@ class RemoteParticipantListener : BaseListener(), RemoteParticipant.Listener {
         // NOT IMPLEMENTED
     }
 
-    // TODO(WLFN): Not sure if the remoteVideoTrackPublication contains a remoteVideoTrack at this point.
-    // TODO(AS): FOR(WLFN) Use the remoteVideoTrack param, not the one from the Publication!
     override fun onVideoTrackUnsubscribed(remoteParticipant: RemoteParticipant, remoteVideoTrackPublication: RemoteVideoTrackPublication, remoteVideoTrack: RemoteVideoTrack) {
-        TwilioUnofficialProgrammableVideoPlugin.debug("RemoteParticipantListener.onVideoTrackUnsubscribed => trackSid: ${remoteVideoTrackPublication.trackSid}, isTrackEnabled: ${remoteVideoTrackPublication.isTrackEnabled}, isTrackSubscribed: ${remoteVideoTrackPublication.isTrackSubscribed}")
+        TwilioUnofficialProgrammableVideoPlugin.debug("RemoteParticipantListener.onVideoTrackUnsubscribed => " +
+                "trackSid: ${remoteVideoTrackPublication.trackSid}, " +
+                "isTrackEnabled: ${remoteVideoTrackPublication.isTrackEnabled}, " +
+                "isTrackSubscribed: ${remoteVideoTrackPublication.isTrackSubscribed}")
+
         sendEvent("videoTrackUnsubscribed", mapOf(
                 "remoteParticipant" to remoteParticipantToMap(remoteParticipant, true),
-                "remoteVideoTrackPublication" to remoteVideoTrackPublicationToMap(remoteVideoTrackPublication)
-        ))
+                "remoteVideoTrackPublication" to remoteVideoTrackPublicationToMap(remoteVideoTrackPublication),
+                "remoteVideoTrack" to remoteVideoTrackToMap(remoteVideoTrack))
+        )
     }
 
     companion object {
@@ -141,5 +150,4 @@ class RemoteParticipantListener : BaseListener(), RemoteParticipant.Listener {
             return null
         }
     }
-
 }

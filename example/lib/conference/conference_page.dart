@@ -208,6 +208,7 @@ class _ConferencePageState extends State<ConferencePage> {
   }
 
   void _onHangup() {
+    this._room.disconnect();
     print('onHangup');
     setState(() {
       if (_participants.length == 1) {
