@@ -9,11 +9,13 @@ kotlin_analyze:
   image: kkopper/ktlint:0.36.0
   stage: lint
   script:
-    - cd android
+    - cd android || exit 1
     - ktlint
   only:
-    - merge_requests
-
+    refs:
+      - merge_requests
+    changes:
+      - android/**/*.kt
 
 flutter_analyze:
   stage: lint
