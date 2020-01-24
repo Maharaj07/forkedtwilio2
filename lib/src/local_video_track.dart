@@ -1,34 +1,43 @@
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:twilio_unofficial_programmable_video/src/video_track.dart';
 
-enum VideoCapturer { FRONT_CAMERA, BACK_CAMERA }
+enum CameraSource { FRONT_CAMERA, BACK_CAMERA }
 
 class LocalVideoTrack extends VideoTrack {
+  bool _enabled;
+
   Widget _widget;
 
-  final VideoCapturer _videoCapturer;
+  final CameraSource _cameraSource;
 
   /// Check if it is enabled.
   ///
-  /// When the value is `false`, blank video frames are sent. When the value is `true`, frames from the [videoCapturer] are provided.
+  /// When the value is `false`, blank video frames are sent. When the value is `true`, frames from the [cameraSource] are provided.
+  @override
   bool get isEnabled {
-    return super.isEnabled;
+    return _enabled;
   }
 
-  /// Retrieves the [VideoCapturer].
-  VideoCapturer get videoCapturer {
-    return _videoCapturer;
+  /// Retrieves the [CameraSource].
+  CameraSource get cameraSource {
+    return _cameraSource;
   }
 
-  LocalVideoTrack(_enabled, this._videoCapturer, {String name = ""})
-      : assert(_videoCapturer != null),
+  LocalVideoTrack(this._enabled, this._cameraSource, {String name = ''})
+      : assert(_cameraSource != null),
         super(_enabled, name);
 
   factory LocalVideoTrack.fromMap(Map<String, dynamic> map) {
-    LocalVideoTrack localVideoTrack = LocalVideoTrack(map['enabled'], VideoCapturer.FRONT_CAMERA, name: map['name']); // TODO(WLFN): The video capturuer is hardcoded here, should be dynamic from the native side.
+    var localVideoTrack = LocalVideoTrack(map['enabled'], CameraSource.FRONT_CAMERA, name: map['name']); // TODO(WLFN): The video capturuer is hardcoded here, should be dynamic from the native side.
     localVideoTrack.updateFromMap(map);
     return localVideoTrack;
+  }
+
+  Future<bool> enable(bool enabled) async {
+    _enabled = enabled;
+    return const MethodChannel('twilio_unofficial_programmable_video').invokeMethod('LocalVideoTrack#enable', <String, dynamic>{'name': name, 'enable': enabled});
   }
 
   /// Returns a native widget.
@@ -43,6 +52,6 @@ class LocalVideoTrack extends VideoTrack {
   }
 
   Map<String, Object> toMap() {
-    return <String, Object>{'enable': isEnabled, 'name': name, 'videoCapturer': _videoCapturer.toString().split('.')[1]};
+    return <String, Object>{'enable': isEnabled, 'name': name, 'cameraSource': EnumToString.parse(_cameraSource)};
   }
 }

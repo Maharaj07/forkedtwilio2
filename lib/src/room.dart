@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
 import 'package:twilio_unofficial_programmable_video/src/local_participant.dart';
-import 'package:twilio_unofficial_programmable_video/src/programmable_video.dart';
 import 'package:twilio_unofficial_programmable_video/src/remote_participant.dart';
 import 'package:twilio_unofficial_programmable_video/src/room_state.dart';
 import 'package:twilio_unofficial_programmable_video/src/twilio_exception.dart';
@@ -114,10 +113,9 @@ class Room {
   }
 
   /// Disconnects from the room.
-  void disconnect() {
-    const MethodChannel('twilio_unofficial_programmable_video').invokeMethod('disconnect');
-    // TODO(WLFN): Call disconnect natively.
-    this._roomStream.cancel();
+  Future<void> disconnect() async {
+    await const MethodChannel('twilio_unofficial_programmable_video').invokeMethod('disconnect');
+    await _roomStream.cancel();
   }
 
   RemoteParticipant _findOrCreateRemoteParticipant(Map<String, dynamic> remoteParticipantMap) {
@@ -130,28 +128,26 @@ class Room {
   void _parseEvents(dynamic event) {
     final String eventName = event['name'];
     print("Event '$eventName' => ${event['data']}, error: ${event['error']}");
-    final Map<String, dynamic> data = Map<String, dynamic>.from(event['data']);
+    final data = Map<String, dynamic>.from(event['data']);
 
     // If no room data is received, skip the event.
     if (data['room'] == null) return;
 
-    final Map<String, dynamic> roomMap = Map<String, dynamic>.from(data['room']);
+    final roomMap = Map<String, dynamic>.from(data['room']);
     _sid = roomMap['sid'];
     _name = roomMap['name'];
     _state = EnumToString.fromString(RoomState.values, roomMap['state']);
     _mediaRegion = roomMap['mediaRegion'];
 
     if (roomMap['localParticipant'] != null) {
-      final Map<String, dynamic> localParticipantMap = Map<String, dynamic>.from(roomMap['localParticipant']);
-      if (_localParticipant == null) {
-        _localParticipant = LocalParticipant.fromMap(localParticipantMap);
-      }
+      final localParticipantMap = Map<String, dynamic>.from(roomMap['localParticipant']);
+      _localParticipant ??= LocalParticipant.fromMap(localParticipantMap);
       _localParticipant.updateFromMap(localParticipantMap);
     }
 
     if (roomMap['remoteParticipants'] != null) {
       final List<Map<String, dynamic>> remoteParticipantsList = roomMap['remoteParticipants'].map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
-      for (final Map<String, dynamic> remoteParticipantMap in remoteParticipantsList) {
+      for (final remoteParticipantMap in remoteParticipantsList) {
         final remoteParticipant = _findOrCreateRemoteParticipant(remoteParticipantMap);
         if (!remoteParticipants.contains(remoteParticipant)) {
           remoteParticipants.add(remoteParticipant);
@@ -162,7 +158,7 @@ class Room {
 
     RemoteParticipant remoteParticipant;
     if (data['remoteParticipant'] != null) {
-      final Map<String, dynamic> remoteParticipantMap = Map<String, dynamic>.from(data['remoteParticipant']);
+      final remoteParticipantMap = Map<String, dynamic>.from(data['remoteParticipant']);
       remoteParticipant = _findOrCreateRemoteParticipant(remoteParticipantMap);
       if (!remoteParticipants.contains(remoteParticipant)) {
         remoteParticipants.add(remoteParticipant);
@@ -172,7 +168,7 @@ class Room {
 
     TwilioException exception;
     if (event['error'] != null) {
-      final Map<String, dynamic> errorMap = Map<String, dynamic>.from(event['error'] as Map<dynamic, dynamic>);
+      final errorMap = Map<String, dynamic>.from(event['error'] as Map<dynamic, dynamic>);
       exception = TwilioException(errorMap['code'] as int, errorMap['message']);
     }
 

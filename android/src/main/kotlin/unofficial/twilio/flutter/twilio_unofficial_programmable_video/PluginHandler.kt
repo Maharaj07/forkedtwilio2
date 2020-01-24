@@ -42,8 +42,40 @@ class PluginHandler(private val applicationContext: Context) : MethodCallHandler
         when (call.method) {
             "connect" -> connect(call, result)
             "disconnect" -> disconnect(call, result)
+            "LocalAudioTrack#enable" -> localAudioTrackEnable(call, result)
+            "LocalVideoTrack#enable" -> localVideoTrackEnable(call, result)
             else -> result.notImplemented()
         }
+    }
+
+    private fun localVideoTrackEnable(call: MethodCall, result: MethodChannel.Result) {
+        val localVideoTrackName = call.argument<String>("name")
+        val localVideoTrackEnable = call.argument<Boolean>("enable")
+        TwilioUnofficialProgrammableVideoPlugin.debug("TwilioUnofficialProgrammableVideoPlugin.localVideoTrackEnable => called for $localVideoTrackName, enable=$localVideoTrackEnable")
+        if (localVideoTrackName != null && localVideoTrackEnable != null) {
+            val localVideoTrack = TwilioUnofficialProgrammableVideoPlugin.roomListener.room?.localParticipant?.localVideoTracks?.firstOrNull { it.trackName == localVideoTrackName }
+            if (localVideoTrack != null) {
+                localVideoTrack.localVideoTrack.enable(localVideoTrackEnable)
+                return result.success(true)
+            }
+            return result.error("NOT_FOUND", "No LocalVideoTrack found with the name '$localVideoTrackName'", null)
+        }
+        return result.error("MISSING_PARAMS", "The parameters 'name' and 'enable' were not given", null)
+    }
+    
+    private fun localAudioTrackEnable(call: MethodCall, result: MethodChannel.Result) {
+        val localAudioTrackName = call.argument<String>("name")
+        val localAudioTrackEnable = call.argument<Boolean>("enable")
+        TwilioUnofficialProgrammableVideoPlugin.debug("TwilioUnofficialProgrammableVideoPlugin.localAudioTrackEnable => called for $localAudioTrackName, enable=$localAudioTrackEnable")
+        if (localAudioTrackName != null && localAudioTrackEnable != null) {
+            val localAudioTrack = TwilioUnofficialProgrammableVideoPlugin.roomListener.room?.localParticipant?.localAudioTracks?.firstOrNull { it.trackName == localAudioTrackName }
+            if (localAudioTrack != null) {
+                localAudioTrack.localAudioTrack.enable(localAudioTrackEnable)
+                return result.success(true)
+            }
+            return result.error("NOT_FOUND", "No LocalAudioTrack found with the name '$localAudioTrackName'", null)
+        }
+        return result.error("MISSING_PARAMS", "The parameters 'name' and 'enable' were not given", null)
     }
 
     private fun disconnect(call: MethodCall, result: MethodChannel.Result) {
@@ -114,7 +146,7 @@ class PluginHandler(private val applicationContext: Context) : MethodCallHandler
                     val audioTracks = ArrayList<LocalAudioTrack?>()
                     for ((audioTrack) in audioTrackOptions) {
                         audioTrack as Map<*, *> // Ensure right type.
-                        audioTracks.add(LocalAudioTrack.create(this.applicationContext, audioTrack["enable"] as Boolean))
+                        audioTracks.add(LocalAudioTrack.create(this.applicationContext, audioTrack["enable"] as Boolean, audioTrack["name"] as String))
                     }
                     TwilioUnofficialProgrammableVideoPlugin.debug("TwilioUnofficialProgrammableVideoPlugin.connect => setting audioTracks to '${audioTracks.joinToString(", ")}'")
                     optionsBuilder.audioTracks(audioTracks)
@@ -128,7 +160,7 @@ class PluginHandler(private val applicationContext: Context) : MethodCallHandler
                     for ((videoTrack) in videoTrackOptions) {
                         videoTrack as Map<*, *> // Ensure right type.
 
-                        val videoCapturer: VideoCapturer = when (videoTrack["videoCapturer"] as String) {
+                        val videoCapturer: VideoCapturer = when (videoTrack["cameraSource"] as String) {
                             "FRONT_CAMERA" -> CameraCapturer(this.applicationContext, CameraCapturer.CameraSource.FRONT_CAMERA)
                             "BACK_CAMERA" -> CameraCapturer(this.applicationContext, CameraCapturer.CameraSource.BACK_CAMERA)
                             else -> CameraCapturer(this.applicationContext, CameraCapturer.CameraSource.FRONT_CAMERA)

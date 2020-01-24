@@ -13,9 +13,9 @@ class TwilioUnofficialProgrammableVideo {
   static const EventChannel _remoteParticipantChannel = EventChannel('twilio_unofficial_programmable_video/remote');
 
   static Future<bool> requestPermissionForCameraAndMicrophone() async {
-    final Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions(<PermissionGroup>[PermissionGroup.microphone, PermissionGroup.camera]);
+    final permissions = await PermissionHandler().requestPermissions(<PermissionGroup>[PermissionGroup.microphone, PermissionGroup.camera]);
 
-    bool cameraAndMicPermissionGranted = true;
+    var cameraAndMicPermissionGranted = true;
     permissions.forEach((PermissionGroup permissionGroup, PermissionStatus permissionStatus) {
       return cameraAndMicPermissionGranted = cameraAndMicPermissionGranted ? permissionStatus == PermissionStatus.granted : false;
     });
@@ -27,7 +27,7 @@ class TwilioUnofficialProgrammableVideo {
     assert(connectOptions != null);
 
     if (await requestPermissionForCameraAndMicrophone()) {
-      final int roomId = await _methodChannel.invokeMethod('connect', <String, Object>{'connectOptions': connectOptions.toMap()});
+      final roomId = await _methodChannel.invokeMethod('connect', <String, Object>{'connectOptions': connectOptions.toMap()});
 
       return Room(roomId, _roomChannel, _remoteParticipantChannel);
     }

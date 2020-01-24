@@ -119,12 +119,37 @@ class RemoteParticipantListener : BaseListener(), RemoteParticipant.Listener {
     companion object {
         @JvmStatic
         fun remoteParticipantToMap(remoteParticipant: RemoteParticipant, noTracks: Boolean = false): Map<String, Any?> {
+            val remoteAudioTrackPublications = if (!noTracks) remoteParticipant.remoteAudioTracks.map { remoteAudioTrackPublicationToMap(it) } else null
             val remoteVideoTrackPublications = if (!noTracks) remoteParticipant.remoteVideoTracks.map { remoteVideoTrackPublicationToMap(it) } else null
+
             return mapOf(
                     "identity" to remoteParticipant.identity,
                     "sid" to remoteParticipant.sid,
                     "remoteVideoTrackPublications" to remoteVideoTrackPublications
             )
+        }
+
+        @JvmStatic
+        fun remoteAudioTrackPublicationToMap(remoteAudioTrackPublication: RemoteAudioTrackPublication): Map<String, Any?> {
+            return mapOf(
+                    "sid" to remoteAudioTrackPublication.trackSid,
+                    "name" to remoteAudioTrackPublication.trackName,
+                    "enabled" to remoteAudioTrackPublication.isTrackEnabled,
+                    "subscribed" to remoteAudioTrackPublication.isTrackSubscribed,
+                    "remoteAudioTrack" to remoteAudioTrackToMap(remoteAudioTrackPublication.remoteAudioTrack)
+            )
+        }
+
+        @JvmStatic
+        fun remoteAudioTrackToMap(remoteAudioTrack: RemoteAudioTrack?): Map<String, Any>? {
+            if (remoteAudioTrack != null) {
+                return mapOf(
+                        "sid" to remoteAudioTrack.sid,
+                        "name" to remoteAudioTrack.name,
+                        "enabled" to remoteAudioTrack.isEnabled
+                )
+            }
+            return null
         }
 
         @JvmStatic

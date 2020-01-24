@@ -1,6 +1,8 @@
 package unofficial.twilio.flutter.twilio_unofficial_programmable_video
 
 import com.twilio.video.ConnectOptions
+import com.twilio.video.LocalAudioTrack
+import com.twilio.video.LocalAudioTrackPublication
 import com.twilio.video.LocalParticipant
 import com.twilio.video.LocalVideoTrack
 import com.twilio.video.LocalVideoTrackPublication
@@ -74,33 +76,45 @@ class RoomListener(private var internalId: Int, var connectOptions: ConnectOptio
     }
 
     private fun localParticipantToMap(localParticipant: LocalParticipant?): Map<String, Any?> {
+        val localAudioTrackPublications = localParticipant?.localAudioTracks?.map { localAudioTrackPublicationToMap(it) }
+//        val localDataTrackPublications = localParticipant?.localDataTracks?.map { localDataTrackPublicationToMap(it) }
         val localVideoTrackPublications = localParticipant?.localVideoTracks?.map { localVideoTrackPublicationToMap(it) }
         return mapOf(
                 "identity" to localParticipant?.identity,
                 "sid" to localParticipant?.sid,
                 "signalingRegion" to localParticipant?.signalingRegion,
                 "networkQualityLevel" to localParticipant?.networkQualityLevel.toString(),
+                "localAudioTrackPublications" to localAudioTrackPublications,
                 "localVideoTrackPublications" to localVideoTrackPublications
         )
     }
 
-    private fun localVideoTrackPublicationToMap(localVideoTrackPublication: LocalVideoTrackPublication): Map<String, Any?> {
+    private fun localAudioTrackPublicationToMap(localVideoTrackPublication: LocalAudioTrackPublication): Map<String, Any> {
         return mapOf(
                 "sid" to localVideoTrackPublication.trackSid,
-                "name" to localVideoTrackPublication.trackName,
-                "enabled" to localVideoTrackPublication.isTrackEnabled,
-                "remoteVideoTrack" to localVideoTrackToMap(localVideoTrackPublication.localVideoTrack)
+                "localAudioTrack" to localAudioTrackToMap(localVideoTrackPublication.localAudioTrack)
         )
     }
 
-    private fun localVideoTrackToMap(localVideoTrack: LocalVideoTrack?): Map<String, Any>? {
-        if (localVideoTrack != null) {
-            return mapOf(
-                    "name" to localVideoTrack.name,
-                    "enabled" to localVideoTrack.isEnabled
+    private fun localAudioTrackToMap(localVideoTrack: LocalAudioTrack): Map<String, Any> {
+        return mapOf(
+                "name" to localVideoTrack.name,
+                "enabled" to localVideoTrack.isEnabled
+        )
+    }
+
+    private fun localVideoTrackPublicationToMap(localVideoTrackPublication: LocalVideoTrackPublication): Map<String, Any> {
+        return mapOf(
+                "sid" to localVideoTrackPublication.trackSid,
+                "localVideoTrack" to localVideoTrackToMap(localVideoTrackPublication.localVideoTrack)
+        )
+    }
+
+    private fun localVideoTrackToMap(localVideoTrack: LocalVideoTrack): Map<String, Any> {
+        return mapOf(
+                "name" to localVideoTrack.name,
+                "enabled" to localVideoTrack.isEnabled
 //                    "videoCapturer" to localVideoTrack.videoCapturer TODO(WLFN): Implement this?
-            )
-        }
-        return null
+        )
     }
 }
