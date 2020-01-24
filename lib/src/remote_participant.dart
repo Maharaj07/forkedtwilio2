@@ -25,14 +25,17 @@ class RemoteParticipant {
 
   List<RemoteVideoTrackPublication> _remoteVideoTrackPublications = <RemoteVideoTrackPublication>[];
 
+  /// The SID of this [RemoteParticipant].
   String get sid {
     return _sid;
   }
 
+  /// The identity of this [RemoteParticipant].
   String get identity {
     return _identity;
   }
 
+  /// Read-only list of video track publications.
   List<RemoteVideoTrackPublication> get remoteVideoTracks {
     return [..._remoteVideoTrackPublications];
   }
@@ -54,14 +57,7 @@ class RemoteParticipant {
 
   factory RemoteParticipant.fromMap(Map<String, dynamic> map, EventChannel remoteParticipantChannel) {
     final RemoteParticipant remoteParticipant = RemoteParticipant(map['identity'], map['sid'], remoteParticipantChannel);
-
-    if (map['remoteVideoTrackPublications'] != null) {
-      final List<Map<String, dynamic>> remoteVideoTrackPublicationsList = map['remoteVideoTrackPublications'].map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
-      for (final Map<String, dynamic> remoteVideoTrackPublicationMap in remoteVideoTrackPublicationsList) {
-        remoteParticipant._remoteVideoTrackPublications.add(RemoteVideoTrackPublication.fromMap(remoteVideoTrackPublicationMap, remoteParticipant));
-      }
-    }
-
+    remoteParticipant.updateFromMap(map);
     return remoteParticipant;
   }
 
@@ -71,8 +67,8 @@ class RemoteParticipant {
       for (final Map<String, dynamic> remoteVideoTrackPublicationMap in remoteVideoTrackPublicationsList) {
         final RemoteVideoTrackPublication remoteVideoTrackPublication = this._remoteVideoTrackPublications.firstWhere(
               (p) => p.trackSid == remoteVideoTrackPublicationMap['sid'],
-              orElse: () => RemoteVideoTrackPublication.fromMap(remoteVideoTrackPublicationMap, this),
-            );
+          orElse: () => RemoteVideoTrackPublication.fromMap(remoteVideoTrackPublicationMap, this),
+        );
         if (!this._remoteVideoTrackPublications.contains(remoteVideoTrackPublication)) {
           this._remoteVideoTrackPublications.add(remoteVideoTrackPublication);
         }
@@ -115,6 +111,10 @@ class RemoteParticipant {
     if (['videoTrackSubscribed', 'videoTrackUnsubscribed'].contains(eventName)) {
       assert(remoteVideoTrackPublication != null);
       remoteVideoTrack = remoteVideoTrackPublication.remoteVideoTrack;
+      if (remoteVideoTrack == null) {
+        final Map<String, dynamic> remoteVideoTrackMap = Map<String, dynamic>.from(data['remoteVideoTrack']);
+        remoteVideoTrack = RemoteVideoTrack.fromMap(remoteVideoTrackMap, this);
+      }
     }
 
     final RemoteParticipantEvent remoteParticipantEvent = RemoteParticipantEvent(this, remoteVideoTrackPublication, remoteVideoTrack);

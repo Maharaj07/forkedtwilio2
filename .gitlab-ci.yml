@@ -5,6 +5,16 @@ stages:
   - test
   - publish
 
+kotlin_analyze:
+  image: kkopper/ktlint:0.36.0
+  stage: lint
+  script:
+    - cd android
+    - ktlint
+  only:
+    - merge_requests
+
+
 flutter_analyze:
   stage: lint
   script:

@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
 import 'package:twilio_unofficial_programmable_video/src/local_participant.dart';
+import 'package:twilio_unofficial_programmable_video/src/programmable_video.dart';
 import 'package:twilio_unofficial_programmable_video/src/remote_participant.dart';
+import 'package:twilio_unofficial_programmable_video/src/room_state.dart';
 import 'package:twilio_unofficial_programmable_video/src/twilio_exception.dart';
 
 class RoomEvent {
@@ -21,28 +24,51 @@ class Room {
 
   final EventChannel _remoteParticipantChannel;
 
-  // TODO: give it purpose!
-  // ignore: unused_field
-  Stream<dynamic> _roomStream;
+  StreamSubscription<dynamic> _roomStream;
 
   String _sid;
 
   String _name;
 
+  String _mediaRegion;
+
+  RoomState _state;
+
   LocalParticipant _localParticipant;
 
+  /// The SID of this [Room].
   String get sid {
     return _sid;
   }
 
+  /// The name of this [Room].
   String get name {
     return _name;
   }
 
+  /// The region where media is processed.
+  ///
+  /// This property is set in Group Rooms by the time the [Room] reaches [RoomState.CONNECTED].
+  /// It can be `null` under the following conditions:
+  /// * The [Room] has not reached the [RoomState.CONNECTED] state.
+  /// * The instance represents a peer-to-peer room.
+  String get mediaRegion {
+    return _mediaRegion;
+  }
+
+  /// The current room state.
+  RoomState get state {
+    return _state;
+  }
+
+  /// The current local participant.
+  ///
+  /// If the room has not reached [RoomState.CONNECTED] then it will be `null`.
   LocalParticipant get localParticipant {
     return _localParticipant;
   }
 
+  /// All currently connected participants.
   List<RemoteParticipant> remoteParticipants = <RemoteParticipant>[];
 
   final StreamController<RoomEvent> _onConnectFailure = StreamController<RoomEvent>();
@@ -75,7 +101,7 @@ class Room {
   Room(this._internalId, this._eventChannel, this._remoteParticipantChannel)
       : assert(_internalId != null),
         assert(_eventChannel != null) {
-    _roomStream = _eventChannel.receiveBroadcastStream(_internalId)..listen(_parseEvents);
+    _roomStream = _eventChannel.receiveBroadcastStream(_internalId).listen(_parseEvents);
 
     onConnectFailure = _onConnectFailure.stream;
     onConnected = _onConnectedCtrl.stream;
@@ -87,9 +113,14 @@ class Room {
     onRecordingStopped = _onRecordingStopped.stream;
   }
 
-  void disconnect() {}
+  /// Disconnects from the room.
+  void disconnect() {
+    const MethodChannel('twilio_unofficial_programmable_video').invokeMethod('disconnect');
+    // TODO(WLFN): Call disconnect natively.
+    this._roomStream.cancel();
+  }
 
-  RemoteParticipant _createOrFindRemoteParticipant(Map<String, dynamic> remoteParticipantMap) {
+  RemoteParticipant _findOrCreateRemoteParticipant(Map<String, dynamic> remoteParticipantMap) {
     return remoteParticipants.firstWhere(
       (RemoteParticipant p) => p.sid == remoteParticipantMap['sid'],
       orElse: () => RemoteParticipant.fromMap(remoteParticipantMap, _remoteParticipantChannel),
@@ -104,24 +135,24 @@ class Room {
     // If no room data is received, skip the event.
     if (data['room'] == null) return;
 
-    final Map<String, String> roomMap = Map<String, String>.from(data['room']);
+    final Map<String, dynamic> roomMap = Map<String, dynamic>.from(data['room']);
     _sid = roomMap['sid'];
     _name = roomMap['name'];
+    _state = EnumToString.fromString(RoomState.values, roomMap['state']);
+    _mediaRegion = roomMap['mediaRegion'];
 
-    // TODO(WLFN): The localParticipant can be updated. A updateFromMap method should be implemented.
-    // This is only filled if it is the "connected" event
-    if (data['localParticipant'] != null && _localParticipant == null) {
-      final Map<String, String> localParticipantMap = Map<String, String>.from(data['localParticipant']);
-      if (localParticipantMap['sid'] != null) {
-        _localParticipant = LocalParticipant(localParticipantMap['identity'], localParticipantMap['sid']);
+    if (roomMap['localParticipant'] != null) {
+      final Map<String, dynamic> localParticipantMap = Map<String, dynamic>.from(roomMap['localParticipant']);
+      if (_localParticipant == null) {
+        _localParticipant = LocalParticipant.fromMap(localParticipantMap);
       }
+      _localParticipant.updateFromMap(localParticipantMap);
     }
 
-    // This is only filled if it is the "connected" event or the "reconnected" event.
-    if (data['remoteParticipants'] != null) {
-      final List<Map<String, dynamic>> remoteParticipantsList = data['remoteParticipants'].map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
+    if (roomMap['remoteParticipants'] != null) {
+      final List<Map<String, dynamic>> remoteParticipantsList = roomMap['remoteParticipants'].map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
       for (final Map<String, dynamic> remoteParticipantMap in remoteParticipantsList) {
-        final remoteParticipant = _createOrFindRemoteParticipant(remoteParticipantMap);
+        final remoteParticipant = _findOrCreateRemoteParticipant(remoteParticipantMap);
         if (!remoteParticipants.contains(remoteParticipant)) {
           remoteParticipants.add(remoteParticipant);
         }
@@ -132,7 +163,7 @@ class Room {
     RemoteParticipant remoteParticipant;
     if (data['remoteParticipant'] != null) {
       final Map<String, dynamic> remoteParticipantMap = Map<String, dynamic>.from(data['remoteParticipant']);
-      remoteParticipant = _createOrFindRemoteParticipant(remoteParticipantMap);
+      remoteParticipant = _findOrCreateRemoteParticipant(remoteParticipantMap);
       if (!remoteParticipants.contains(remoteParticipant)) {
         remoteParticipants.add(remoteParticipant);
       }

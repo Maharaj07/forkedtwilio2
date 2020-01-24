@@ -15,22 +15,22 @@ class RemoteVideoTrackPublication {
 
   RemoteParticipant _remoteParticipant;
 
-  /// Returns the sid of the published video track.
+  /// The SID of the published video track.
   String get trackSid {
     return _sid;
   }
 
-  /// Returns the name of the published video track.
+  /// The name of the published video track.
   String get trackName {
     return _name;
   }
 
-  /// Returns true if the published video track is enabled or false otherwise.
+  /// Returns `true` if the published video track is enabled or `false` otherwise.
   bool get isTrackEnabled {
     return _enabled;
   }
 
-  /// Returns true if the published video track is subscribed by the local participant or false otherwise.
+  /// Returns `true` if the published video track is subscribed by the local participant or `false` otherwise.
   bool get isTrackSubscribed {
     return _subscribed;
   }
@@ -47,7 +47,9 @@ class RemoteVideoTrackPublication {
         assert(_remoteParticipant != null);
 
   factory RemoteVideoTrackPublication.fromMap(Map<String, dynamic> map, RemoteParticipant remoteParticipant) {
-    return RemoteVideoTrackPublication(map["subscribed"], map["enabled"], map["sid"], map["name"], remoteParticipant);
+    RemoteVideoTrackPublication remoteVideoTrackPublication = RemoteVideoTrackPublication(map["subscribed"], map["enabled"], map["sid"], map["name"], remoteParticipant);
+    remoteVideoTrackPublication.updateFromMap(map);
+    return remoteVideoTrackPublication;
   }
 
   void updateFromMap(Map<String, dynamic> map) {

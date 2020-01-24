@@ -87,5 +87,3 @@ Reference table of all the events the plugin supports and their native platform 
 
 # Development and Contributing
 Interested in contributing? We love merge requests! See the [Contribution](CONTRIBUTING.md) guidelines.
-
-You are also invited to join our [discord server](https://discord.gg/42x46NH)!
