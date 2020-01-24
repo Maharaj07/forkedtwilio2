@@ -25,7 +25,13 @@ flutter_analyze:
     - cd .. || exit 1
     - flutter analyze --pub
   only:
-    - merge_requests
+    refs:
+      - merge_requests
+    changes:
+      - lib/**/*.dart
+      - test/**/*.dart
+      - example/lib/**/*.dart
+      - example/test/**/*.dart
 
 firebase_functions:
   image: node:8.15.0-alpine
