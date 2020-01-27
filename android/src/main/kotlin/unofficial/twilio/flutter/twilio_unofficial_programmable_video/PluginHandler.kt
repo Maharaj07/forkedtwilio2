@@ -1,7 +1,10 @@
 package unofficial.twilio.flutter.twilio_unofficial_programmable_video
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.os.Build
 import androidx.annotation.NonNull
 import com.twilio.video.AudioCodec
 import com.twilio.video.CameraCapturer
@@ -103,11 +106,13 @@ class PluginHandler(private val applicationContext: Context) : MethodCallHandler
     private fun disconnect(call: MethodCall, result: MethodChannel.Result) {
         TwilioUnofficialProgrammableVideoPlugin.debug("TwilioUnofficialProgrammableVideoPlugin.disconnect => called")
         TwilioUnofficialProgrammableVideoPlugin.roomListener.room?.disconnect()
+        setAudioFocus(false)
         result.success(true)
     }
 
     private fun connect(call: MethodCall, result: MethodChannel.Result) {
         TwilioUnofficialProgrammableVideoPlugin.debug("TwilioUnofficialProgrammableVideoPlugin.connect => called")
+        setAudioFocus(true)
         val optionsObj = call.argument<Map<String, Any>>("connectOptions")
         if (optionsObj != null) {
             try {
@@ -208,6 +213,56 @@ class PluginHandler(private val applicationContext: Context) : MethodCallHandler
             }
         } else {
             result.error("INIT_ERROR", "Missing ConnectOptions", null)
+        }
+    }
+
+    private var previousAudioMode: Int = 0
+
+    private var previousMicrophoneMute: Boolean = false
+
+    private var audioFocusRequest: AudioFocusRequest? = null
+
+    private fun setAudioFocus(focus: Boolean) {
+        val audioManager = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if (focus) {
+            previousAudioMode = audioManager.mode
+
+            // Request audio focus
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val playbackAttributes = AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build()
+                audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                        .setAudioAttributes(playbackAttributes)
+                        .setAcceptsDelayedFocusGain(true)
+                        .setOnAudioFocusChangeListener { }
+                        .build()
+                audioManager.requestAudioFocus(audioFocusRequest)
+            } else {
+                audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+            }
+            /*
+             * Use MODE_IN_COMMUNICATION as the default audio mode. It is required
+             * to be in this mode when playout and/or recording starts for the best
+             * possible VoIP performance. Some devices have difficulties with
+             * speaker mode if this is not set.
+             */
+            audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            /*
+             * Always disable microphone mute during a WebRTC call.
+             */
+            previousMicrophoneMute = audioManager.isMicrophoneMute;
+            audioManager.isMicrophoneMute = false
+        } else {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                audioManager.abandonAudioFocus(null)
+            } else if (audioFocusRequest != null) {
+                audioManager.abandonAudioFocusRequest(audioFocusRequest)
+            }
+            audioManager.mode = previousAudioMode
+            audioManager.isMicrophoneMute = previousMicrophoneMute
         }
     }
 }
