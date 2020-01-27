@@ -1,5 +1,6 @@
 package unofficial.twilio.flutter.twilio_unofficial_programmable_video
 
+import com.twilio.video.CameraCapturer
 import com.twilio.video.ConnectOptions
 import com.twilio.video.LocalAudioTrack
 import com.twilio.video.LocalAudioTrackPublication
@@ -9,6 +10,7 @@ import com.twilio.video.LocalVideoTrackPublication
 import com.twilio.video.RemoteParticipant
 import com.twilio.video.Room
 import com.twilio.video.TwilioException
+import com.twilio.video.VideoCapturer
 
 class RoomListener(private var internalId: Int, var connectOptions: ConnectOptions) : BaseListener(), Room.Listener {
     var room: Room? = null
@@ -113,8 +115,21 @@ class RoomListener(private var internalId: Int, var connectOptions: ConnectOptio
     private fun localVideoTrackToMap(localVideoTrack: LocalVideoTrack): Map<String, Any> {
         return mapOf(
                 "name" to localVideoTrack.name,
-                "enabled" to localVideoTrack.isEnabled
-//                    "videoCapturer" to localVideoTrack.videoCapturer TODO(WLFN): Implement this?
+                "enabled" to localVideoTrack.isEnabled,
+                "videoCapturer" to videoCapturerToMap(localVideoTrack.videoCapturer)
+        )
+    }
+
+    private fun videoCapturerToMap(videoCapturer: VideoCapturer): Map<String, Any> {
+        if (videoCapturer is CameraCapturer) {
+            return mapOf(
+                    "type" to "CameraCapturer",
+                    "cameraSource" to videoCapturer.cameraSource.toString()
+            )
+        }
+        return mapOf(
+                "type" to "Unknown",
+                "isScreencast" to videoCapturer.isScreencast
         )
     }
 }

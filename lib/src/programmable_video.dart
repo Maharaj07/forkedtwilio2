@@ -12,6 +12,22 @@ class TwilioUnofficialProgrammableVideo {
 
   static const EventChannel _remoteParticipantChannel = EventChannel('twilio_unofficial_programmable_video/remote');
 
+  /// Enable debug logging, both natively and in Dart.
+  static Future<bool> debug(bool debug) async {
+    assert(debug != null);
+    // TODO(WLFN): Implemented this.
+    return await _methodChannel.invokeMethod('debug', {'debug': debug});
+  }
+
+  /// Set the speaker mode on or off.
+  static Future<bool> setSpeakerphoneOn(bool on) async {
+    assert(on != null);
+    return await _methodChannel.invokeMethod('setSpeakerphoneOn', {'on': on});
+  }
+
+  /// Request permission for camera and microphone.
+  ///
+  /// Uses the PermissionHandler plugin. Returns the granted result.
   static Future<bool> requestPermissionForCameraAndMicrophone() async {
     final permissions = await PermissionHandler().requestPermissions(<PermissionGroup>[PermissionGroup.microphone, PermissionGroup.camera]);
 
@@ -23,6 +39,9 @@ class TwilioUnofficialProgrammableVideo {
     return cameraAndMicPermissionGranted;
   }
 
+  /// Connect to a [Room].
+  ///
+  /// Will request camera and microphone permissions.
   static Future<Room> connect(ConnectOptions connectOptions) async {
     assert(connectOptions != null);
 

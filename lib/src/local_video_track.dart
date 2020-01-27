@@ -1,16 +1,15 @@
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:twilio_unofficial_programmable_video/src/camera_capturer.dart';
+import 'package:twilio_unofficial_programmable_video/src/video_capturer.dart';
 import 'package:twilio_unofficial_programmable_video/src/video_track.dart';
-
-enum CameraSource { FRONT_CAMERA, BACK_CAMERA }
 
 class LocalVideoTrack extends VideoTrack {
   bool _enabled;
 
   Widget _widget;
 
-  final CameraSource _cameraSource;
+  final VideoCapturer _videoCapturer;
 
   /// Check if it is enabled.
   ///
@@ -20,21 +19,27 @@ class LocalVideoTrack extends VideoTrack {
     return _enabled;
   }
 
-  /// Retrieves the [CameraSource].
-  CameraSource get cameraSource {
-    return _cameraSource;
+  /// Retrieves the [VideoCapturer].
+  VideoCapturer get videoCapturer {
+    return _videoCapturer;
   }
 
-  LocalVideoTrack(this._enabled, this._cameraSource, {String name = ''})
-      : assert(_cameraSource != null),
+  LocalVideoTrack(this._enabled, this._videoCapturer, {String name = ''})
+      : assert(_videoCapturer != null),
         super(_enabled, name);
 
   factory LocalVideoTrack.fromMap(Map<String, dynamic> map) {
-    var localVideoTrack = LocalVideoTrack(map['enabled'], CameraSource.FRONT_CAMERA, name: map['name']); // TODO(WLFN): The video capturuer is hardcoded here, should be dynamic from the native side.
+    var videoCapturerMap = Map<String, dynamic>.from(map['videoCapturer'] as Map<dynamic, dynamic>);
+    var videoCapturer = videoCapturerMap['type'] == 'CameraCapturer' ? CameraCapturer.fromMap(videoCapturerMap) : throw Exception('Received unknown VideoCapturer');
+    var localVideoTrack = LocalVideoTrack(map['enabled'], videoCapturer, name: map['name']);
     localVideoTrack.updateFromMap(map);
     return localVideoTrack;
   }
 
+  /// Set the state of the local video track.
+  ///
+  /// The results of this operation are signaled to other [Participant]s in the same [Room].
+  /// When a video track is disabled, blank frames are sent in place of video frames from a video capturer.
   Future<bool> enable(bool enabled) async {
     _enabled = enabled;
     return const MethodChannel('twilio_unofficial_programmable_video').invokeMethod('LocalVideoTrack#enable', <String, dynamic>{'name': name, 'enable': enabled});
@@ -51,7 +56,15 @@ class LocalVideoTrack extends VideoTrack {
     );
   }
 
+  @override
+  void updateFromMap(Map<String, dynamic> map) {
+    var videoCapturerMap = Map<String, dynamic>.from(map['videoCapturer'] as Map<dynamic, dynamic>);
+    _videoCapturer.updateFromMap(videoCapturerMap);
+
+    return super.updateFromMap(map);
+  }
+
   Map<String, Object> toMap() {
-    return <String, Object>{'enable': isEnabled, 'name': name, 'cameraSource': EnumToString.parse(_cameraSource)};
+    return <String, Object>{'enable': isEnabled, 'name': name, 'videoCapturer': _videoCapturer.toMap(),};
   }
 }

@@ -22,7 +22,7 @@ class LocalAudioTrack extends AudioTrack {
 
   /// Set the state.
   ///
-  /// The results of this operation are signaled to other [Remote
+  /// The results of this operation are signaled to other [Particpant]s in the same [Room].
   Future<bool> enable(bool enabled) async {
     _enabled = enabled;
     return const MethodChannel('twilio_unofficial_programmable_video').invokeMethod('LocalAudioTrack#enable', <String, dynamic>{'name': name, 'enable': enabled});

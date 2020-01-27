@@ -27,6 +27,7 @@ class ConferencePage extends StatefulWidget {
 class _ConferencePageState extends State<ConferencePage> {
   bool _videoEnabled = true;
   bool _microphoneEnabled = false; // TODO(AS): Enable audio again...
+  CameraCapturer _cameraCapturer;
 
   Room _room;
   String _deviceId;
@@ -104,11 +105,13 @@ class _ConferencePageState extends State<ConferencePage> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> _connectToRoom() async {
     try {
+      await TwilioUnofficialProgrammableVideo.setSpeakerphoneOn(true);
+      _cameraCapturer = CameraCapturer(CameraSource.FRONT_CAMERA);
       var connectOptions = ConnectOptions(widget.roomModel.token)
         ..roomName(widget.roomModel.name)
         ..preferAudioCodecs([OpusCodec()])
         ..audioTracks([LocalAudioTrack(_microphoneEnabled)])
-        ..videoTracks([LocalVideoTrack(true, CameraSource.FRONT_CAMERA)]);
+        ..videoTracks([LocalVideoTrack(true, _cameraCapturer)]);
 
       _room = await TwilioUnofficialProgrammableVideo.connect(connectOptions);
 
@@ -210,8 +213,8 @@ class _ConferencePageState extends State<ConferencePage> {
   }
 
   void _onHangup() {
-    this._room.disconnect();
     print('onHangup');
+    this._room.disconnect();
     setState(() {
       if (_participants.length == 1) {
         Navigator.of(context).pop();
@@ -223,6 +226,7 @@ class _ConferencePageState extends State<ConferencePage> {
 
   void _onSwitchCamera() {
     print('onSwitchCamera');
+    _cameraCapturer.switchCamera();
   }
 
   void _onPersonAdd() {
