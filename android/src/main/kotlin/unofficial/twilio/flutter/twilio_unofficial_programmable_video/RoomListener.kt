@@ -98,10 +98,10 @@ class RoomListener(private var internalId: Int, var connectOptions: ConnectOptio
         )
     }
 
-    private fun localAudioTrackToMap(localVideoTrack: LocalAudioTrack): Map<String, Any> {
+    private fun localAudioTrackToMap(localAudioTrack: LocalAudioTrack): Map<String, Any> {
         return mapOf(
-                "name" to localVideoTrack.name,
-                "enabled" to localVideoTrack.isEnabled
+                "name" to localAudioTrack.name,
+                "enabled" to localAudioTrack.isEnabled
         )
     }
 
