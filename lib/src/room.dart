@@ -10,6 +10,7 @@ class RoomEvent {
   RoomEvent(this.room, this.remoteParticipant, this.exception) : assert(room != null);
 }
 
+/// A Room represents a media session with zero or more remote Participants. Media shared by any one RemoteParticipant is distributed equally to all other Participants.
 class Room {
   final int _internalId;
 
@@ -71,30 +72,39 @@ class Room {
     return <RemoteParticipant>[..._remoteParticipants];
   }
 
+  /// Called when a connection to a room failed.
   final StreamController<RoomEvent> _onConnectFailure = StreamController<RoomEvent>();
   Stream<RoomEvent> onConnectFailure;
 
+  /// Called when a room has succeeded.
   final StreamController<RoomEvent> _onConnectedCtrl = StreamController<RoomEvent>();
   Stream<RoomEvent> onConnected;
 
+  /// Called when a room has been disconnected from.
   final StreamController<RoomEvent> _onDisconnected = StreamController<RoomEvent>();
   Stream<RoomEvent> onDisconnected;
 
+  /// Called when a participant has connected to a room.
   final StreamController<RoomEvent> _onParticipantConnected = StreamController<RoomEvent>();
   Stream<RoomEvent> onParticipantConnected;
 
+  /// Called when a participant has disconnected from a room.
   final StreamController<RoomEvent> _onParticipantDisconnected = StreamController<RoomEvent>();
   Stream<RoomEvent> onParticipantDisconnected;
 
+  /// Called after the [LocalParticipant] reconnects to a room after a network disruption.
   final StreamController<RoomEvent> _onReconnected = StreamController<RoomEvent>();
   Stream<RoomEvent> onReconnected;
 
+  /// Called when the [LocalParticipant] has experienced a network disruption and the client begins trying to reestablish a connection to a room.
   final StreamController<RoomEvent> _onReconnecting = StreamController<RoomEvent>();
   Stream<RoomEvent> onReconnecting;
 
+  /// This method is only called when a Room which was not previously recording starts recording.
   final StreamController<RoomEvent> _onRecordingStarted = StreamController<RoomEvent>();
   Stream<RoomEvent> onRecordingStarted;
 
+  /// This method is only called when a Room which was previously recording stops recording.
   final StreamController<RoomEvent> _onRecordingStopped = StreamController<RoomEvent>();
   Stream<RoomEvent> onRecordingStopped;
 

@@ -1,6 +1,6 @@
 part of twilio_unofficial_programmable_video;
 
-/// The CameraCapturer is used to provide video frames for a [LocalVideoTrack] from a given [CameraSource].
+/// The [CameraCapturer] is used to provide video frames for a [LocalVideoTrack] from a given [CameraSource].
 class CameraCapturer implements VideoCapturer {
   static final CameraCapturer _cameraCapturer = CameraCapturer._internal();
 

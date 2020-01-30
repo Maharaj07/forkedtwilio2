@@ -1,5 +1,6 @@
 part of twilio_unofficial_programmable_video;
 
+/// A participant represents a remote user that can connect to a [Room].
 class RemoteParticipantEvent {
   final RemoteParticipant remoteParticipant;
 

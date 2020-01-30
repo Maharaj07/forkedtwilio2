@@ -1,5 +1,6 @@
 part of twilio_unofficial_programmable_video;
 
+/// Represents the local participant of a [Room] you are connected to.
 class LocalParticipant implements Participant {
   final String _identity;
 

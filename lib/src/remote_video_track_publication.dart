@@ -1,5 +1,6 @@
 part of twilio_unofficial_programmable_video;
 
+/// A remote video track publication represents a [RemoteVideoTrack] that has been shared to a [Room].
 class RemoteVideoTrackPublication implements VideoTrackPublication {
   final String _sid;
 

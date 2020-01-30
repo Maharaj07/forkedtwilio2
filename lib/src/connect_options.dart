@@ -1,6 +1,6 @@
 part of twilio_unofficial_programmable_video;
 
-/// Represents options when connecting to a Room.
+/// Represents options when connecting to a [Room].
 class ConnectOptions {
   final String _accessToken;
 

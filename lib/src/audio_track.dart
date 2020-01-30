@@ -1,5 +1,6 @@
 part of twilio_unofficial_programmable_video;
 
+/// Abstract base class for audio tracks.
 abstract class AudioTrack {
   final String _name;
 

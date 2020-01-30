@@ -8,7 +8,7 @@ This package is currently work-in-progress and should not be used for production
 If you have any question or problems, please join us on [Discord](https://discord.gg/42x46NH)
 
 ## FAQ
-Read the [Frequently Asked Questions](FAQ.md) first before creating a new issue.
+Read the [Frequently Asked Questions](https://gitlab.com/twilio-flutter-unofficial/programmable-video/blob/master/FAQ.md) first before creating a new issue.
 
 ## Supported platforms
 * Android
@@ -94,7 +94,7 @@ Reference table of all the events the plugin supports and their native platform 
 | RemoteParticipant | videoTrackUnsubscribed       | onVideoTrackUnsubscribed       |     |
 
 # Example
-Check out our comprehensive [example](/example) provided with this plugin.
+Check out our comprehensive [example](https://gitlab.com/twilio-flutter-unofficial/programmable-video/tree/master/example) provided with this plugin.
 
 # Development and Contributing
-Interested in contributing? We love merge requests! See the [Contribution](CONTRIBUTING.md) guidelines.
+Interested in contributing? We love merge requests! See the [Contribution](https://gitlab.com/twilio-flutter-unofficial/programmable-video/blob/master/CONTRIBUTING.md) guidelines.
