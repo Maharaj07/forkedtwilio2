@@ -231,25 +231,25 @@ Reference table of all the events the plugin supports and their native platform 
 | Room              | reconnecting                 | onReconnecting                 | X           |
 | Room              | recordingStarted             | onRecordingStarted             | X           |
 | Room              | recordingStopped             | onRecordingStopped             | X           |
-| RemoteParticipant | audioTrackDisabled           | onAudioTrackDisabled           |     |
-| RemoteParticipant | audioTrackEnabled            | onAudioTrackEnabled            |     |
-| RemoteParticipant | audioTrackPublished          | onAudioTrackPublished          |     |
-| RemoteParticipant | audioTrackSubscribed         | onAudioTrackSubscribed         |     |
-| RemoteParticipant | audioTrackSubscriptionFailed | onAudioTrackSubscriptionFailed |     |
-| RemoteParticipant | audioTrackUnpublished        | onAudioTrackUnpublished        |     |
-| RemoteParticipant | audioTrackUnsubscribed       | onAudioTrackUnsubscribed       |     |
-| RemoteParticipant | dataTrackPublished           | onDataTrackPublished           |     |
-| RemoteParticipant | dataTrackSubscribed          | onDataTrackSubscribed          |     |
-| RemoteParticipant | dataTrackSubscriptionFailed  | onDataTrackSubscriptionFailed  |     |
-| RemoteParticipant | dataTrackUnpublished         | onDataTrackUnpublished         |     |
-| RemoteParticipant | dataTrackUnsubscribed        | onDataTrackUnsubscribed        |     |
-| RemoteParticipant | videoTrackDisabled           | onVideoTrackDisabled           |     |
-| RemoteParticipant | videoTrackEnabled            | onVideoTrackEnabled            |     |
-| RemoteParticipant | videoTrackPublished          | onVideoTrackPublished          |     |
-| RemoteParticipant | vdeoTrackSubscribed          | onVideoTrackSubscribed         |     |
-| RemoteParticipant | videoTrackSubscriptionFailed | onVideoTrackSubscriptionFailed |     |
-| RemoteParticipant | videoTrackUnpublished        | onVideoTrackUnpublished        |     |
-| RemoteParticipant | videoTrackUnsubscribed       | onVideoTrackUnsubscribed       |     |
+| RemoteParticipant | audioTrackDisabled           | onAudioTrackDisabled           |             |
+| RemoteParticipant | audioTrackEnabled            | onAudioTrackEnabled            |             |
+| RemoteParticipant | audioTrackPublished          | onAudioTrackPublished          |             |
+| RemoteParticipant | audioTrackSubscribed         | onAudioTrackSubscribed         |             |
+| RemoteParticipant | audioTrackSubscriptionFailed | onAudioTrackSubscriptionFailed |             |
+| RemoteParticipant | audioTrackUnpublished        | onAudioTrackUnpublished        |             |
+| RemoteParticipant | audioTrackUnsubscribed       | onAudioTrackUnsubscribed       |             |
+| RemoteParticipant | dataTrackPublished           | onDataTrackPublished           |             |
+| RemoteParticipant | dataTrackSubscribed          | onDataTrackSubscribed          |             |
+| RemoteParticipant | dataTrackSubscriptionFailed  | onDataTrackSubscriptionFailed  |             |
+| RemoteParticipant | dataTrackUnpublished         | onDataTrackUnpublished         |             |
+| RemoteParticipant | dataTrackUnsubscribed        | onDataTrackUnsubscribed        |             |
+| RemoteParticipant | videoTrackDisabled           | onVideoTrackDisabled           |             |
+| RemoteParticipant | videoTrackEnabled            | onVideoTrackEnabled            |             |
+| RemoteParticipant | videoTrackPublished          | onVideoTrackPublished          |             |
+| RemoteParticipant | vdeoTrackSubscribed          | onVideoTrackSubscribed         | X           |
+| RemoteParticipant | videoTrackSubscriptionFailed | onVideoTrackSubscriptionFailed |             |
+| RemoteParticipant | videoTrackUnpublished        | onVideoTrackUnpublished        |             |
+| RemoteParticipant | videoTrackUnsubscribed       | onVideoTrackUnsubscribed       | X           |
 
 # Example
 Check out our comprehensive [example](https://gitlab.com/twilio-flutter-unofficial/programmable-video/tree/master/example) provided with this plugin.
