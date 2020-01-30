@@ -36,12 +36,14 @@ class LocalVideoTrackPublication implements VideoTrackPublication {
 
   LocalVideoTrackPublication(this._sid) : assert(_sid != null);
 
+  /// Construct from a map.
   factory LocalVideoTrackPublication._fromMap(Map<String, dynamic> map) {
     var localVideoTrackPublication = LocalVideoTrackPublication(map['sid']);
     localVideoTrackPublication._updateFromMap(map);
     return localVideoTrackPublication;
   }
 
+  /// Update properties from a map.
   void _updateFromMap(Map<String, dynamic> map) {
     if (map['localVideoTrack'] != null) {
       final localVideoTrackMap = Map<String, dynamic>.from(map['localVideoTrack']);

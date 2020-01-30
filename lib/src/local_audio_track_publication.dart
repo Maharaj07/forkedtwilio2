@@ -34,14 +34,17 @@ class LocalAudioTrackPublication implements AudioTrackPublication {
     return _localAudioTrack;
   }
 
+  /// Construct from a map.
   LocalAudioTrackPublication(this._sid) : assert(_sid != null);
 
+  /// Construct from a map.
   factory LocalAudioTrackPublication._fromMap(Map<String, dynamic> map) {
     var localAudioTrackPublication = LocalAudioTrackPublication(map['sid']);
     localAudioTrackPublication._updateFromMap(map);
     return localAudioTrackPublication;
   }
 
+  /// Update properties from a map.
   void _updateFromMap(Map<String, dynamic> map) {
     if (map['localAudioTrack'] != null) {
       final localAudioTrackMap = Map<String, dynamic>.from(map['localAudioTrack']);

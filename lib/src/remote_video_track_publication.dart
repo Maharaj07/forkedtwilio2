@@ -64,6 +64,7 @@ class RemoteVideoTrackPublication implements VideoTrackPublication {
     return remoteVideoTrackPublication;
   }
 
+  /// Update properties from a map.
   void _updateFromMap(Map<String, dynamic> map) {
     _subscribed = map['subscribed'];
     _enabled = map['enabled'];

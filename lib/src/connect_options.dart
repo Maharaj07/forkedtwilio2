@@ -54,6 +54,7 @@ class ConnectOptions {
     _videoTracks = videoTracks;
   }
 
+  /// Create map from properties.
   Map<String, Object> _toMap() {
     return {
       'accessToken': _accessToken,

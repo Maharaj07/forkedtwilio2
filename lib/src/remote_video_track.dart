@@ -18,6 +18,7 @@ class RemoteVideoTrack extends VideoTrack {
         assert(_remoteParticipant != null),
         super(_enabled, _name);
 
+  /// Construct from a map.
   factory RemoteVideoTrack._fromMap(Map<String, dynamic> map, RemoteParticipant remoteParticipant) {
     return map != null ? RemoteVideoTrack(map['sid'], map['enabled'], map['name'], remoteParticipant) : null;
   }

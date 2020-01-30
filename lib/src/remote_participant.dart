@@ -82,12 +82,14 @@ class RemoteParticipant implements Participant {
     onVideoTrackUnsubscribed = _onVideoTrackUnsubscribed.stream;
   }
 
+  /// Construct from a map.
   factory RemoteParticipant._fromMap(Map<String, dynamic> map) {
     final remoteParticipant = RemoteParticipant(map['identity'], map['sid']);
     remoteParticipant._updateFromMap(map);
     return remoteParticipant;
   }
 
+  /// Update properties from a map.
   void _updateFromMap(Map<String, dynamic> map) {
     if (map['remoteVideoTrackPublications'] != null) {
       final List<Map<String, dynamic>> remoteVideoTrackPublicationsList = map['remoteVideoTrackPublications'].map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
@@ -104,6 +106,7 @@ class RemoteParticipant implements Participant {
     }
   }
 
+  /// Parse native remote participant events to the right event streams.
   void _parseEvents(dynamic event) {
     final String eventName = event['name'];
     final data = Map<String, dynamic>.from(event['data']);

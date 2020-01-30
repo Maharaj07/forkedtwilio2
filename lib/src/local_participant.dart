@@ -76,12 +76,14 @@ class LocalParticipant implements Participant {
         assert(_sid != null),
         assert(_signalingRegion != null);
 
+  /// Construct from a map.
   factory LocalParticipant._fromMap(Map<String, dynamic> map) {
     var localParticipant = LocalParticipant(map['identity'], map['sid'], map['signalingRegion']);
     localParticipant._updateFromMap(map);
     return localParticipant;
   }
 
+  /// Update properties from a map.
   void _updateFromMap(Map<String, dynamic> map) {
     _networkQualityLevel = EnumToString.fromString(NetworkQualityLevel.values, map['networkQualityLevel']) ?? NetworkQualityLevel.NETWORK_QUALITY_LEVEL_UNKNOWN;
 
