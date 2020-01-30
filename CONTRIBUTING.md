@@ -47,3 +47,9 @@ If the contribution doesn't meet these criteria, a maintainer will discuss it wi
 * Example application should be updated.
 * Format the Flutter code accordingly.
 * Note the [`analysis_options.yaml`](analysis_options.yaml) and write code as stated in this file
+
+# Test generating of `dartdoc`
+* On local development make sure the `dartdoc` program is mentioned in your `$PATH`
+* `dartdoc` can be found here: `<FLUTTER_INSTALL_DIR>/bin/cache/dart-sdk/bin/dartdoc`
+* Generate docs with the following command: `dartdoc --no-auto-include-dependencies --quiet`
+* Output will be placed into `doc/api/`
