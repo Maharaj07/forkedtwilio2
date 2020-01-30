@@ -1,16 +1,33 @@
 part of twilio_unofficial_programmable_video;
 
-/// A participant represents a remote user that can connect to a [Room].
+/// The event class for a [RemoteParticipant] events.
 class RemoteParticipantEvent {
+  /// The receiving remote participant.
   final RemoteParticipant remoteParticipant;
 
+  /// The remote video track publication.
+  ///
+  /// Will be non-null with the following events:
+  /// - videoTrackDisabled
+  /// - videoTrackEnabled
+  /// - videoTrackPublished
+  /// - videoTrackSubscribed
+  /// - videoTrackSubscriptionFailed
+  /// - videoTrackUnpublished
+  /// - videoTrackUnsubscribed
   final RemoteVideoTrackPublication remoteVideoTrackPublication;
 
+  /// The remote video track.
+  ///
+  /// Will be non-null with the following events:
+  /// - videoTrackSubscribed
+  /// - videoTrackUnsubscribed
   final RemoteVideoTrack remoteVideoTrack;
 
   RemoteParticipantEvent(this.remoteParticipant, this.remoteVideoTrackPublication, this.remoteVideoTrack) : assert(remoteParticipant != null);
 }
 
+/// A participant represents a remote user that can connect to a [Room].
 class RemoteParticipant implements Participant {
   // TODO: give it purpose!
   // ignore: unused_field

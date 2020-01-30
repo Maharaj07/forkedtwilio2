@@ -1,16 +1,26 @@
 part of twilio_unofficial_programmable_video;
 
+/// The event class for all [Room] events.
 class RoomEvent {
+  /// The receiving room.
   final Room room;
 
+  /// The remote participant that joined or leaved.
+  ///
+  /// Will be non-null with the following events:
+  /// - participantConnected
+  /// - participantDisconnected
   final RemoteParticipant remoteParticipant;
 
+  /// The exception of the event.
+  ///
+  /// Can be null.
   final TwilioException exception;
 
   RoomEvent(this.room, this.remoteParticipant, this.exception) : assert(room != null);
 }
 
-/// A Room represents a media session with zero or more remote Participants. Media shared by any one RemoteParticipant is distributed equally to all other Participants.
+/// A [Room] represents a media session with zero or more remote participants. Media shared by any one [RemoteParticipant] is distributed equally to all other participants.
 class Room {
   final int _internalId;
 
