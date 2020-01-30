@@ -14,9 +14,9 @@ class LocalAudioTrack extends AudioTrack {
 
   LocalAudioTrack(this._enabled, {String name = ''}) : super(_enabled, name);
 
-  factory LocalAudioTrack.fromMap(Map<String, dynamic> map) {
+  factory LocalAudioTrack._fromMap(Map<String, dynamic> map) {
     var localAudioTrack = LocalAudioTrack(map['enabled'], name: map['name']);
-    localAudioTrack.updateFromMap(map);
+    localAudioTrack._updateFromMap(map);
     return localAudioTrack;
   }
 
@@ -28,7 +28,7 @@ class LocalAudioTrack extends AudioTrack {
     return const MethodChannel('twilio_unofficial_programmable_video').invokeMethod('LocalAudioTrack#enable', <String, dynamic>{'name': name, 'enable': enabled});
   }
 
-  Map<String, Object> toMap() {
+  Map<String, Object> _toMap() {
     return <String, Object>{'enable': isEnabled, 'name': name};
   }
 }

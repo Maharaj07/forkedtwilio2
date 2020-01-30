@@ -13,7 +13,10 @@ class RoomEvent {
 class Room {
   final int _internalId;
 
+  /// Stream for the native room events.
   StreamSubscription<dynamic> _roomStream;
+
+  /// Stream for the native remote participant events.
   StreamSubscription<dynamic> _remoteParticipantStream;
 
   String _sid;
@@ -28,6 +31,7 @@ class Room {
 
   final List<RemoteParticipant> _remoteParticipants = [];
 
+  /// Map of buffered events for remote participants.
   final Map<String, List<dynamic>> _remoteEventBuffer = {};
 
   /// The SID of this [Room].
@@ -118,10 +122,13 @@ class Room {
     await _remoteParticipantStream.cancel();
   }
 
+  /// Find or create a [RemoteParticipant].
+  ///
+  /// If there are buffered events, they will be passed to the [RemoteParticipant].
   RemoteParticipant _findOrCreateRemoteParticipant(Map<String, dynamic> remoteParticipantMap) {
     var remoteParticipant = _remoteParticipants.firstWhere(
       (RemoteParticipant p) => p.sid == remoteParticipantMap['sid'],
-      orElse: () => RemoteParticipant.fromMap(remoteParticipantMap),
+      orElse: () => RemoteParticipant._fromMap(remoteParticipantMap),
     );
 
     // Check if there are events buffered for the remote participant.
@@ -136,6 +143,7 @@ class Room {
     return remoteParticipant;
   }
 
+  /// Parse native room events to the right event streams.
   void _parseRoomEvents(dynamic event) {
     final String eventName = event['name'];
     TwilioUnofficialProgrammableVideo._log("Room => Event '$eventName' => ${event["data"]}, error: ${event["error"]}");
@@ -152,8 +160,8 @@ class Room {
 
     if (roomMap['localParticipant'] != null) {
       final localParticipantMap = Map<String, dynamic>.from(roomMap['localParticipant']);
-      _localParticipant ??= LocalParticipant.fromMap(localParticipantMap);
-      _localParticipant.updateFromMap(localParticipantMap);
+      _localParticipant ??= LocalParticipant._fromMap(localParticipantMap);
+      _localParticipant._updateFromMap(localParticipantMap);
     }
 
     if (roomMap['remoteParticipants'] != null) {
@@ -163,7 +171,7 @@ class Room {
         if (!_remoteParticipants.contains(remoteParticipant)) {
           _remoteParticipants.add(remoteParticipant);
         }
-        remoteParticipant.updateFromMap(remoteParticipantMap);
+        remoteParticipant._updateFromMap(remoteParticipantMap);
       }
     }
 
@@ -174,7 +182,7 @@ class Room {
       if (!_remoteParticipants.contains(remoteParticipant)) {
         _remoteParticipants.add(remoteParticipant);
       }
-      remoteParticipant.updateFromMap(remoteParticipantMap);
+      remoteParticipant._updateFromMap(remoteParticipantMap);
     }
 
     TwilioException exception;
@@ -221,6 +229,9 @@ class Room {
     }
   }
 
+  /// Parse native remote participant events.
+  ///
+  /// If the [RemoteParticipant] is not found the event is buffered.
   void _parseRemoteParticipantEvents(dynamic event) {
     final eventName = event['name'];
     TwilioUnofficialProgrammableVideo._log("RemoteParticipant => Event '$eventName' => ${event["data"]}, error: ${event["error"]}");

@@ -19,13 +19,13 @@ class CameraCapturer implements VideoCapturer {
 
   factory CameraCapturer(CameraSource cameraSource) {
     assert(cameraSource != null);
-    _cameraCapturer.updateFromMap({'cameraSource': EnumToString.parse(cameraSource)});
+    _cameraCapturer._updateFromMap({'cameraSource': EnumToString.parse(cameraSource)});
     return _cameraCapturer;
   }
 
-  factory CameraCapturer.fromMap(Map<String, dynamic> map) {
+  factory CameraCapturer._fromMap(Map<String, dynamic> map) {
     var cameraCapturer = CameraCapturer(EnumToString.fromString(CameraSource.values, map['cameraSource']));
-    cameraCapturer.updateFromMap(map);
+    cameraCapturer._updateFromMap(map);
     return cameraCapturer;
   }
 
@@ -39,12 +39,12 @@ class CameraCapturer implements VideoCapturer {
   }
 
   @override
-  void updateFromMap(Map<String, dynamic> map) {
+  void _updateFromMap(Map<String, dynamic> map) {
     _cameraSource = EnumToString.fromString(CameraSource.values, map['cameraSource']);
   }
 
   @override
-  Map<String, Object> toMap() {
+  Map<String, Object> _toMap() {
     return <String, Object>{'cameraSource': EnumToString.parse(_cameraSource), 'type': 'CameraCapturer'};
   }
 

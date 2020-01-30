@@ -36,19 +36,19 @@ class LocalAudioTrackPublication implements AudioTrackPublication {
 
   LocalAudioTrackPublication(this._sid) : assert(_sid != null);
 
-  factory LocalAudioTrackPublication.fromMap(Map<String, dynamic> map) {
+  factory LocalAudioTrackPublication._fromMap(Map<String, dynamic> map) {
     var localAudioTrackPublication = LocalAudioTrackPublication(map['sid']);
-    localAudioTrackPublication.updateFromMap(map);
+    localAudioTrackPublication._updateFromMap(map);
     return localAudioTrackPublication;
   }
 
-  void updateFromMap(Map<String, dynamic> map) {
+  void _updateFromMap(Map<String, dynamic> map) {
     if (map['localAudioTrack'] != null) {
       final localAudioTrackMap = Map<String, dynamic>.from(map['localAudioTrack']);
       if (_localAudioTrack == null) {
-        _localAudioTrack = LocalAudioTrack.fromMap(localAudioTrackMap);
+        _localAudioTrack = LocalAudioTrack._fromMap(localAudioTrackMap);
       } else {
-        _localAudioTrack.updateFromMap(localAudioTrackMap);
+        _localAudioTrack._updateFromMap(localAudioTrackMap);
       }
     }
   }

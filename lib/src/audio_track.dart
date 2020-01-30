@@ -21,7 +21,7 @@ abstract class AudioTrack {
       : assert(_enabled != null),
         assert(_name != null);
 
-  void updateFromMap(Map<String, dynamic> map) {
+  void _updateFromMap(Map<String, dynamic> map) {
     _enabled = map['enabled'];
   }
 }

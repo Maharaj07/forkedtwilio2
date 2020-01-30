@@ -53,20 +53,20 @@ class RemoteAudioTrackPublication implements AudioTrackPublication {
       : assert(_sid != null),
         assert(_name != null);
 
-  factory RemoteAudioTrackPublication.fromMap(Map<String, dynamic> map) {
+  factory RemoteAudioTrackPublication._fromMap(Map<String, dynamic> map) {
     var remoteAudioTrackPublication = RemoteAudioTrackPublication(map['subscribed'], map['enabled'], map['sid'], map['name']);
-    remoteAudioTrackPublication.updateFromMap(map);
+    remoteAudioTrackPublication._updateFromMap(map);
     return remoteAudioTrackPublication;
   }
 
-  void updateFromMap(Map<String, dynamic> map) {
+  void _updateFromMap(Map<String, dynamic> map) {
     _subscribed = map['subscribed'];
     _enabled = map['enabled'];
 
     if (map['remoteAudioTrack'] != null) {
       final remoteAudioTrackMap = Map<String, dynamic>.from(map['remoteAudioTrack']);
-      _remoteAudioTrack ??= RemoteAudioTrack.fromMap(remoteAudioTrackMap);
-      _remoteAudioTrack.updateFromMap(remoteAudioTrackMap);
+      _remoteAudioTrack ??= RemoteAudioTrack._fromMap(remoteAudioTrackMap);
+      _remoteAudioTrack._updateFromMap(remoteAudioTrackMap);
     } else {
       _remoteAudioTrack = null;
     }

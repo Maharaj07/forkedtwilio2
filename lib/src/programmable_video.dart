@@ -61,7 +61,7 @@ class TwilioUnofficialProgrammableVideo {
     assert(connectOptions != null);
 
     if (await requestPermissionForCameraAndMicrophone()) {
-      final roomId = await _methodChannel.invokeMethod('connect', <String, Object>{'connectOptions': connectOptions.toMap()});
+      final roomId = await _methodChannel.invokeMethod('connect', <String, Object>{'connectOptions': connectOptions._toMap()});
 
       return Room(roomId, _roomChannel, _remoteParticipantChannel);
     }

@@ -25,11 +25,11 @@ class LocalVideoTrack extends VideoTrack {
       : assert(_videoCapturer != null),
         super(_enabled, name);
 
-  factory LocalVideoTrack.fromMap(Map<String, dynamic> map) {
+  factory LocalVideoTrack._fromMap(Map<String, dynamic> map) {
     var videoCapturerMap = Map<String, dynamic>.from(map['videoCapturer'] as Map<dynamic, dynamic>);
-    var videoCapturer = videoCapturerMap['type'] == 'CameraCapturer' ? CameraCapturer.fromMap(videoCapturerMap) : throw Exception('Received unknown VideoCapturer');
+    var videoCapturer = videoCapturerMap['type'] == 'CameraCapturer' ? CameraCapturer._fromMap(videoCapturerMap) : throw Exception('Received unknown VideoCapturer');
     var localVideoTrack = LocalVideoTrack(map['enabled'], videoCapturer, name: map['name']);
-    localVideoTrack.updateFromMap(map);
+    localVideoTrack._updateFromMap(map);
     return localVideoTrack;
   }
 
@@ -65,14 +65,13 @@ class LocalVideoTrack extends VideoTrack {
   }
 
   @override
-  void updateFromMap(Map<String, dynamic> map) {
+  void _updateFromMap(Map<String, dynamic> map) {
     var videoCapturerMap = Map<String, dynamic>.from(map['videoCapturer'] as Map<dynamic, dynamic>);
-    _videoCapturer.updateFromMap(videoCapturerMap);
-
-    return super.updateFromMap(map);
+    _videoCapturer._updateFromMap(videoCapturerMap);
+    return super._updateFromMap(map);
   }
 
-  Map<String, Object> toMap() {
-    return <String, Object>{'enable': isEnabled, 'name': name, 'videoCapturer': _videoCapturer.toMap(),};
+  Map<String, Object> _toMap() {
+    return <String, Object>{'enable': isEnabled, 'name': name, 'videoCapturer': _videoCapturer._toMap(),};
   }
 }
