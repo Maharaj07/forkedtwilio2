@@ -1,5 +1,6 @@
 part of twilio_unofficial_programmable_video;
 
+/// A local video track that gets video frames from a specified [VideoCapturer].
 class LocalVideoTrack extends VideoTrack {
   @override
   bool _enabled;
@@ -10,7 +11,7 @@ class LocalVideoTrack extends VideoTrack {
 
   /// Check if it is enabled.
   ///
-  /// When the value is `false`, blank video frames are sent. When the value is `true`, frames from the [cameraSource] are provided.
+  /// When the value is `false`, blank video frames are sent. When the value is `true`, frames from the [CameraSource] are provided.
   @override
   bool get isEnabled {
     return _enabled;
