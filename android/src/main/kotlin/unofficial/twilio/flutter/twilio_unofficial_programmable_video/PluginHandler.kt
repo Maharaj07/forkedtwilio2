@@ -312,7 +312,7 @@ class PluginHandler : MethodCallHandler, ActivityAware {
              * speaker mode if this is not set.
              */
             audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
-            audioManager.setSpeakerphoneOn(!audioManager.isWiredHeadsetOn());
+            audioManager.setSpeakerphoneOn(!audioManager.isWiredHeadsetOn())
             applicationContext.registerReceiver(myNoisyAudioStreamReceiver, headsetPlugIntent)
             /*
              * Always disable microphone mute during a WebRTC call.
