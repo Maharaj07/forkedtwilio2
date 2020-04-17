@@ -68,7 +68,7 @@ class RoomListener: BaseListener, RoomDelegate {
     func dominantSpeakerDidChange(room: Room, participant: RemoteParticipant?) {
         if let participant = participant {
             SwiftTwilioProgrammableVideoPlugin.debug("RoomListener.dominantSpeakerDidChange => room sid is '\(room.sid)', dominantSpeaker sid is '\(String(describing: participant.sid))'")
-            sendEvent("dominantSpeakerDidChange", data: [ "room": roomToDict(room) as Any, "remoteParticipant": RemoteParticipantListener.remoteParticipantToDict(participant) as Any ])
+            sendEvent("dominantSpeakerChanged", data: [ "room": roomToDict(room) as Any, "remoteParticipant": RemoteParticipantListener.remoteParticipantToDict(participant) as Any ])
         }
     }
 

@@ -61,9 +61,9 @@ class Room {
   /// The remote participant with the loudest audio track
   RemoteParticipant get dominantSpeaker => _dominantSpeaker;
 
-  final StreamController<DominantSpeakerDidChangeEvent> _onDominantSpeakerChange = StreamController<DominantSpeakerDidChangeEvent>.broadcast();
+  final StreamController<DominantSpeakerChangedEvent> _onDominantSpeakerChange = StreamController<DominantSpeakerChangedEvent>.broadcast();
 
-  Stream<DominantSpeakerDidChangeEvent> onDominantSpeakerChange;
+  Stream<DominantSpeakerChangedEvent> onDominantSpeakerChange;
 
   final StreamController<RoomConnectFailureEvent> _onConnectFailure = StreamController<RoomConnectFailureEvent>.broadcast();
 
@@ -251,8 +251,8 @@ class Room {
       case 'recordingStopped':
         _onRecordingStopped.add(this);
         break;
-      case 'dominantSpeakerDidChange':
-        _onDominantSpeakerChange.add(DominantSpeakerDidChangeEvent(this, _dominantSpeaker));
+      case 'dominantSpeakerChanged':
+        _onDominantSpeakerChange.add(DominantSpeakerChangedEvent(this, _dominantSpeaker));
         break;
     }
   }

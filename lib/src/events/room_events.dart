@@ -70,12 +70,15 @@ class RoomParticipantDisconnectedEvent {
         assert(remoteParticipant != null);
 }
 
-class DominantSpeakerDidChangeEvent {
+class DominantSpeakerChangedEvent {
   /// The room in which the dominant speaker changed
   final Room room;
 
   /// The remote participant with the loudest audio track
   final RemoteParticipant dominantParticipant;
 
-  DominantSpeakerDidChangeEvent(this.room, this.dominantParticipant) : assert(room != null);
+  DominantSpeakerChangedEvent(
+    this.room,
+    this.dominantParticipant,
+  ) : assert(room != null);
 }

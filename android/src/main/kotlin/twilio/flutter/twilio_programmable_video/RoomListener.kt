@@ -68,7 +68,7 @@ class RoomListener(private var internalId: Int, var connectOptions: ConnectOptio
 
     override fun onDominantSpeakerChanged(room: Room, remoteParticipant: RemoteParticipant?) {
         TwilioProgrammableVideoPlugin.debug("RoomListener.onDominantSpeakerChanged => room sid is '${room.sid}'")
-        sendEvent("dominantSpeakerDidChange", mapOf("room" to roomToMap(room), "remoteParticipant" to if (remoteParticipant != null) RemoteParticipantListener.remoteParticipantToMap(remoteParticipant) else null))
+        sendEvent("dominantSpeakerChanged", mapOf("room" to roomToMap(room), "remoteParticipant" to if (remoteParticipant != null) RemoteParticipantListener.remoteParticipantToMap(remoteParticipant) else null))
     }
 
     private fun remoteParticipantsToList(remoteParticipants: List<RemoteParticipant>): List<Map<String, Any?>> {
