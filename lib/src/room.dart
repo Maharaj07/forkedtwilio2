@@ -58,11 +58,12 @@ class Room {
   /// All currently connected participants.
   List<RemoteParticipant> get remoteParticipants => <RemoteParticipant>[..._remoteParticipants];
 
-  /// The remote participant with the loudest audio track
+  /// The remote participant with the loudest audio track.
   RemoteParticipant get dominantSpeaker => _dominantSpeaker;
 
   final StreamController<DominantSpeakerChangedEvent> _onDominantSpeakerChange = StreamController<DominantSpeakerChangedEvent>.broadcast();
 
+  /// Called when the participant with the loudest audio track changes.
   Stream<DominantSpeakerChangedEvent> onDominantSpeakerChange;
 
   final StreamController<RoomConnectFailureEvent> _onConnectFailure = StreamController<RoomConnectFailureEvent>.broadcast();
