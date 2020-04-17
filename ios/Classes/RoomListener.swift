@@ -65,6 +65,13 @@ class RoomListener: BaseListener, RoomDelegate {
         sendEvent("participantDisconnected", data: [ "room": roomToDict(room) as Any, "remoteParticipant": RemoteParticipantListener.remoteParticipantToDict(participant) as Any ])
     }
 
+    func dominantSpeakerDidChange(room: Room, participant: RemoteParticipant?) {
+        if let participant = participant {
+            SwiftTwilioProgrammableVideoPlugin.debug("RoomListener.dominantSpeakerDidChange => room sid is '\(room.sid)', dominantSpeaker sid is '\(String(describing: participant.sid))'")
+            sendEvent("dominantSpeakerDidChange", data: [ "room": roomToDict(room) as Any, "remoteParticipant": RemoteParticipantListener.remoteParticipantToDict(participant) as Any ])
+        }
+    }
+
     private func remoteParticipantsToArray(_ remoteParticipants: [RemoteParticipant]) -> [[String: Any]] {
         return remoteParticipants.map({ (it) -> [String: Any] in
             return RemoteParticipantListener.remoteParticipantToDict(it)
@@ -85,15 +92,21 @@ class RoomListener: BaseListener, RoomDelegate {
             default:
                 roomState = "UNKNOWN"
         }
+        
+        var dict = [
+           "sid": room.sid,
+           "name": room.name,
+           "state": roomState,
+           "mediaRegion": room.mediaRegion as Any,
+           "localParticipant": localParticipantToDict(room.localParticipant) as Any,
+           "remoteParticipants": remoteParticipantsToArray(room.remoteParticipants)
+       ]
 
-        return [
-            "sid": room.sid,
-            "name": room.name,
-            "state": roomState,
-            "mediaRegion": room.mediaRegion as Any,
-            "localParticipant": localParticipantToDict(room.localParticipant) as Any,
-            "remoteParticipants": remoteParticipantsToArray(room.remoteParticipants)
-        ]
+       if room.dominantSpeaker != nil {
+            dict["dominantSpeaker"] = RemoteParticipantListener.remoteParticipantToDict(room.dominantSpeaker!)
+       }
+
+       return dict
     }
 
     private func localParticipantToDict(_ localParticipant: LocalParticipant?) -> [String: Any]? {
