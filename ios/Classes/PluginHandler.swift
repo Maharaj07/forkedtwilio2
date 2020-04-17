@@ -137,8 +137,8 @@ public class PluginHandler {
 
     private func getSpeakerphoneOn(result: @escaping FlutterResult) {
         let speakerPhoneOn = AVAudioSession.sharedInstance().mode == .videoChat
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.getSpeakerphoneOn => called \(speakerPhoneOn)");
-        return result(speakerPhoneOn);
+        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.getSpeakerphoneOn => called \(speakerPhoneOn)")
+        return result(speakerPhoneOn)
     }
 
     private func disconnect(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -268,7 +268,6 @@ public class PluginHandler {
                 SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting videoTracks to '\(videoTracks)'")
                 builder.videoTracks = videoTracks
             }
-            
             builder.isDominantSpeakerEnabled = optionsObj["isDominantSpeakerEnabled"] as? Bool ?? false
         }
 
