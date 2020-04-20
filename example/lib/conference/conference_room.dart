@@ -59,12 +59,14 @@ class ConferenceRoom with ChangeNotifier {
         audioTracks: [LocalAudioTrack(true)],
         dataTracks: [LocalDataTrack()],
         videoTracks: [LocalVideoTrack(true, _cameraCapturer)],
+        isDominantSpeakerEnabled: true,
       );
 
       _room = await TwilioProgrammableVideo.connect(connectOptions);
 
       _streamSubscriptions.add(_room.onConnected.listen(_onConnected));
       _streamSubscriptions.add(_room.onConnectFailure.listen(_onConnectFailure));
+      _streamSubscriptions.add(_room.onDominantSpeakerChange.listen(_onDominantSpeakerChanged));
 
       return _completer.future;
     } catch (err) {
@@ -256,6 +258,20 @@ class ConferenceRoom with ChangeNotifier {
   void _onConnectFailure(RoomConnectFailureEvent event) {
     Debug.log('ConferenceRoom._onConnectFailure: ${event.exception}');
     _completer.completeError(event.exception);
+  }
+
+  void _onDominantSpeakerChanged(DominantSpeakerChangedEvent event) {
+    Debug.log('ConferenceRoom._onDominantSpeakerChanged: ${event.dominantParticipant.identity}');
+    var oldDominantParticipant = _participants.firstWhere((p) => p.isDominant, orElse: () => null);
+    if (oldDominantParticipant != null) {
+      var oldDominantParticipantIndex = _participants.indexOf(oldDominantParticipant);
+      _participants.replaceRange(oldDominantParticipantIndex, oldDominantParticipantIndex + 1, [oldDominantParticipant.copyWith(isDominant: false)]);
+    }
+
+    var newDominantParticipant = _participants.firstWhere((p) => p.id == event.dominantParticipant.sid);
+    var newDominantParticipantIndex = _participants.indexOf(newDominantParticipant);
+    _participants.replaceRange(newDominantParticipantIndex, newDominantParticipantIndex + 1, [newDominantParticipant.copyWith(isDominant: true)]);
+    notifyListeners();
   }
 
   void _onParticipantConnected(RoomParticipantConnectedEvent event) {
