@@ -92,7 +92,7 @@ class RoomListener: BaseListener, RoomDelegate {
             default:
                 roomState = "UNKNOWN"
         }
-        
+
         var dict = [
            "sid": room.sid,
            "name": room.name,
