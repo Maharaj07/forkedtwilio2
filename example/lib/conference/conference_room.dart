@@ -66,7 +66,6 @@ class ConferenceRoom with ChangeNotifier {
 
       _streamSubscriptions.add(_room.onConnected.listen(_onConnected));
       _streamSubscriptions.add(_room.onConnectFailure.listen(_onConnectFailure));
-      _streamSubscriptions.add(_room.onDominantSpeakerChange.listen(_onDominantSpeakerChanged));
 
       return _completer.future;
     } catch (err) {
@@ -214,6 +213,7 @@ class ConferenceRoom with ChangeNotifier {
     // When connected for the first time, add remote participant listeners
     _streamSubscriptions.add(_room.onParticipantConnected.listen(_onParticipantConnected));
     _streamSubscriptions.add(_room.onParticipantDisconnected.listen(_onParticipantDisconnected));
+    _streamSubscriptions.add(_room.onDominantSpeakerChange.listen(_onDominantSpeakerChanged));
     // Only add ourselves when connected for the first time too.
     _participants.add(
       _buildParticipant(
