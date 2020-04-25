@@ -13,7 +13,7 @@ class ConnectOptions {
   final Region region;
 
   /// Enable detection of the loudest audio track
-  final bool isDominantSpeakerEnabled;
+  final bool enableDominantSpeaker;
 
   /// Set preferred audio codecs.
   final List<AudioCodec> preferredAudioCodecs;
@@ -39,7 +39,7 @@ class ConnectOptions {
     this.region,
     this.roomName,
     this.videoTracks,
-    this.isDominantSpeakerEnabled,
+    this.enableDominantSpeaker,
   })  : assert(accessToken != null),
         assert(accessToken.isNotEmpty),
         assert((audioTracks != null && audioTracks.isNotEmpty) || audioTracks == null),
@@ -60,7 +60,7 @@ class ConnectOptions {
       'audioTracks': audioTracks != null ? Map<Object, Object>.fromIterable(audioTracks.map<Map<String, Object>>((LocalAudioTrack a) => a._toMap())) : null,
       'dataTracks': dataTracks != null ? Map<Object, Object>.fromIterable(dataTracks.map<Map<String, Object>>((LocalDataTrack d) => d._toMap())) : null,
       'videoTracks': videoTracks != null ? Map<Object, Object>.fromIterable(videoTracks.map<Map<String, Object>>((LocalVideoTrack v) => v._toMap())) : null,
-      'isDominantSpeakerEnabled': isDominantSpeakerEnabled,
+      'enableDominantSpeaker': enableDominantSpeaker,
     };
   }
 }

@@ -59,7 +59,7 @@ class ConferenceRoom with ChangeNotifier {
         audioTracks: [LocalAudioTrack(true)],
         dataTracks: [LocalDataTrack()],
         videoTracks: [LocalVideoTrack(true, _cameraCapturer)],
-        isDominantSpeakerEnabled: true,
+        enableDominantSpeaker: true,
       );
 
       _room = await TwilioProgrammableVideo.connect(connectOptions);

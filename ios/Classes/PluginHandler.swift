@@ -268,7 +268,7 @@ public class PluginHandler {
                 SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting videoTracks to '\(videoTracks)'")
                 builder.videoTracks = videoTracks
             }
-            builder.isDominantSpeakerEnabled = optionsObj["isDominantSpeakerEnabled"] as? Bool ?? false
+            builder.isDominantSpeakerEnabled = optionsObj["enableDominantSpeaker"] as? Bool ?? false
         }
 
         let roomId = 1
