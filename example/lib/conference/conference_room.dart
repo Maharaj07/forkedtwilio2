@@ -261,14 +261,14 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   void _onDominantSpeakerChanged(DominantSpeakerChangedEvent event) {
-    Debug.log('ConferenceRoom._onDominantSpeakerChanged: ${event.dominantParticipant.identity}');
+    Debug.log('ConferenceRoom._onDominantSpeakerChanged: ${event.remoteParticipant.identity}');
     var oldDominantParticipant = _participants.firstWhere((p) => p.isDominant, orElse: () => null);
     if (oldDominantParticipant != null) {
       var oldDominantParticipantIndex = _participants.indexOf(oldDominantParticipant);
       _participants.replaceRange(oldDominantParticipantIndex, oldDominantParticipantIndex + 1, [oldDominantParticipant.copyWith(isDominant: false)]);
     }
 
-    var newDominantParticipant = _participants.firstWhere((p) => p.id == event.dominantParticipant.sid);
+    var newDominantParticipant = _participants.firstWhere((p) => p.id == event.remoteParticipant.sid);
     var newDominantParticipantIndex = _participants.indexOf(newDominantParticipant);
     _participants.replaceRange(newDominantParticipantIndex, newDominantParticipantIndex + 1, [newDominantParticipant.copyWith(isDominant: true)]);
     notifyListeners();

@@ -75,10 +75,10 @@ class DominantSpeakerChangedEvent {
   final Room room;
 
   /// The remote participant with the loudest audio track
-  final RemoteParticipant dominantParticipant;
+  final RemoteParticipant remoteParticipant;
 
   DominantSpeakerChangedEvent(
     this.room,
-    this.dominantParticipant,
+    this.remoteParticipant,
   ) : assert(room != null);
 }
