@@ -76,7 +76,7 @@ class RoomListener(private var internalId: Int, var connectOptions: ConnectOptio
     }
 
     private fun roomToMap(room: Room): Map<String, Any?> {
-        val dominantSpeaker = room.getDominantSpeaker()
+        val dominantSpeaker = room.dominantSpeaker
         val map = mapOf(
                 "sid" to room.sid,
                 "name" to room.name,
