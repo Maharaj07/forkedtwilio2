@@ -76,18 +76,15 @@ class RoomListener(private var internalId: Int, var connectOptions: ConnectOptio
     }
 
     private fun roomToMap(room: Room): Map<String, Any?> {
-        val dominantSpeaker = room.dominantSpeaker
-        val map = mapOf(
+        return mapOf(
                 "sid" to room.sid,
                 "name" to room.name,
                 "state" to room.state.toString(),
                 "mediaRegion" to room.mediaRegion,
                 "localParticipant" to localParticipantToMap(room.localParticipant),
                 "remoteParticipants" to remoteParticipantsToList(room.remoteParticipants),
-                "dominantSpeaker" to if (dominantSpeaker != null) RemoteParticipantListener.remoteParticipantToMap(dominantSpeaker) else null
+                "dominantSpeaker" to if (room.dominantSpeaker != null) RemoteParticipantListener.remoteParticipantToMap(room.dominantSpeaker as RemoteParticipant) else null
         )
-
-        return map
     }
 
     private fun localParticipantToMap(localParticipant: LocalParticipant?): Map<String, Any?>? {
