@@ -1,8 +1,11 @@
 package twilio.flutter.twilio_programmable_video
 
 import android.content.Context
+import android.widget.FrameLayout
+import android.view.Gravity
 import com.twilio.video.VideoTrack
 import com.twilio.video.VideoView
+import com.twilio.video.VideoScaleType
 import io.flutter.plugin.common.MessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
@@ -32,11 +35,34 @@ class ParticipantViewFactory(createArgsCodec: MessageCodec<Any>, private val plu
 
             if (videoTrack != null) {
                 val videoView = VideoView(context)
-                videoView.mirror = params["mirror"] as Boolean
+                val layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.CENTER
+                }
+                videoView.setLayoutParams(layoutParams)
+
+                val scaleType = this.getScaleTypeFromInt(params["renderMode"] as Int)
+                val mirror = params["mirror"] as Boolean
+
+                videoView.mirror = mirror
+                videoView.videoScaleType = scaleType
+
                 return ParticipantView(videoView, videoTrack)
             }
         }
 
         return null
+    }
+
+    private fun getScaleTypeFromInt(typeInt: Int): VideoScaleType {
+        if (typeInt == 2) {
+            return VideoScaleType.ASPECT_FILL
+        } else if (typeInt == 1) {
+            return VideoScaleType.ASPECT_FIT
+        } else {
+            return VideoScaleType.ASPECT_BALANCED
+        }
     }
 }

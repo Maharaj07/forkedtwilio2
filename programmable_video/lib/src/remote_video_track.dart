@@ -25,13 +25,14 @@ class RemoteVideoTrack extends VideoTrack {
   ///
   /// By default the widget will not be mirrored, to change that set [mirror] to true.
   /// If you provide a [key] make sure it is unique among all [VideoTrack]s otherwise Flutter might send the wrong creation params to the native side.
-  Widget widget({bool mirror = false, Key key}) {
+  Widget widget({bool mirror = false, VideoRenderMode mode = VideoRenderMode.Fill, Key key}) {
     key ??= ValueKey(_sid);
 
     var creationParams = {
       'remoteParticipantSid': _remoteParticipant.sid,
       'remoteVideoTrackSid': _sid,
       'mirror': mirror,
+      'renderMode': mode.index,
     };
 
     if (Platform.isAndroid) {
