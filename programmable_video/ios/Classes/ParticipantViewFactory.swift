@@ -1,7 +1,6 @@
 import Flutter
 import Foundation
 import TwilioVideo
-import Foundation
 
 class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
     private var plugin: PluginHandler

@@ -1,11 +1,11 @@
 package twilio.flutter.twilio_programmable_video
 
 import android.content.Context
-import android.widget.FrameLayout
 import android.view.Gravity
+import android.widget.FrameLayout
+import com.twilio.video.VideoScaleType
 import com.twilio.video.VideoTrack
 import com.twilio.video.VideoView
-import com.twilio.video.VideoScaleType
 import io.flutter.plugin.common.MessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
