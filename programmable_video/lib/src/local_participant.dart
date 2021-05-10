@@ -54,7 +54,14 @@ class LocalParticipant implements Participant {
   /// being raised.
   Stream<LocalVideoTrackPublishedEvent> onVideoTrackPublished;
 
-  final StreamController<LocalVideoTrackPublicationFailedEvent> _onVideoTrackPublicationFailed = StreamController<LocalVideoTrackPublicationFailedEvent>.broadcast();
+  final StreamController<LocalVideoTrackPublishedEvent> _onVideoTrackUnpublished =
+      StreamController<LocalVideoTrackPublishedEvent>.broadcast();
+
+  /// Notifies the listener that a [LocalVideoTrack] has been removed from a [Room].
+  Stream<LocalVideoTrackPublishedEvent> onVideoTrackUnpublished;
+
+  final StreamController<LocalVideoTrackPublicationFailedEvent> _onVideoTrackPublicationFailed =
+      StreamController<LocalVideoTrackPublicationFailedEvent>.broadcast();
 
   /// Notifies the listener that the [LocalParticipant] failed to publish a
   /// [LocalVideoTrack] to a [Room].
@@ -109,6 +116,7 @@ class LocalParticipant implements Participant {
     onDataTrackPublicationFailed = _onDataTrackPublicationFailed.stream;
     onNetworkQualityLevelChanged = _onNetworkQualityLevelChanged.stream;
     onVideoTrackPublished = _onVideoTrackPublished.stream;
+    onVideoTrackUnpublished = _onVideoTrackUnpublished.stream;
     onVideoTrackPublicationFailed = _onVideoTrackPublicationFailed.stream;
   }
 
@@ -126,6 +134,7 @@ class LocalParticipant implements Participant {
     await _onDataTrackPublicationFailed.close();
     await _onNetworkQualityLevelChanged.close();
     await _onVideoTrackPublished.close();
+    await _onVideoTrackUnpublished.close();
     await _onVideoTrackPublicationFailed.close();
   }
 
@@ -170,12 +179,12 @@ class LocalParticipant implements Participant {
       for (final localVideoTrackPublicationModel in model.localVideoTrackPublications) {
         final localVideoTrackPublication = _localVideoTrackPublications.firstWhere(
           (p) => p.trackSid == localVideoTrackPublicationModel.sid,
-          orElse: () => LocalVideoTrackPublication._fromModel(localVideoTrackPublicationModel),
+          orElse: () => LocalVideoTrackPublication._fromModel(localVideoTrackPublicationModel, this),
         );
         if (!_localVideoTrackPublications.contains(localVideoTrackPublication)) {
           _localVideoTrackPublications.add(localVideoTrackPublication);
         }
-        localVideoTrackPublication._updateFromModel(localVideoTrackPublicationModel);
+        localVideoTrackPublication._updateFromModel(localVideoTrackPublicationModel, this);
       }
     }
   }
@@ -198,8 +207,15 @@ class LocalParticipant implements Participant {
       final localDataTrack = LocalDataTrack._fromModel(event.localDataTrack);
       _onDataTrackPublicationFailed.add(LocalDataTrackPublicationFailedEvent(this, localDataTrack, TwilioException._fromModel(event.exception)));
     } else if (event is LocalVideoTrackPublished) {
-      final localVideoTrackPublication = _localVideoTrackPublications.firstWhere((LocalVideoTrackPublication p) => p.trackSid == event.publicationModel.sid, orElse: () => LocalVideoTrackPublication._fromModel(event.publicationModel));
+      final localVideoTrackPublication = _localVideoTrackPublications.firstWhere(
+          (LocalVideoTrackPublication p) => p.trackSid == event.publicationModel.sid,
+          orElse: () => LocalVideoTrackPublication._fromModel(event.publicationModel, this));
       _onVideoTrackPublished.add(LocalVideoTrackPublishedEvent(this, localVideoTrackPublication));
+    } else if (event is LocalVideoTrackUnpublished) {
+      final localVideoTrackPublication = _localVideoTrackPublications.firstWhere(
+          (LocalVideoTrackPublication p) => p.trackSid == event.publicationModel.sid,
+          orElse: () => LocalVideoTrackPublication._fromModel(event.publicationModel, this));
+      _onVideoTrackUnpublished.add(LocalVideoTrackPublishedEvent(this, localVideoTrackPublication));
     } else if (event is LocalVideoTrackPublicationFailed) {
       final localVideoTrack = LocalVideoTrack._fromModel(event.localVideoTrack);
       _onVideoTrackPublicationFailed.add(LocalVideoTrackPublicationFailedEvent(this, localVideoTrack, TwilioException._fromModel(event.exception)));

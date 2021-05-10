@@ -28,14 +28,16 @@ class LocalVideoTrackPublication implements VideoTrackPublication {
   LocalVideoTrackPublication(this._sid) : assert(_sid != null);
 
   /// Construct from a [LocalVideoTrackPublicationModel].
-  factory LocalVideoTrackPublication._fromModel(LocalVideoTrackPublicationModel model) {
+  factory LocalVideoTrackPublication._fromModel(
+      LocalVideoTrackPublicationModel model, LocalParticipant localParticipant) {
     var localVideoTrackPublication = LocalVideoTrackPublication(model.sid);
-    localVideoTrackPublication._updateFromModel(model);
+    localVideoTrackPublication._updateFromModel(model, localParticipant);
+
     return localVideoTrackPublication;
   }
 
   /// Update properties from a [LocalVideoTrackPublicationModel].
-  void _updateFromModel(LocalVideoTrackPublicationModel model) {
+  void _updateFromModel(LocalVideoTrackPublicationModel model, LocalParticipant localParticipant) {
     if (model.localVideoTrack != null) {
       if (_localVideoTrack == null) {
         _localVideoTrack = LocalVideoTrack._fromModel(model.localVideoTrack);

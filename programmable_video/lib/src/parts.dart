@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -51,9 +52,9 @@ part 'remote_participant.dart';
 part 'remote_video_track.dart';
 part 'remote_video_track_publication.dart';
 part 'room.dart';
+part 'screen_capturer.dart';
 part 'track.dart';
 part 'track_publication.dart';
 part 'video_capturer.dart';
 part 'video_track.dart';
 part 'video_track_publication.dart';
-part 'stats_report.dart';

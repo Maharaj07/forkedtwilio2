@@ -47,8 +47,10 @@ class RemoteVideoTrackPublication implements VideoTrackPublication {
         assert(_remoteParticipant != null);
 
   /// Create a [RemoteParticipant] from a [RemoteVideoTrackPublicationModel].
-  factory RemoteVideoTrackPublication._fromModel(RemoteVideoTrackPublicationModel model, RemoteParticipant remoteParticipant) {
-    var remoteVideoTrackPublication = RemoteVideoTrackPublication(model.subscribed, model.enabled, model.sid, model.name, remoteParticipant);
+  factory RemoteVideoTrackPublication._fromModel(
+      RemoteVideoTrackPublicationModel model, RemoteParticipant remoteParticipant) {
+    var remoteVideoTrackPublication =
+        RemoteVideoTrackPublication(model.subscribed, model.enabled, model.sid, model.name, remoteParticipant);
     remoteVideoTrackPublication._updateFromModel(model);
     return remoteVideoTrackPublication;
   }
@@ -61,6 +63,9 @@ class RemoteVideoTrackPublication implements VideoTrackPublication {
     if (model.remoteVideoTrack != null) {
       _remoteVideoTrack ??= RemoteVideoTrack._fromModel(model.remoteVideoTrack, _remoteParticipant);
       _remoteVideoTrack._updateFromModel(model.remoteVideoTrack);
+    } else if (model.sid != null) {
+      _remoteVideoTrack ??= RemoteVideoTrack(model.sid, model.enabled, model.name, _remoteParticipant);
+      // _remoteVideoTrack._updateFromModel(model.remoteVideoTrack);
     } else {
       _remoteVideoTrack = null;
     }

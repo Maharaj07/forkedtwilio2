@@ -115,4 +115,18 @@ class LocalVideoTrackPublishedEvent {
   )   : assert(localParticipant != null),
         assert(localVideoTrackPublication != null);
 }
+
+class LocalVideoTrackUnpublishedEvent {
+  /// The local participant that published the video track.
+  final LocalParticipant localParticipant;
+
+  /// The unpublished local video track.
+  final LocalVideoTrackPublication localVideoTrackPublication;
+
+  LocalVideoTrackUnpublishedEvent(
+    this.localParticipant,
+    this.localVideoTrackPublication,
+  )   : assert(localParticipant != null),
+        assert(localVideoTrackPublication != null);
+}
 //#endregion
