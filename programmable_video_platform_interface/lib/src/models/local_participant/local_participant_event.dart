@@ -86,7 +86,22 @@ class LocalVideoTrackPublished extends BaseLocalParticipantEvent {
   ) : super(localParticipantModel);
 
   @override
-  String toString() => 'LocalVideoTrackPublished: { localParticipantModel: $localParticipantModel, publicationModel: $publicationModel }';
+  String toString() =>
+      'LocalVideoTrackPublished: { localParticipantModel: $localParticipantModel, publicationModel: $publicationModel }';
+}
+
+/// Use this event if a LocalVideoTrack is unpublished.
+class LocalVideoTrackUnpublished extends BaseLocalParticipantEvent {
+  final LocalVideoTrackPublicationModel publicationModel;
+
+  const LocalVideoTrackUnpublished(
+    LocalParticipantModel localParticipantModel,
+    this.publicationModel,
+  ) : super(localParticipantModel);
+
+  @override
+  String toString() =>
+      'LocalVideoTrackUnpublished: { localParticipantModel: $localParticipantModel, publicationModel: $publicationModel }';
 }
 
 /// Use this event if publishing a LocalVideoTrack failed.

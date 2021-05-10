@@ -106,6 +106,20 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     );
   }
 
+  /// Calls native code to start/stop a screen capture video track.
+  ///
+  /// The results of this operation are signaled to other Participants in the same Room.
+  @override
+  Future<bool> screenCapture({bool enabled, String name}) {
+    return _methodChannel.invokeMethod(
+      'LocalScreenShare#enable',
+      <String, dynamic>{
+        'name': name,
+        'enable': enabled,
+      },
+    );
+  }
+
   /// Calls native code to send a String message.
   @override
   Future<void> sendMessage({String message, String name}) {
@@ -694,6 +708,12 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
         break;
       case 'videoTrackPublished':
         return LocalVideoTrackPublished(
+          localParticipantModel,
+          localVideoTrackPublication,
+        );
+        break;
+      case 'videoTrackUnpublished':
+        return LocalVideoTrackUnpublished(
           localParticipantModel,
           localVideoTrackPublication,
         );
