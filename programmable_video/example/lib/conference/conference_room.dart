@@ -16,7 +16,10 @@ class ConferenceRoom with ChangeNotifier {
   Stream<bool> onAudioEnabled;
   final StreamController<bool> _onVideoEnabledStreamController = StreamController<bool>.broadcast();
   Stream<bool> onVideoEnabled;
-  final StreamController<Map<String, bool>> _flashStateStreamController = StreamController<Map<String, bool>>.broadcast();
+  final StreamController<bool> _onSharingScreenStreamController = StreamController<bool>.broadcast();
+  Stream<bool> onSharingScreen;
+  final StreamController<Map<String, bool>> _flashStateStreamController =
+      StreamController<Map<String, bool>>.broadcast();
   Stream<Map<String, bool>> flashStateStream;
   final StreamController<Exception> _onExceptionStreamController = StreamController<Exception>.broadcast();
   Stream<Exception> onException;
@@ -44,6 +47,7 @@ class ConferenceRoom with ChangeNotifier {
   }) {
     onAudioEnabled = _onAudioEnabledStreamController.stream;
     onVideoEnabled = _onVideoEnabledStreamController.stream;
+    onSharingScreen = _onSharingScreenStreamController.stream;
     flashStateStream = _flashStateStreamController.stream;
     onException = _onExceptionStreamController.stream;
     onNetworkQualityLevel = _onNetworkQualityStreamController.stream;
@@ -192,6 +196,14 @@ class ConferenceRoom with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> sharingScreen() async {
+    var response = await ScreenCapturer.startScreenShare();
+
+    Debug.log('ConferenceRoom.sharingScreen() => $response');
+    _onSharingScreenStreamController.add(response ?? false);
+    notifyListeners();
+  }
+
   Future<void> switchCamera() async {
     Debug.log('ConferenceRoom.switchCamera()');
     try {
@@ -252,17 +264,22 @@ class ConferenceRoom with ChangeNotifier {
     _participants.add(
       _buildParticipant(
           child: room.localParticipant.localVideoTracks[0].localVideoTrack.widget(),
-          id: identity,
+          id: room.localParticipant.videoTracks[0].trackSid,
           audioEnabled: true,
           videoEnabled: true,
           networkQualityLevel: room.localParticipant.networkQualityLevel,
           onNetworkQualityChanged: room.localParticipant.onNetworkQualityLevelChanged),
     );
 
+    _streamSubscriptions.add(room.localParticipant.onVideoTrackPublished.listen(_onLocalVideoTrackPublished));
+    _streamSubscriptions.add(room.localParticipant.onVideoTrackUnpublished.listen(_onLocalVideoTrackUnpublished));
+
     for (final remoteParticipant in room.remoteParticipants) {
-      var participant = _participants.firstWhere((participant) => participant.id == remoteParticipant.sid, orElse: () => null);
+      var participant =
+          _participants.firstWhere((participant) => participant.id == remoteParticipant.sid, orElse: () => null);
       if (participant == null) {
-        Debug.log('Adding participant that was already present in the room ${remoteParticipant.sid}, before I connected');
+        Debug.log(
+            'Adding participant that was already present in the room ${remoteParticipant.sid}, before I connected');
         _addRemoteParticipantListeners(remoteParticipant);
       }
     }
@@ -281,6 +298,28 @@ class ConferenceRoom with ChangeNotifier {
       var bytes = Uint8List.fromList(list);
       sendBufferMessage(bytes.buffer);
     });
+  }
+
+  void _onLocalVideoTrackPublished(LocalVideoTrackPublishedEvent event) {
+    _participants.add(_buildParticipant(
+        // child: _room.localParticipant.localVideoTracks[0].localVideoTrack.widget(),
+        child: event.localVideoTrackPublication.localVideoTrack.widget(),
+        id: event.localVideoTrackPublication.trackSid,
+        audioEnabled: true,
+        videoEnabled: true,
+        networkQualityLevel: _room.localParticipant.networkQualityLevel,
+        onNetworkQualityChanged: _room.localParticipant.onNetworkQualityLevelChanged));
+
+    notifyListeners();
+  }
+
+  void _onLocalVideoTrackUnpublished(LocalVideoTrackPublishedEvent event) {
+    var index = _participants
+        .indexWhere((ParticipantWidget participant) => participant.id == event.localVideoTrackPublication.trackSid);
+    if (index != -1) {
+      _participants.removeAt(index);
+      notifyListeners();
+    }
   }
 
   void _onLocalDataTrackPublished(LocalDataTrackPublishedEvent event) {
@@ -343,7 +382,7 @@ class ConferenceRoom with ChangeNotifier {
     RemoteParticipant remoteParticipant,
   }) {
     return ParticipantWidget(
-      id: remoteParticipant?.sid,
+      id: id ?? remoteParticipant?.sid,
       isRemote: remoteParticipant != null,
       child: child,
       audioEnabled: audioEnabled,
@@ -465,7 +504,21 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   void _onVideoTrackPublished(RemoteVideoTrackEvent event) {
-    Debug.log('ConferenceRoom._onVideoTrackPublished(), ${event.remoteParticipant.sid}, ${event.remoteVideoTrackPublication.trackSid}');
+    Debug.log(
+        'ConferenceRoom._onVideoTrackPublished(), ${event.remoteParticipant.sid}, ${event.remoteVideoTrackPublication.trackSid}');
+    // var index =
+    //     _participants.indexWhere((ParticipantWidget participant) => participant.id == event.remoteParticipant.sid);
+
+    _participants.add(_buildParticipant(
+        child: event.remoteVideoTrackPublication.remoteVideoTrack?.widget(),
+        id: event.remoteVideoTrackPublication.trackSid,
+        audioEnabled: true,
+        videoEnabled: true,
+        networkQualityLevel: event.remoteParticipant.networkQualityLevel,
+        onNetworkQualityChanged: event.remoteParticipant.onNetworkQualityLevelChanged));
+
+    notifyListeners();
+    // _addOrUpdateParticipant(event);
   }
 
   void _onVideoTrackSubscribed(RemoteVideoTrackSubscriptionEvent event) {
@@ -485,7 +538,13 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   void _onVideoTrackUnpublished(RemoteVideoTrackEvent event) {
-    Debug.log('ConferenceRoom._onVideoTrackUnpublished(), ${event.remoteParticipant.sid}, ${event.remoteVideoTrackPublication.trackSid}');
+    Debug.log(
+        'ConferenceRoom._onVideoTrackUnpublished(), ${event.remoteParticipant.sid}, ${event.remoteVideoTrackPublication.trackSid}');
+    var index = _participants
+        .indexWhere((ParticipantWidget participant) => participant.id == event.remoteVideoTrackPublication.trackSid);
+    if (index != -1) _participants.removeAt(index);
+
+    notifyListeners();
   }
 
   void _onVideoTrackUnsubscribed(RemoteVideoTrackSubscriptionEvent event) {
@@ -532,8 +591,11 @@ class ConferenceRoom with ChangeNotifier {
     );
     if (participant != null) {
       Debug.log('Participant found: ${participant.id}, updating A/V enabled values');
-      _setRemoteVideoEnabled(event);
-      _setRemoteAudioEnabled(event);
+      if (event is RemoteVideoTrackEvent) {
+        _setRemoteVideoEnabled(event);
+      } else if (event is RemoteAudioTrackEvent) {
+        _setRemoteAudioEnabled(event);
+      }
     } else {
       final bufferedParticipant = _participantBuffer.firstWhere(
         (ParticipantBuffer participant) => participant.id == event.remoteParticipant.sid,
@@ -568,5 +630,9 @@ class ConferenceRoom with ChangeNotifier {
       }
       notifyListeners();
     }
+  }
+
+  bool hasRemoteParticipant() {
+    return (_room.remoteParticipants?.length ?? 0) > 0;
   }
 }

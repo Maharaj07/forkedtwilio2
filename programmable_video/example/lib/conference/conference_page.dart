@@ -117,9 +117,11 @@ class _ConferencePageState extends State<ConferencePage> {
             ConferenceButtonBar(
               audioEnabled: _conferenceRoom.onAudioEnabled,
               videoEnabled: _conferenceRoom.onVideoEnabled,
+              sharingScreen: _conferenceRoom.onSharingScreen,
               flashState: _conferenceRoom.flashStateStream,
               onAudioEnabled: _conferenceRoom.toggleAudioEnabled,
               onVideoEnabled: _conferenceRoom.toggleVideoEnabled,
+              onSharingScreen: _conferenceRoom.sharingScreen,
               onHangup: _onHangup,
               onSwitchCamera: _conferenceRoom.switchCamera,
               toggleFlashlight: _conferenceRoom.toggleFlashlight,
@@ -204,7 +206,7 @@ class _ConferencePageState extends State<ConferencePage> {
     final children = <Widget>[];
     final length = conferenceRoom.participants.length;
 
-    if (length <= 2) {
+    if (length < 2 || (length == 2 && _conferenceRoom.hasRemoteParticipant())) {
       _buildOverlayLayout(context, size, children);
       return Stack(children: children);
     }
@@ -243,13 +245,12 @@ class _ConferencePageState extends State<ConferencePage> {
 
   void _buildOverlayLayout(BuildContext context, Size size, List<Widget> children) {
     final participants = _conferenceRoom.participants;
-    if (participants.length == 1) {
+    final remoteParticipant =
+        participants.firstWhere((ParticipantWidget participant) => participant.isRemote, orElse: () => null);
+    if (remoteParticipant == null) {
       children.add(_buildNoiseBox());
     } else {
-      final remoteParticipant = participants.firstWhere((ParticipantWidget participant) => participant.isRemote, orElse: () => null);
-      if (remoteParticipant != null) {
-        children.add(remoteParticipant);
-      }
+      children.add(remoteParticipant);
     }
 
     final localParticipant = participants.firstWhere((ParticipantWidget participant) => !participant.isRemote, orElse: () => null);

@@ -74,7 +74,8 @@ class RoomBloc {
         ),
       );
     } on PlatformException catch (err) {
-      if (err.code != 'functionsError' || err.details['message'] != 'Error: Room exists') {
+      // if (err.code != 'functionsError' || (err.message ?? err.details['message']) != 'Error: Room exists') {
+      if ((err.message ?? err.details['message']) != 'Error: Room exists') {
         rethrow;
       }
     } catch (err) {

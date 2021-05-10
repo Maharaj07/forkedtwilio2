@@ -7,6 +7,7 @@ import 'package:twilio_programmable_video_example/shared/widgets/circle_button.d
 class ConferenceButtonBar extends StatefulWidget {
   final VoidCallback onVideoEnabled;
   final VoidCallback onAudioEnabled;
+  final VoidCallback onSharingScreen;
   final VoidCallback onHangup;
   final VoidCallback onSwitchCamera;
   final VoidCallback onPersonAdd;
@@ -15,6 +16,7 @@ class ConferenceButtonBar extends StatefulWidget {
   final void Function(double) onHeight;
   final VoidCallback onHide;
   final VoidCallback onShow;
+  final Stream<bool> sharingScreen;
   final Stream<bool> videoEnabled;
   final Stream<bool> audioEnabled;
   final Stream<Map<String, bool>> flashState;
@@ -23,11 +25,13 @@ class ConferenceButtonBar extends StatefulWidget {
     Key key,
     this.onVideoEnabled,
     this.onAudioEnabled,
+    this.onSharingScreen,
     this.onHangup,
     this.onSwitchCamera,
     this.onPersonAdd,
     this.onPersonRemove,
     this.toggleFlashlight,
+    @required this.sharingScreen,
     @required this.videoEnabled,
     @required this.audioEnabled,
     @required this.flashState,
@@ -46,6 +50,7 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
   var _bottom = -100.0;
   Timer _timer;
   int _remaining;
+  var _sharingScreen = false;
   var _videoEnabled = true;
   var _audioEnabled = true;
   double _hidden;
@@ -223,6 +228,20 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
                 }),
             key: Key('microphone-button'),
             onPressed: () => _onPressed(widget.onAudioEnabled),
+          ),
+          CircleButton(
+            child: StreamBuilder<bool>(
+                stream: widget.sharingScreen,
+                initialData: _sharingScreen,
+                builder: (context, snapshot) {
+                  _sharingScreen = snapshot.data;
+                  return Icon(
+                    !_sharingScreen ? Icons.screen_share : Icons.stop_screen_share,
+                    color: Colors.white,
+                  );
+                }),
+            key: Key('screenshare-button'),
+            onPressed: () => _onPressed(widget.onSharingScreen),
           ),
           CircleButton(
             radius: 35,
