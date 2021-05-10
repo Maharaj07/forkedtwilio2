@@ -1,5 +1,6 @@
 package twilio.flutter.twilio_programmable_video
 
+import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -8,6 +9,8 @@ import androidx.annotation.NonNull
 import com.twilio.video.Video
 import com.twilio.video.VideoCapturer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
@@ -16,7 +19,7 @@ import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformViewRegistry
 
 /** TwilioProgrammableVideoPlugin */
-class TwilioProgrammableVideoPlugin : FlutterPlugin {
+class TwilioProgrammableVideoPlugin : FlutterPlugin, ActivityAware {
     private lateinit var methodChannel: MethodChannel
 
     private lateinit var cameraChannel: EventChannel
@@ -73,6 +76,9 @@ class TwilioProgrammableVideoPlugin : FlutterPlugin {
         lateinit var roomListener: RoomListener
 
         lateinit var cameraCapturer: VideoCapturer
+        var screenCapturer: VideoCapturer? = null
+        var activity: Activity? = null
+        var activityPluginBinding: ActivityPluginBinding? = null
 
         var loggingSink: EventChannel.EventSink? = null
 
@@ -196,5 +202,25 @@ class TwilioProgrammableVideoPlugin : FlutterPlugin {
         loggingChannel.setStreamHandler(null)
         remoteDataTrackChannel.setStreamHandler(null)
         localParticipantChannel.setStreamHandler(null)
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        activity = null
+        activityPluginBinding = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        activityPluginBinding = binding
+    }
+
+    override fun onDetachedFromActivity() {
+        activity = null
+        activityPluginBinding = null
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        activityPluginBinding = binding
     }
 }
