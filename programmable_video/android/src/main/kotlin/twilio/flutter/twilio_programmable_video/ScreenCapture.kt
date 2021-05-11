@@ -7,7 +7,8 @@ import com.twilio.video.ScreenCapturer
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-fun screenCallback(requestCode: Int,
+fun screenCallback(
+    requestCode: Int,
     resultCode: Int,
     data: Intent,
     applicationContext: Context,

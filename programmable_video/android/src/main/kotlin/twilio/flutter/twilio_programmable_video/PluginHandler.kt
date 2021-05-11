@@ -37,8 +37,8 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.PluginRegistry
-import tvi.webrtc.voiceengine.WebRtcAudioUtils
 import java.nio.ByteBuffer
+import tvi.webrtc.voiceengine.WebRtcAudioUtils
 
 class PluginHandler : MethodCallHandler, // ActivityAware,
         BaseListener {
@@ -118,7 +118,10 @@ class PluginHandler : MethodCallHandler, // ActivityAware,
             val mediaProjectionManager: MediaProjectionManager =
                     applicationContext.getSystemService(Service.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
             TwilioProgrammableVideoPlugin.activityPluginBinding?.addActivityResultListener(
-                    PluginRegistry.ActivityResultListener(function = fun(requestCode: Int, resultCode: Int, data: Intent
+                    PluginRegistry.ActivityResultListener(function = fun(
+                            requestCode: Int,
+                            resultCode: Int,
+                            data: Intent
                     ): Boolean {
                         screenCallback(requestCode,
                                 resultCode,
