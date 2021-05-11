@@ -49,11 +49,11 @@ class ScreenCapturer implements VideoCapturer {
   }
 
   /// Construct from a [CameraCapturerModel].
-  factory ScreenCapturer._fromModel(CameraCapturerModel model) {
-    var cameraCapturer = ScreenCapturer(model.source);
-    cameraCapturer._updateFromModel(model);
-    return cameraCapturer;
-  }
+  // factory ScreenCapturer._fromModel(CameraCapturerModel model) {
+  //   var cameraCapturer = ScreenCapturer(model.source);
+  //   cameraCapturer._updateFromModel(model);
+  //   return cameraCapturer;
+  // }
 
   ScreenCapturer._internal();
 
