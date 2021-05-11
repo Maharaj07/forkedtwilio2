@@ -118,21 +118,22 @@ class PluginHandler : MethodCallHandler, // ActivityAware,
             val mediaProjectionManager: MediaProjectionManager =
                     applicationContext.getSystemService(Service.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
             TwilioProgrammableVideoPlugin.activityPluginBinding?.addActivityResultListener(
-                    PluginRegistry.ActivityResultListener(function = fun(
-                            requestCode: Int,
-                            resultCode: Int,
-                            data: Intent
-                    ): Boolean {
-                        screenCallback(requestCode,
-                                resultCode,
-                                data,
-                                applicationContext,
-                                call,
-                                result
-                        )
-                        return true
-                    }
+                PluginRegistry.ActivityResultListener(function = fun(
+                    requestCode: Int,
+                    resultCode: Int,
+                    data: Intent
+                ): Boolean {
+                    screenCallback(
+                        requestCode,
+                        resultCode,
+                        data,
+                        applicationContext,
+                        call,
+                        result
                     )
+                    return true
+                }
+                )
             )
             TwilioProgrammableVideoPlugin.activity?.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), 111)
         } else {
