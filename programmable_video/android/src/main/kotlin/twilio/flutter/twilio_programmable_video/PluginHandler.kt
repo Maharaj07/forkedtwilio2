@@ -40,7 +40,7 @@ import io.flutter.plugin.common.PluginRegistry
 import tvi.webrtc.voiceengine.WebRtcAudioUtils
 import java.nio.ByteBuffer
 
-class PluginHandler : MethodCallHandler, //ActivityAware,
+class PluginHandler : MethodCallHandler, // ActivityAware,
         BaseListener {
     private var previousAudioMode: Int = 0
 
@@ -63,7 +63,6 @@ class PluginHandler : MethodCallHandler, //ActivityAware,
         this.applicationContext = applicationContext
         audioManager = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
-
 
     private val remoteParticipants: List<RemoteParticipant>?
         get() {
@@ -123,15 +122,16 @@ class PluginHandler : MethodCallHandler, //ActivityAware,
                     ): Boolean {
                         screenCallback(requestCode,
                                 resultCode,
-                                data, applicationContext,
-                                call, result
+                                data,
+                                applicationContext,
+                                call,
+                                result
                         )
                         return true
                     }
                     )
             )
             TwilioProgrammableVideoPlugin.activity?.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), 111)
-
         } else {
             val localParticipant = TwilioProgrammableVideoPlugin.roomListener.room?.localParticipant
             val screenTrack = localParticipant?.localVideoTracks?.find { it.localVideoTrack.videoCapturer.isScreencast }

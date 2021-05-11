@@ -72,8 +72,8 @@ class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
         ))
     }
 
-  //Added for clarity
-  //todo check why missing and agree on
+    // Added for clarity
+    // todo check why missing and agree on
     fun onVideoTrackUnpublished(localParticipant: LocalParticipant, localVideoTrackPublication: LocalVideoTrackPublication) {
         TwilioProgrammableVideoPlugin.debug("LocalParticipantListener.onVideoTrackUnPublished => " +
                 "trackSid: ${localVideoTrackPublication.trackSid}")

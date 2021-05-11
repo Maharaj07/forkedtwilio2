@@ -8,10 +8,11 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 fun screenCallback(requestCode: Int,
-                   resultCode: Int,
-                   data: Intent,
-                   applicationContext: Context,
-                   call: MethodCall, result: MethodChannel.Result
+    resultCode: Int,
+    data: Intent,
+    applicationContext: Context,
+    call: MethodCall,
+    result: MethodChannel.Result
 ) {
     val screenCapturer = ScreenCapturer(applicationContext, resultCode, data, screenCapturerListener)
 
@@ -44,4 +45,3 @@ val screenCapturerListener: ScreenCapturer.Listener = object : ScreenCapturer.Li
         }
     }
 }
-
