@@ -245,8 +245,7 @@ class _ConferencePageState extends State<ConferencePage> {
 
   void _buildOverlayLayout(BuildContext context, Size size, List<Widget> children) {
     final participants = _conferenceRoom.participants;
-    final remoteParticipant =
-        participants.firstWhere((ParticipantWidget participant) => participant.isRemote, orElse: () => null);
+    final remoteParticipant = participants.firstWhere((ParticipantWidget participant) => participant.isRemote, orElse: () => null);
     if (remoteParticipant == null) {
       children.add(_buildNoiseBox());
     } else {

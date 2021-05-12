@@ -54,14 +54,12 @@ class LocalParticipant implements Participant {
   /// being raised.
   Stream<LocalVideoTrackPublishedEvent> onVideoTrackPublished;
 
-  final StreamController<LocalVideoTrackPublishedEvent> _onVideoTrackUnpublished =
-      StreamController<LocalVideoTrackPublishedEvent>.broadcast();
+  final StreamController<LocalVideoTrackPublishedEvent> _onVideoTrackUnpublished = StreamController<LocalVideoTrackPublishedEvent>.broadcast();
 
   /// Notifies the listener that a [LocalVideoTrack] has been removed from a [Room].
   Stream<LocalVideoTrackPublishedEvent> onVideoTrackUnpublished;
 
-  final StreamController<LocalVideoTrackPublicationFailedEvent> _onVideoTrackPublicationFailed =
-      StreamController<LocalVideoTrackPublicationFailedEvent>.broadcast();
+  final StreamController<LocalVideoTrackPublicationFailedEvent> _onVideoTrackPublicationFailed = StreamController<LocalVideoTrackPublicationFailedEvent>.broadcast();
 
   /// Notifies the listener that the [LocalParticipant] failed to publish a
   /// [LocalVideoTrack] to a [Room].
@@ -207,14 +205,10 @@ class LocalParticipant implements Participant {
       final localDataTrack = LocalDataTrack._fromModel(event.localDataTrack);
       _onDataTrackPublicationFailed.add(LocalDataTrackPublicationFailedEvent(this, localDataTrack, TwilioException._fromModel(event.exception)));
     } else if (event is LocalVideoTrackPublished) {
-      final localVideoTrackPublication = _localVideoTrackPublications.firstWhere(
-          (LocalVideoTrackPublication p) => p.trackSid == event.publicationModel.sid,
-          orElse: () => LocalVideoTrackPublication._fromModel(event.publicationModel, this));
+      final localVideoTrackPublication = _localVideoTrackPublications.firstWhere((LocalVideoTrackPublication p) => p.trackSid == event.publicationModel.sid, orElse: () => LocalVideoTrackPublication._fromModel(event.publicationModel, this));
       _onVideoTrackPublished.add(LocalVideoTrackPublishedEvent(this, localVideoTrackPublication));
     } else if (event is LocalVideoTrackUnpublished) {
-      final localVideoTrackPublication = _localVideoTrackPublications.firstWhere(
-          (LocalVideoTrackPublication p) => p.trackSid == event.publicationModel.sid,
-          orElse: () => LocalVideoTrackPublication._fromModel(event.publicationModel, this));
+      final localVideoTrackPublication = _localVideoTrackPublications.firstWhere((LocalVideoTrackPublication p) => p.trackSid == event.publicationModel.sid, orElse: () => LocalVideoTrackPublication._fromModel(event.publicationModel, this));
       _onVideoTrackUnpublished.add(LocalVideoTrackPublishedEvent(this, localVideoTrackPublication));
     } else if (event is LocalVideoTrackPublicationFailed) {
       final localVideoTrack = LocalVideoTrack._fromModel(event.localVideoTrack);

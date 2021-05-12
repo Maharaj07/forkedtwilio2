@@ -18,8 +18,7 @@ class ConferenceRoom with ChangeNotifier {
   Stream<bool> onVideoEnabled;
   final StreamController<bool> _onSharingScreenStreamController = StreamController<bool>.broadcast();
   Stream<bool> onSharingScreen;
-  final StreamController<Map<String, bool>> _flashStateStreamController =
-      StreamController<Map<String, bool>>.broadcast();
+  final StreamController<Map<String, bool>> _flashStateStreamController = StreamController<Map<String, bool>>.broadcast();
   Stream<Map<String, bool>> flashStateStream;
   final StreamController<Exception> _onExceptionStreamController = StreamController<Exception>.broadcast();
   Stream<Exception> onException;
@@ -275,11 +274,9 @@ class ConferenceRoom with ChangeNotifier {
     _streamSubscriptions.add(room.localParticipant.onVideoTrackUnpublished.listen(_onLocalVideoTrackUnpublished));
 
     for (final remoteParticipant in room.remoteParticipants) {
-      var participant =
-          _participants.firstWhere((participant) => participant.id == remoteParticipant.sid, orElse: () => null);
+      var participant = _participants.firstWhere((participant) => participant.id == remoteParticipant.sid, orElse: () => null);
       if (participant == null) {
-        Debug.log(
-            'Adding participant that was already present in the room ${remoteParticipant.sid}, before I connected');
+        Debug.log('Adding participant that was already present in the room ${remoteParticipant.sid}, before I connected');
         _addRemoteParticipantListeners(remoteParticipant);
       }
     }
@@ -314,8 +311,7 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   void _onLocalVideoTrackUnpublished(LocalVideoTrackPublishedEvent event) {
-    var index = _participants
-        .indexWhere((ParticipantWidget participant) => participant.id == event.localVideoTrackPublication.trackSid);
+    var index = _participants.indexWhere((ParticipantWidget participant) => participant.id == event.localVideoTrackPublication.trackSid);
     if (index != -1) {
       _participants.removeAt(index);
       notifyListeners();
@@ -504,8 +500,7 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   void _onVideoTrackPublished(RemoteVideoTrackEvent event) {
-    Debug.log(
-        'ConferenceRoom._onVideoTrackPublished(), ${event.remoteParticipant.sid}, ${event.remoteVideoTrackPublication.trackSid}');
+    Debug.log('ConferenceRoom._onVideoTrackPublished(), ${event.remoteParticipant.sid}, ${event.remoteVideoTrackPublication.trackSid}');
     // var index =
     //     _participants.indexWhere((ParticipantWidget participant) => participant.id == event.remoteParticipant.sid);
 
@@ -538,10 +533,8 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   void _onVideoTrackUnpublished(RemoteVideoTrackEvent event) {
-    Debug.log(
-        'ConferenceRoom._onVideoTrackUnpublished(), ${event.remoteParticipant.sid}, ${event.remoteVideoTrackPublication.trackSid}');
-    var index = _participants
-        .indexWhere((ParticipantWidget participant) => participant.id == event.remoteVideoTrackPublication.trackSid);
+    Debug.log('ConferenceRoom._onVideoTrackUnpublished(), ${event.remoteParticipant.sid}, ${event.remoteVideoTrackPublication.trackSid}');
+    var index = _participants.indexWhere((ParticipantWidget participant) => participant.id == event.remoteVideoTrackPublication.trackSid);
     if (index != -1) _participants.removeAt(index);
 
     notifyListeners();

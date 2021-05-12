@@ -28,8 +28,7 @@ class LocalVideoTrackPublication implements VideoTrackPublication {
   LocalVideoTrackPublication(this._sid) : assert(_sid != null);
 
   /// Construct from a [LocalVideoTrackPublicationModel].
-  factory LocalVideoTrackPublication._fromModel(
-      LocalVideoTrackPublicationModel model, LocalParticipant localParticipant) {
+  factory LocalVideoTrackPublication._fromModel(LocalVideoTrackPublicationModel model, LocalParticipant localParticipant) {
     var localVideoTrackPublication = LocalVideoTrackPublication(model.sid);
     localVideoTrackPublication._updateFromModel(model, localParticipant);
 

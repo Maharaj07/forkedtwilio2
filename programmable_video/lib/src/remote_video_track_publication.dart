@@ -47,10 +47,8 @@ class RemoteVideoTrackPublication implements VideoTrackPublication {
         assert(_remoteParticipant != null);
 
   /// Create a [RemoteParticipant] from a [RemoteVideoTrackPublicationModel].
-  factory RemoteVideoTrackPublication._fromModel(
-      RemoteVideoTrackPublicationModel model, RemoteParticipant remoteParticipant) {
-    var remoteVideoTrackPublication =
-        RemoteVideoTrackPublication(model.subscribed, model.enabled, model.sid, model.name, remoteParticipant);
+  factory RemoteVideoTrackPublication._fromModel(RemoteVideoTrackPublicationModel model, RemoteParticipant remoteParticipant) {
+    var remoteVideoTrackPublication = RemoteVideoTrackPublication(model.subscribed, model.enabled, model.sid, model.name, remoteParticipant);
     remoteVideoTrackPublication._updateFromModel(model);
     return remoteVideoTrackPublication;
   }

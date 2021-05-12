@@ -13,8 +13,7 @@ class ScreenCapturer implements VideoCapturer {
   /// Called when the camera has switched
   Stream<CameraSwitchedEvent> onCameraSwitched;
 
-  final StreamController<FirstFrameAvailableEvent> _onFirstFrameAvailable =
-      StreamController<FirstFrameAvailableEvent>.broadcast();
+  final StreamController<FirstFrameAvailableEvent> _onFirstFrameAvailable = StreamController<FirstFrameAvailableEvent>.broadcast();
 
   /// Called when the first frame is available from the camera
   Stream<FirstFrameAvailableEvent> onFirstFrameAvailable;
@@ -40,8 +39,7 @@ class ScreenCapturer implements VideoCapturer {
     // assert(cameraSource != null);
     _cameraCapturer ??= ScreenCapturer._internal();
     _cameraCapturer._cameraSource = cameraSource;
-    _cameraCapturer._cameraStream ??=
-        ProgrammableVideoPlatform.instance.cameraStream().listen(_cameraCapturer._parseCameraEvents);
+    _cameraCapturer._cameraStream ??= ProgrammableVideoPlatform.instance.cameraStream().listen(_cameraCapturer._parseCameraEvents);
     _cameraCapturer.onCameraSwitched ??= _cameraCapturer._onCameraSwitched.stream;
     _cameraCapturer.onFirstFrameAvailable ??= _cameraCapturer._onFirstFrameAvailable.stream;
     _cameraCapturer.onCameraError ??= _cameraCapturer._onCameraError.stream;

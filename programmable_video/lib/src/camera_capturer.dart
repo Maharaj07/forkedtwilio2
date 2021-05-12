@@ -39,8 +39,7 @@ class CameraCapturer implements VideoCapturer {
     // assert(cameraSource != null);
     _cameraCapturer ??= CameraCapturer._internal();
     _cameraCapturer._cameraSource = cameraSource;
-    _cameraCapturer._cameraStream ??=
-        ProgrammableVideoPlatform.instance.cameraStream().listen(_cameraCapturer._parseCameraEvents);
+    _cameraCapturer._cameraStream ??= ProgrammableVideoPlatform.instance.cameraStream().listen(_cameraCapturer._parseCameraEvents);
     _cameraCapturer.onCameraSwitched ??= _cameraCapturer._onCameraSwitched.stream;
     _cameraCapturer.onFirstFrameAvailable ??= _cameraCapturer._onFirstFrameAvailable.stream;
     _cameraCapturer.onCameraError ??= _cameraCapturer._onCameraError.stream;
