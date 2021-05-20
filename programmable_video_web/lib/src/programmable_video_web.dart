@@ -30,6 +30,7 @@ import 'package:programmable_video_web/src/interop/classes/track.dart';
 import 'package:programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:programmable_video_web/src/interop/connect.dart';
 import 'package:programmable_video_web/src/interop/network_quality_level.dart';
+import 'package:programmable_video_web/src/interop/classes/logger.dart';
 
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
@@ -37,6 +38,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room _room;
 
   static final _roomStreamController = StreamController<BaseRoomEvent>();
+  static final _cameraStreamController = StreamController<BaseCameraEvent>();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>();
   static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>();
 
@@ -103,24 +105,54 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<bool> enableAudioTrack({bool enable, String name}) {
-    final localAudioTrack = _room?.localParticipant?.audioTracks?.values()?.next()?.value?.track;
+    final localAudioTracks = _room?.localParticipant?.audioTracks?.values();
+    var current = localAudioTracks.next();
 
-    enable ? localAudioTrack?.enable() : localAudioTrack?.disable();
+    while (!current.done) {
+      if(current?.value?.trackName == name){
+        enable ? current?.value?.track?.enable() : current?.value?.track?.disable();
+        break;
+      }
+      current = localAudioTracks.next();
+    }
 
     return Future(() => enable);
   }
 
   @override
   Future<bool> enableVideoTrack({bool enabled, String name}) {
-    final localVideoTrack = _room?.localParticipant?.videoTracks?.values()?.next()?.value?.track;
+    final localVideoTracks = _room?.localParticipant?.videoTracks?.values();
+    var current = localVideoTracks.next();
 
-    enabled ? localVideoTrack?.enable() : localVideoTrack?.disable();
+    while (!current.done) {
+      if(current?.value?.trackName == name){
+        enabled ? current?.value?.track?.enable() : current?.value?.track?.disable();
+        break;
+      }
+      current = localVideoTracks.next();
+    }
 
     return Future(() => enabled);
   }
 
   @override
-  Future<void> setNativeDebug(bool native) async {}
+  Future<void> setNativeDebug(bool native) async {
+    if (native) {
+      final logger = Logger.getLogger('twilio-video');
+      final originalFactory = logger.methodFactory;
+      logger.methodFactory =  allowInterop((methodName, logLevel, loggerName) {
+        var method = originalFactory(methodName, logLevel, loggerName);
+        return allowInterop((datetime, logLevel, component, message, [data='']) {
+          var output = '[  WEB  ] $datetime, $logLevel, $component, $message, $data';
+          method(output, datetime, logLevel, component, message, data);
+        });
+      });
+      // Can set to 'debug' for more detail.
+      logger.setLevel('info');
+
+    }
+
+  }
 
   @override
   Future<bool> setSpeakerphoneOn(bool on) {
@@ -170,7 +202,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   //#region Streams
   @override
   Stream<BaseCameraEvent> cameraStream() {
-    return Stream.empty();
+    return _cameraStreamController.stream;
   }
 
   @override
