@@ -41,6 +41,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static final _cameraStreamController = StreamController<BaseCameraEvent>();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>();
   static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>();
+  static final _loggingStreamController = StreamController<String>();
+
+  static var _nativeDebug = false;
+  static void debug(String msg){
+    if (_nativeDebug) _loggingStreamController.add(msg);
+  }
 
   static void registerWith(Registrar registrar) {
     ProgrammableVideoPlatform.instance = ProgrammableVideoPlugin();
@@ -85,11 +91,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     unawaited(
       connectWithModel(connectOptions).then((room) {
         _room = room;
-
+        final _roomModel = Connected(_room.toModel());
         _roomStreamController.add(
-          Connected(_room.toModel()),
+          _roomModel
         );
 
+        debug(_roomModel.toString());
         _addRoomEventListeners();
         _addLocalParticipantEventListeners(_room.localParticipant);
       }),
@@ -137,21 +144,22 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> setNativeDebug(bool native) async {
+    _nativeDebug = native;
+
+    // Currently also enabling SDK debugging when native is true
     if (native) {
       final logger = Logger.getLogger('twilio-video');
       final originalFactory = logger.methodFactory;
       logger.methodFactory =  allowInterop((methodName, logLevel, loggerName) {
         var method = originalFactory(methodName, logLevel, loggerName);
         return allowInterop((datetime, logLevel, component, message, [data='']) {
-          var output = '[  WEB  ] $datetime, $logLevel, $component, $message, $data';
+          var output = '[  WEBSDK  ] $datetime, $logLevel, $component, $message, $data';
           method(output, datetime, logLevel, component, message, data);
         });
       });
       // Can set to 'debug' for more detail.
       logger.setLevel('info');
-
     }
-
   }
 
   @override
@@ -227,7 +235,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Stream<dynamic> loggingStream() {
-    return Stream.empty();
+    return _loggingStreamController.stream;
   }
   //#endregion
 
