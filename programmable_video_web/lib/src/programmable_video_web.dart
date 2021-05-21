@@ -1,36 +1,17 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-
-import 'package:dartlin/dartlin.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:programmable_video_web/src/interop/classes/js_map.dart';
-import 'package:programmable_video_web/src/interop/classes/local_audio_track.dart';
-import 'package:programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/local_data_track.dart';
-import 'package:programmable_video_web/src/interop/classes/local_data_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/local_participant.dart';
-import 'package:programmable_video_web/src/interop/classes/local_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/local_video_track.dart';
-import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_audio_track.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_data_track.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_data_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_participant.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_video_track.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_video_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
-import 'package:programmable_video_web/src/interop/classes/track.dart';
-import 'package:programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:programmable_video_web/src/interop/connect.dart';
-import 'package:programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:programmable_video_web/src/interop/classes/logger.dart';
+import 'package:programmable_video_web/src/listeners//RoomEventListener.dart';
+import 'package:programmable_video_web/src/listeners/LocalParticipantEventListener.dart';
 
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
@@ -44,7 +25,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static final _loggingStreamController = StreamController<String>();
 
   static var _nativeDebug = false;
-  static void debug(String msg){
+
+  static void debug(String msg) {
     if (_nativeDebug) _loggingStreamController.add(msg);
   }
 
@@ -59,11 +41,17 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       return null;
     }
 
-    final localVideoTrackElement = _room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
+    final localVideoTrackElement = _room.localParticipant.videoTracks
+        .values()
+        .next()
+        .value
+        .track
+        .attach()
+      ..style.objectFit = 'cover';
 
     ui.platformViewRegistry.registerViewFactory(
       'local-video-track-html',
-      (int viewId) => localVideoTrackElement,
+          (int viewId) => localVideoTrackElement,
     );
 
     return HtmlElementView(viewType: 'local-video-track-html');
@@ -76,11 +64,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     bool mirror = true,
     Key key,
   }) {
-    final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
+    final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()
+      ..style.objectFit = 'cover';
 
     ui.platformViewRegistry.registerViewFactory(
       'remote-video-track-#$remoteVideoTrackSid-html',
-      (int viewId) => remoteVideoTrackElement,
+          (int viewId) => remoteVideoTrackElement,
     );
 
     return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
@@ -93,12 +82,14 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         _room = room;
         final _roomModel = Connected(_room.toModel());
         _roomStreamController.add(
-          _roomModel
+            _roomModel
         );
-
         debug(_roomModel.toString());
-        _addRoomEventListeners();
-        _addLocalParticipantEventListeners(_room.localParticipant);
+
+        final roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController);
+        roomListener.addListeners();
+        final localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
+        localParticipantListener.addListeners();
       }),
     );
 
@@ -116,7 +107,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     var current = localAudioTracks.next();
 
     while (!current.done) {
-      if(current?.value?.trackName == name){
+      if (current?.value?.trackName == name) {
         enable ? current?.value?.track?.enable() : current?.value?.track?.disable();
         break;
       }
@@ -132,7 +123,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     var current = localVideoTracks.next();
 
     while (!current.done) {
-      if(current?.value?.trackName == name){
+      if (current?.value?.trackName == name) {
         enabled ? current?.value?.track?.enable() : current?.value?.track?.disable();
         break;
       }
@@ -150,9 +141,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (native) {
       final logger = Logger.getLogger('twilio-video');
       final originalFactory = logger.methodFactory;
-      logger.methodFactory =  allowInterop((methodName, logLevel, loggerName) {
+      logger.methodFactory = allowInterop((methodName, logLevel, loggerName) {
         var method = originalFactory(methodName, logLevel, loggerName);
-        return allowInterop((datetime, logLevel, component, message, [data='']) {
+        return allowInterop((datetime, logLevel, component, message, [data = '']) {
           var output = '[  WEBSDK  ] $datetime, $logLevel, $component, $message, $data';
           method(output, datetime, logLevel, component, message, data);
         });
@@ -237,330 +228,5 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Stream<dynamic> loggingStream() {
     return _loggingStreamController.stream;
   }
-  //#endregion
-
-  void _addRoomEventListeners() {
-    void on(String eventName, Function eventHandler) => _room.on(
-          eventName,
-          allowInterop(eventHandler),
-        );
-
-    on(
-      'disconnected',
-      (Room room, TwilioError error) => _roomStreamController.add(Disconnected(
-        room.toModel(),
-        error.let((it) => it.toModel()),
-      )),
-    );
-    on(
-      'dominantSpeakerChanged',
-      (RemoteParticipant dominantSpeaker) => _roomStreamController.add(
-        DominantSpeakerChanged(_room.toModel(), dominantSpeaker.toModel()),
-      ),
-    );
-    on('participantConnected', (RemoteParticipant participant) {
-      _roomStreamController.add(
-        ParticipantConnected(_room.toModel(), participant.toModel()),
-      );
-      _addRemoteParticipantEventListeners(participant);
-    });
-    on(
-      'participantDisconnected',
-      (RemoteParticipant participant) => _roomStreamController.add(
-        ParticipantDisconnected(_room.toModel(), participant.toModel()),
-      ),
-    );
-    on(
-      'reconnected',
-      () => _roomStreamController.add(
-        Reconnected(_room.toModel()),
-      ),
-    );
-    on(
-      'reconnecting',
-      (TwilioError error) => _roomStreamController.add(
-        Reconnecting(_room.toModel(), error.toModel()),
-      ),
-    );
-    on(
-      'recordingStarted',
-      () => _roomStreamController.add(
-        RecordingStarted(_room.toModel()),
-      ),
-    );
-    on(
-      'recordingStopped',
-      () => _roomStreamController.add(
-        RecordingStopped(_room.toModel()),
-      ),
-    );
-  }
-
-  void _addLocalParticipantEventListeners(LocalParticipant localParticipant) {
-    localParticipant.on('trackPublished', allowInterop((LocalTrackPublication publication) {
-      when(publication.kind, {
-        'audio': () {
-          _localParticipantController.add(LocalAudioTrackPublished(
-            localParticipant.toModel(),
-            (publication as LocalAudioTrackPublication).toModel(),
-          ));
-        },
-        'data': () {
-          _localParticipantController.add(LocalDataTrackPublished(
-            localParticipant.toModel(),
-            (publication as LocalDataTrackPublication).toModel(),
-          ));
-        },
-        'video': () {
-          _localParticipantController.add(LocalVideoTrackPublished(
-            localParticipant.toModel(),
-            (publication as LocalVideoTrackPublication).toModel(),
-          ));
-        },
-      });
-    }));
-
-    localParticipant.on('trackPublicationFailed', allowInterop((TwilioError error, dynamic localTrack) {
-      when(localTrack.kind, {
-        'audio': () {
-          _localParticipantController.add(LocalAudioTrackPublicationFailed(
-            exception: error.toModel(),
-            localAudioTrack: (localTrack as LocalAudioTrack).toModel(),
-            localParticipantModel: localParticipant.toModel(),
-          ));
-        },
-        'data': () {
-          _localParticipantController.add(LocalDataTrackPublicationFailed(
-            exception: error.toModel(),
-            localDataTrack: (localTrack as LocalDataTrack).toModel(true),
-            localParticipantModel: localParticipant.toModel(),
-          ));
-        },
-        'video': () {
-          _localParticipantController.add(LocalVideoTrackPublicationFailed(
-            exception: error.toModel(),
-            localVideoTrack: (localTrack as LocalVideoTrack).toModel(),
-            localParticipantModel: localParticipant.toModel(),
-          ));
-        },
-      });
-    }));
-
-    localParticipant.on(
-      'networkQualityLevelChanged',
-      allowInterop(
-        (int networkQualityLevel, dynamic networkQualityStats) {
-          _localParticipantController.add(
-            LocalNetworkQualityLevelChanged(
-              localParticipant.toModel(),
-              networkQualityLevelFromInt(networkQualityLevel),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  void _addRemoteParticipantEventListeners(RemoteParticipant remoteParticipant) {
-    void on(String eventName, Function eventHandler) => remoteParticipant.on(
-          eventName,
-          allowInterop(eventHandler),
-        );
-
-    void onPublication(
-      String eventName, {
-      void Function(RemoteAudioTrackPublication remoteAudioTrackPublication) audioHandler,
-      void Function(RemoteDataTrackPublication remoteDataTrackPublication) dataHandler,
-      void Function(RemoteVideoTrackPublication remoteVideoTrackPublication) videoHandler,
-    }) {
-      on(eventName, (RemoteTrackPublication publication) {
-        when(publication.kind, {
-          'audio': () => audioHandler?.call(publication),
-          'data': () => dataHandler?.call(publication),
-          'video': () => videoHandler?.call(publication),
-        });
-      });
-    }
-
-    onPublication(
-      'trackDisabled',
-      audioHandler: (publication) => _remoteParticipantController.add(
-        RemoteAudioTrackDisabled(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-      videoHandler: (publication) => _remoteParticipantController.add(
-        RemoteVideoTrackDisabled(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-    );
-
-    onPublication(
-      'trackEnabled',
-      audioHandler: (publication) => _remoteParticipantController.add(
-        RemoteAudioTrackEnabled(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-      videoHandler: (publication) => _remoteParticipantController.add(
-        RemoteVideoTrackEnabled(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-    );
-
-    onPublication(
-      'trackPublished',
-      audioHandler: (publication) => _remoteParticipantController.add(
-        RemoteAudioTrackPublished(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-      dataHandler: (publication) => _remoteParticipantController.add(
-        RemoteDataTrackPublished(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-      videoHandler: (publication) => _remoteParticipantController.add(
-        RemoteVideoTrackPublished(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-    );
-
-    onPublication(
-      'trackUnpublished',
-      audioHandler: (publication) => _remoteParticipantController.add(
-        RemoteAudioTrackUnpublished(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-      dataHandler: (publication) => _remoteParticipantController.add(
-        RemoteDataTrackUnpublished(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-      videoHandler: (publication) => _remoteParticipantController.add(
-        RemoteVideoTrackUnpublished(
-          remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      ),
-    );
-
-    on('trackSubscribed', (Track track, RemoteTrackPublication publication) {
-      when(track.kind, {
-        'audio': () {
-          _remoteParticipantController.add(
-            RemoteAudioTrackSubscribed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteAudioTrackPublicationModel: (publication as RemoteAudioTrackPublication).toModel(),
-              remoteAudioTrackModel: (track as RemoteAudioTrack).toModel(),
-            ),
-          );
-        },
-        'data': () {
-          _remoteParticipantController.add(
-            RemoteDataTrackSubscribed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteDataTrackPublicationModel: (publication as RemoteDataTrackPublication).toModel(),
-              remoteDataTrackModel: (publication as RemoteDataTrack).toModel(),
-            ),
-          );
-        },
-        'video': () {
-          _remoteParticipantController.add(
-            RemoteVideoTrackSubscribed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteVideoTrackPublicationModel: (publication as RemoteVideoTrackPublication).toModel(),
-              remoteVideoTrackModel: (track as RemoteVideoTrack).toModel(),
-            ),
-          );
-        },
-      });
-    });
-
-    on('trackUnsubscribed', (Track track, RemoteTrackPublication publication) {
-      when(track.kind, {
-        'audio': () {
-          _remoteParticipantController.add(
-            RemoteAudioTrackUnsubscribed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteAudioTrackPublicationModel: (publication as RemoteAudioTrackPublication).toModel(),
-              remoteAudioTrackModel: (track as RemoteAudioTrack).toModel(),
-            ),
-          );
-        },
-        'data': () {
-          _remoteParticipantController.add(
-            RemoteDataTrackUnsubscribed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteDataTrackPublicationModel: (publication as RemoteDataTrackPublication).toModel(),
-              remoteDataTrackModel: (publication as RemoteDataTrack).toModel(),
-            ),
-          );
-        },
-        'video': () {
-          _remoteParticipantController.add(
-            RemoteVideoTrackUnsubscribed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteVideoTrackPublicationModel: (publication as RemoteVideoTrackPublication).toModel(),
-              remoteVideoTrackModel: (track as RemoteVideoTrack).toModel(),
-            ),
-          );
-        },
-      });
-    });
-
-    on('trackSubscriptionFailed', (TwilioError error, RemoteTrackPublication publication) {
-      when(publication.kind, {
-        'audio': () {
-          _remoteParticipantController.add(
-            RemoteAudioTrackSubscriptionFailed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteAudioTrackPublicationModel: (publication as RemoteAudioTrackPublication).toModel(),
-              exception: error.toModel(),
-            ),
-          );
-        },
-        'data': () {
-          _remoteParticipantController.add(
-            RemoteDataTrackSubscriptionFailed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteDataTrackPublicationModel: (publication as RemoteDataTrackPublication).toModel(),
-              exception: error.toModel(),
-            ),
-          );
-        },
-        'video': () {
-          _remoteParticipantController.add(
-            RemoteVideoTrackSubscriptionFailed(
-              remoteParticipantModel: remoteParticipant.toModel(),
-              remoteVideoTrackPublicationModel: (publication as RemoteVideoTrackPublication).toModel(),
-              exception: error.toModel(),
-            ),
-          );
-        },
-      });
-    });
-
-    on('networkQualityLevelChanged', (int networkQualityLevel, dynamic networkQualityStats) {
-      _remoteParticipantController.add(
-        RemoteNetworkQualityLevelChanged(
-          remoteParticipant.toModel(),
-          networkQualityLevelFromInt(networkQualityLevel),
-        ),
-      );
-    });
-  }
+//#endregion
 }

@@ -1,0 +1,93 @@
+
+import 'dart:async';
+
+import 'package:js/js.dart';
+import 'package:dartlin/dartlin.dart';
+import 'package:programmable_video_web/src/interop/classes/local_audio_track.dart';
+import 'package:programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/local_data_track.dart';
+import 'package:programmable_video_web/src/interop/classes/local_data_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/local_participant.dart';
+import 'package:programmable_video_web/src/interop/classes/local_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/local_video_track.dart';
+import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/twilio_error.dart';
+import 'package:programmable_video_web/src/interop/network_quality_level.dart';
+import 'package:programmable_video_web/src/listeners/BaseListener.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+
+class LocalParticipantEventListener extends BaseListener{
+  final LocalParticipant _localParticipant;
+  final StreamController<BaseLocalParticipantEvent> _localParticipantController;
+
+  LocalParticipantEventListener(this._localParticipant, this._localParticipantController);
+
+  @override
+  void addListeners() {
+    _localParticipant.on('trackPublished', allowInterop(onTrackPublished));
+    _localParticipant.on('trackPublicationFailed', allowInterop(onTrackPublicationFailed));
+    _localParticipant.on('networkQualityLevelChanged', allowInterop(onNetworkQualityLevelChanged));
+  }
+
+  void onTrackPublished(LocalTrackPublication publication) {
+    debug('Added Local${capitalize(publication.kind)}TrackPublished Event');
+    when(publication.kind, {
+      'audio': () {
+        _localParticipantController.add(LocalAudioTrackPublished(
+          _localParticipant.toModel(),
+          (publication as LocalAudioTrackPublication).toModel(),
+        ));
+      },
+      'data': () {
+        _localParticipantController.add(LocalDataTrackPublished(
+          _localParticipant.toModel(),
+          (publication as LocalDataTrackPublication).toModel(),
+        ));
+      },
+      'video': () {
+        _localParticipantController.add(LocalVideoTrackPublished(
+          _localParticipant.toModel(),
+          (publication as LocalVideoTrackPublication).toModel(),
+        ));
+      },
+    });
+  }
+
+
+  void onTrackPublicationFailed(TwilioError error, dynamic localTrack) {
+    debug('Added Local${capitalize(localTrack.kind)}TrackPublicationFailed Event');
+    when(localTrack.kind, {
+      'audio': () {
+        _localParticipantController.add(LocalAudioTrackPublicationFailed(
+          exception: error.toModel(),
+          localAudioTrack: (localTrack as LocalAudioTrack).toModel(),
+          localParticipantModel: _localParticipant.toModel(),
+        ));
+      },
+      'data': () {
+        _localParticipantController.add(LocalDataTrackPublicationFailed(
+          exception: error.toModel(),
+          localDataTrack: (localTrack as LocalDataTrack).toModel(true),
+          localParticipantModel: _localParticipant.toModel(),
+        ));
+      },
+      'video': () {
+        _localParticipantController.add(LocalVideoTrackPublicationFailed(
+          exception: error.toModel(),
+          localVideoTrack: (localTrack as LocalVideoTrack).toModel(),
+          localParticipantModel: _localParticipant.toModel(),
+        ));
+      },
+    });
+  }
+
+  void onNetworkQualityLevelChanged(int networkQualityLevel, dynamic networkQualityStats) {
+    debug('Added LocalNetworkQualityLevelChanged Event');
+    _localParticipantController.add(
+      LocalNetworkQualityLevelChanged(
+        _localParticipant.toModel(),
+        networkQualityLevelFromInt(networkQualityLevel),
+      ),
+    );
+  }
+}
