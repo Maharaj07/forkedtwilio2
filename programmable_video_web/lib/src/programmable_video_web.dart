@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
@@ -19,19 +20,40 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room _room;
 
   static final _roomStreamController = StreamController<BaseRoomEvent>();
+  // TODO add listeners for camera stream
   static final _cameraStreamController = StreamController<BaseCameraEvent>();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>();
   static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>();
   static final _loggingStreamController = StreamController<String>();
 
   static var _nativeDebug = false;
+  List<String> _registeredRemoteParticipantViewFactories;
 
   static void debug(String msg) {
     if (_nativeDebug) _loggingStreamController.add(msg);
   }
 
+  static void _createLocalViewFactory() {
+    ui.platformViewRegistry.registerViewFactory('local-video-track-html', (int viewId) {
+      final localVideoTrackElement = _room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
+      debug('Created local video view factory for:  ${_room.localParticipant.sid}');
+      return localVideoTrackElement;
+    });
+  }
+
+  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid, Key key) {
+    final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
+    key ??= ValueKey(remoteParticipantSid);
+
+    ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
+      debug('Created remote video view factory for: $remoteParticipantSid');
+      return remoteVideoTrackElement;
+    });
+  }
+
   static void registerWith(Registrar registrar) {
     ProgrammableVideoPlatform.instance = ProgrammableVideoPlugin();
+    _createLocalViewFactory();
   }
 
   //#region Functions
@@ -40,21 +62,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (_room == null) {
       return null;
     }
-
-    final localVideoTrackElement = _room.localParticipant.videoTracks
-        .values()
-        .next()
-        .value
-        .track
-        .attach()
-      ..style.objectFit = 'cover';
-
-    ui.platformViewRegistry.registerViewFactory(
-      'local-video-track-html',
-          (int viewId) => localVideoTrackElement,
-    );
-
-    return HtmlElementView(viewType: 'local-video-track-html');
+    debug('Created local video track widget for: ${_room.localParticipant.sid}');
+    return HtmlElementView(viewType: 'local-video-track-html', key: key);
   }
 
   @override
@@ -64,15 +73,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     bool mirror = true,
     Key key,
   }) {
-    final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()
-      ..style.objectFit = 'cover';
-
-    ui.platformViewRegistry.registerViewFactory(
-      'remote-video-track-#$remoteVideoTrackSid-html',
-          (int viewId) => remoteVideoTrackElement,
-    );
-
-    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
+    if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
+      _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid, key);
+      _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
+    }
+    debug('Created remote video track widget for: $remoteParticipantSid');
+    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
   }
 
   @override
@@ -81,9 +87,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       connectWithModel(connectOptions).then((room) {
         _room = room;
         final _roomModel = Connected(_room.toModel());
-        _roomStreamController.add(
-            _roomModel
-        );
+        _roomStreamController.add(_roomModel);
         debug(_roomModel.toString());
 
         final roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController);
@@ -136,7 +140,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<void> setNativeDebug(bool native) async {
     _nativeDebug = native;
-
     // Currently also enabling SDK debugging when native is true
     if (native) {
       final logger = Logger.getLogger('twilio-video');
