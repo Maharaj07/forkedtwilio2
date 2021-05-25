@@ -27,7 +27,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static final _loggingStreamController = StreamController<String>();
 
   static var _nativeDebug = false;
-  List<String> _registeredRemoteParticipantViewFactories;
+  static final _registeredRemoteParticipantViewFactories = [];
 
   static void debug(String msg) {
     if (_nativeDebug) _loggingStreamController.add(msg);
@@ -41,9 +41,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     });
   }
 
-  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid, Key key) {
+  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
     final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
-    key ??= ValueKey(remoteParticipantSid);
 
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       debug('Created remote video view factory for: $remoteParticipantSid');
@@ -74,11 +73,22 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     Key key,
   }) {
     if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
-      _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid, key);
+      _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
       _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
     }
     debug('Created remote video track widget for: $remoteParticipantSid');
-    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
+    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
+
+    // final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
+    //
+    // ui.platformViewRegistry.registerViewFactory(
+    //   'remote-video-track-#$remoteVideoTrackSid-html',
+    //       (int viewId) => remoteVideoTrackElement,
+    // );
+    //
+    // return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
+
+
   }
 
   @override

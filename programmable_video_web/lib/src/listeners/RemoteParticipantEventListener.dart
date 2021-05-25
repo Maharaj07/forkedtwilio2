@@ -80,67 +80,71 @@ class RemoteParticipantEventListener extends BaseListener {
 
   void onTrackDisabledAudio(publication) => _remoteParticipantController.add(RemoteAudioTrackDisabled(
         _remoteParticipant.toModel(),
-        publication.toModel(),
+        (publication as RemoteAudioTrackPublication).toModel(),
       ));
 
-  void onTrackDisabledVideo(publication) => _remoteParticipantController.add(RemoteVideoTrackDisabled(
-        _remoteParticipant.toModel(),
-        publication.toModel(),
-      ));
+  void onTrackDisabledVideo(publication){
+  _remoteParticipantController.add(RemoteVideoTrackDisabled(
+  _remoteParticipant.toModel(),
+  (publication as RemoteVideoTrackPublication).toModel(),
+  ));
+}
 
   void onTrackEnabledAudio(publication) => _remoteParticipantController.add(
         RemoteAudioTrackEnabled(
           _remoteParticipant.toModel(),
-          publication.toModel(),
+          (publication as RemoteAudioTrackPublication).toModel(),
         ),
       );
 
   void onTrackEnabledVideo(publication) => _remoteParticipantController.add(
         RemoteVideoTrackEnabled(
           _remoteParticipant.toModel(),
-          publication.toModel(),
+          (publication as RemoteVideoTrackPublication).toModel(),
         ),
       );
 
   void onTrackPublishedAudio(publication) => _remoteParticipantController.add(
         RemoteAudioTrackPublished(
           _remoteParticipant.toModel(),
-          publication.toModel(),
+          (publication as RemoteAudioTrackPublication).toModel(),
         ),
       );
 
-  void onTrackPublishedData(publication) => _remoteParticipantController.add(
-        RemoteDataTrackPublished(
-          _remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      );
+  void onTrackPublishedData(publication) {
+    _remoteParticipantController.add(
+      RemoteDataTrackPublished(
+        _remoteParticipant.toModel(),
+        (publication as RemoteDataTrackPublication).toModel(),
+      ),
+    );
+  }
 
   void onTrackPublishedVideo(publication) => _remoteParticipantController.add(
         RemoteVideoTrackPublished(
           _remoteParticipant.toModel(),
-          publication.toModel(),
+          (publication as RemoteVideoTrackPublication).toModel(),
         ),
       );
 
   void onTrackUnpublishedAudio(publication) => _remoteParticipantController.add(
         RemoteAudioTrackUnpublished(
           _remoteParticipant.toModel(),
-          publication.toModel(),
+          (publication as RemoteAudioTrackPublication).toModel(),
         ),
       );
 
   void onTrackUnpublishedData(publication) => _remoteParticipantController.add(
         RemoteDataTrackUnpublished(
           _remoteParticipant.toModel(),
-          publication.toModel(),
+          (publication as RemoteDataTrackPublication).toModel(),
         ),
       );
 
   void onTrackUnpublishedVideo(publication) => _remoteParticipantController.add(
         RemoteVideoTrackUnpublished(
           _remoteParticipant.toModel(),
-          publication.toModel(),
+          (publication as RemoteVideoTrackPublication).toModel(),
         ),
       );
 
