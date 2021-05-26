@@ -42,9 +42,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
-    final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
-
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
+      final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
       debug('Created remote video view factory for: $remoteParticipantSid');
       return remoteVideoTrackElement;
     });
@@ -78,16 +77,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     }
     debug('Created remote video track widget for: $remoteParticipantSid');
     return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
-
-    // final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
-    //
-    // ui.platformViewRegistry.registerViewFactory(
-    //   'remote-video-track-#$remoteVideoTrackSid-html',
-    //       (int viewId) => remoteVideoTrackElement,
-    // );
-    //
-    // return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
-
 
   }
 
@@ -127,6 +116,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       }
       current = localAudioTracks.next();
     }
+    debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
 
     return Future(() => enable);
   }
@@ -143,6 +133,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       }
       current = localVideoTracks.next();
     }
+    debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
 
     return Future(() => enabled);
   }
