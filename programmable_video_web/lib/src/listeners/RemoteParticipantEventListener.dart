@@ -24,6 +24,7 @@ class RemoteParticipantEventListener extends BaseListener {
 
   @override
   void addListeners() {
+    debug('Adding RemoteParticipantEventListeners for ${_remoteParticipant.sid}');
     _onPublication(
       'trackDisabled',
       audioHandler: onTrackDisabledAudio,

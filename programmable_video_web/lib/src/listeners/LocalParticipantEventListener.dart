@@ -24,6 +24,7 @@ class LocalParticipantEventListener extends BaseListener{
 
   @override
   void addListeners() {
+    debug('Adding LocalParticipantEventListeners for ${_localParticipant.sid}');
     _localParticipant.on('trackPublished', allowInterop(onTrackPublished));
     _localParticipant.on('trackPublicationFailed', allowInterop(onTrackPublicationFailed));
     _localParticipant.on('networkQualityLevelChanged', allowInterop(onNetworkQualityLevelChanged));

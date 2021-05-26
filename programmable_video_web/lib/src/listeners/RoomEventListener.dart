@@ -18,6 +18,7 @@ class RoomEventListener extends BaseListener {
 
   @override
   void addListeners() {
+    debug('Adding RoomEventListeners for ${_room.sid}');
     _on('disconnected', onDisconnected);
     _on('dominantSpeakerChanged', onDominantSpeakerChanged);
     _on('participantConnected', onParticipantConnected);

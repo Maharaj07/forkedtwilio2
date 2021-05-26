@@ -13,18 +13,19 @@ import 'package:programmable_video_web/src/interop/connect.dart';
 import 'package:programmable_video_web/src/interop/classes/logger.dart';
 import 'package:programmable_video_web/src/listeners//RoomEventListener.dart';
 import 'package:programmable_video_web/src/listeners/LocalParticipantEventListener.dart';
+import 'package:programmable_video_web/src/listeners/RemoteParticipantEventListener.dart';
 
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room _room;
 
-  static final _roomStreamController = StreamController<BaseRoomEvent>();
+  static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
   // TODO add listeners for camera stream
-  static final _cameraStreamController = StreamController<BaseCameraEvent>();
-  static final _localParticipantController = StreamController<BaseLocalParticipantEvent>();
-  static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>();
-  static final _loggingStreamController = StreamController<String>();
+  static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
+  static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
+  static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>.broadcast();
+  static final _loggingStreamController = StreamController<String>.broadcast();
 
   static var _nativeDebug = false;
   static final _registeredRemoteParticipantViewFactories = [];
@@ -47,6 +48,16 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       debug('Created remote video view factory for: $remoteParticipantSid');
       return remoteVideoTrackElement;
     });
+  }
+
+  static void _addPriorRemoteParticipantListeners(){
+    final remoteParticipants = _room.participants.values();
+    var current = remoteParticipants.next();
+    while(!current.done){
+      final remoteParticipantListener = RemoteParticipantEventListener(current.value, _remoteParticipantController);
+      remoteParticipantListener.addListeners();
+      current = remoteParticipants.next();
+    }
   }
 
   static void registerWith(Registrar registrar) {
@@ -87,12 +98,14 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         _room = room;
         final _roomModel = Connected(_room.toModel());
         _roomStreamController.add(_roomModel);
-        debug(_roomModel.toString());
+        debug('Connecting to room: ${_room.name}');
 
         final roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController);
         roomListener.addListeners();
         final localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
         localParticipantListener.addListeners();
+        _addPriorRemoteParticipantListeners();
+
       }),
     );
 
@@ -101,6 +114,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> disconnect() async {
+    debug('Disconnecting to room: ${_room.name}');
     _room?.disconnect();
   }
 
@@ -140,21 +154,21 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> setNativeDebug(bool native) async {
-    _nativeDebug = native;
     // Currently also enabling SDK debugging when native is true
-    if (native) {
+    if (native && !_nativeDebug) {
       final logger = Logger.getLogger('twilio-video');
       final originalFactory = logger.methodFactory;
       logger.methodFactory = allowInterop((methodName, logLevel, loggerName) {
         var method = originalFactory(methodName, logLevel, loggerName);
-        return allowInterop((datetime, logLevel, component, message, [data = '']) {
-          var output = '[  WEBSDK  ] $datetime, $logLevel, $component, $message, $data';
-          method(output, datetime, logLevel, component, message, data);
+        return allowInterop((datetime, logLevel, component, message, [data='',misc='']){
+          var output = '[  WEBSDK  ] $datetime $logLevel $component $message $data';
+          method(output,datetime, logLevel, component, message, data);
         });
       });
       // Can set to 'debug' for more detail.
       logger.setLevel('info');
     }
+    _nativeDebug = native;
   }
 
   @override
