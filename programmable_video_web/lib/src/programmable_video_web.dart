@@ -21,10 +21,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room _room;
 
   static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
-  // TODO add listeners for camera stream
+  // TODO add listeners for camera and remotedatatrack stream
   static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
   static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>.broadcast();
+  static final _remoteDataTrackController = StreamController<BaseRemoteDataTrackEvent>.broadcast();
   static final _loggingStreamController = StreamController<String>.broadcast();
 
   static var _nativeDebug = false;
@@ -32,6 +33,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   static void debug(String msg) {
     if (_nativeDebug) _loggingStreamController.add(msg);
+  }
+
+  static void registerWith(Registrar registrar) {
+    ProgrammableVideoPlatform.instance = ProgrammableVideoPlugin();
+    _createLocalViewFactory();
   }
 
   static void _createLocalViewFactory() {
@@ -58,11 +64,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       remoteParticipantListener.addListeners();
       current = remoteParticipants.next();
     }
-  }
-
-  static void registerWith(Registrar registrar) {
-    ProgrammableVideoPlatform.instance = ProgrammableVideoPlugin();
-    _createLocalViewFactory();
   }
 
   //#region Functions
@@ -239,7 +240,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Stream<BaseRemoteDataTrackEvent> remoteDataTrackStream(int internalId) {
-    return Stream.empty();
+    return _remoteDataTrackController.stream;
   }
 
   @override

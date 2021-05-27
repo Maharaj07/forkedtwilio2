@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html';
 
 import 'package:dartlin/control_flow.dart';
 import 'package:js/js.dart';
@@ -153,11 +154,15 @@ class RemoteParticipantEventListener extends BaseListener {
     debug('Added Remote${capitalize(track.kind)}TrackSubscribed Event');
     when(track.kind, {
       'audio': () {
+        final RemoteAudioTrack audioTrack = track;
+        final audioElement = audioTrack.attach();
+        document.body.append(audioElement);
+        debug('Attached audio element');
         _remoteParticipantController.add(
           RemoteAudioTrackSubscribed(
             remoteParticipantModel: _remoteParticipant.toModel(),
             remoteAudioTrackPublicationModel: (publication as RemoteAudioTrackPublication).toModel(),
-            remoteAudioTrackModel: (track as RemoteAudioTrack).toModel(),
+            remoteAudioTrackModel: audioTrack.toModel(),
           ),
         );
       },
@@ -186,6 +191,10 @@ class RemoteParticipantEventListener extends BaseListener {
     debug('Added Remote${capitalize(track.kind)}TrackUnsubscribed Event');
     when(track.kind, {
       'audio': () {
+        final RemoteAudioTrack audioTrack = track;
+        final mediaElements = audioTrack.detach();
+        mediaElements.forEach((element) => (element as MediaElement).remove());
+        debug('Detached audio element');
         _remoteParticipantController.add(
           RemoteAudioTrackUnsubscribed(
             remoteParticipantModel: _remoteParticipant.toModel(),
