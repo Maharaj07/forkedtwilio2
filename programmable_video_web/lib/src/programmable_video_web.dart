@@ -8,6 +8,10 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:programmable_video_web/src/interop/classes/js_map.dart';
+import 'package:programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
 import 'package:programmable_video_web/src/interop/connect.dart';
 import 'package:programmable_video_web/src/interop/classes/logger.dart';
@@ -58,12 +62,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   static void _addPriorRemoteParticipantListeners(){
     final remoteParticipants = _room.participants.values();
-    var current = remoteParticipants.next();
-    while(!current.done){
-      final remoteParticipantListener = RemoteParticipantEventListener(current.value, _remoteParticipantController);
+    iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant){
+      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController);
       remoteParticipantListener.addListeners();
-      current = remoteParticipants.next();
-    }
+    });
   }
 
   //#region Functions
@@ -122,34 +124,24 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<bool> enableAudioTrack({bool enable, String name}) {
     final localAudioTracks = _room?.localParticipant?.audioTracks?.values();
-    var current = localAudioTracks.next();
-
-    while (!current.done) {
-      if (current?.value?.trackName == name) {
-        enable ? current?.value?.track?.enable() : current?.value?.track?.disable();
-        break;
-      }
-      current = localAudioTracks.next();
-    }
+    iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack){
+      if (localAudioTrack.trackName == name) {
+        enable ? localAudioTrack?.track?.enable() : localAudioTrack?.track?.disable();
+      }});
+    enableRemoteAudioTrack(enable: enable, sid:_room.participants.values().next().value.sid);
     debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
-
     return Future(() => enable);
   }
 
   @override
   Future<bool> enableVideoTrack({bool enabled, String name}) {
     final localVideoTracks = _room?.localParticipant?.videoTracks?.values();
-    var current = localVideoTracks.next();
+    iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack){
+      if (localVideoTrack.trackName == name) {
+        enabled ? localVideoTrack?.track?.enable() : localVideoTrack?.track?.disable();
+      }});
 
-    while (!current.done) {
-      if (current?.value?.trackName == name) {
-        enabled ? current?.value?.track?.enable() : current?.value?.track?.disable();
-        break;
-      }
-      current = localVideoTracks.next();
-    }
     debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
-
     return Future(() => enabled);
   }
 
@@ -207,12 +199,23 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> enableRemoteAudioTrack({bool enable, String sid}) {
+    final remoteAudioTracks = _room.participants.toDartMap()[sid].audioTracks.values();
+    iteratorForEach<RemoteAudioTrackPublication>(remoteAudioTracks, (remoteAudioTrack){
+      final AudioElement currentTrackElement = document.getElementById(remoteAudioTrack.track.name);
+      currentTrackElement.muted = !enable;
+    });
+    debug('${enable ? 'Enabled' : 'Disabled'} Remote Audio Track');
+
+    isRemoteAudioTrackPlaybackEnabled(sid);
     return Future(() {});
   }
 
   @override
   Future<bool> isRemoteAudioTrackPlaybackEnabled(String sid) {
-    return Future(() => false);
+    final remoteAudioTrackName = _room.participants.toDartMap()[sid].audioTracks.values().next().value?.track?.name;
+    final AudioElement remoteAudioTrackElement = document.getElementById(remoteAudioTrackName);
+    final isEnabled = !remoteAudioTrackElement.muted;
+    return Future(() => isEnabled);
   }
 
   //#endregion

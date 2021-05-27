@@ -156,6 +156,7 @@ class RemoteParticipantEventListener extends BaseListener {
       'audio': () {
         final RemoteAudioTrack audioTrack = track;
         final audioElement = audioTrack.attach();
+        audioElement.id = track.name;
         document.body.append(audioElement);
         debug('Attached audio element');
         _remoteParticipantController.add(
