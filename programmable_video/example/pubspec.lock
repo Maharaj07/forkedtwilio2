@@ -527,7 +527,7 @@ packages:
       path: "../../programmable_video_platform_interface"
       relative: true
     source: path
-    version: "0.3.2"
+    version: "0.3.3"
   typed_data:
     dependency: transitive
     description:
