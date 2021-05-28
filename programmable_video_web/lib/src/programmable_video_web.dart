@@ -128,7 +128,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       if (localAudioTrack.trackName == name) {
         enable ? localAudioTrack?.track?.enable() : localAudioTrack?.track?.disable();
       }});
-    enableRemoteAudioTrack(enable: enable, sid:_room.participants.values().next().value.sid);
+
     debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
     return Future(() => enable);
   }
@@ -204,9 +204,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       final AudioElement currentTrackElement = document.getElementById(remoteAudioTrack.track.name);
       currentTrackElement.muted = !enable;
     });
-    debug('${enable ? 'Enabled' : 'Disabled'} Remote Audio Track');
 
-    isRemoteAudioTrackPlaybackEnabled(sid);
+    debug('${enable ? 'Enabled' : 'Disabled'} Remote Audio Track');
     return Future(() {});
   }
 
