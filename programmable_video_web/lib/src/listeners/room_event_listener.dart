@@ -29,8 +29,7 @@ class RoomEventListener extends BaseListener {
     _on('recordingStopped', onRecordingStopped);
   }
 
-  void _on(String eventName, Function eventHandler) =>
-      _room.on(
+  void _on(String eventName, Function eventHandler) => _room.on(
         eventName,
         allowInterop(eventHandler),
       );
@@ -54,7 +53,9 @@ class RoomEventListener extends BaseListener {
   }
 
   void onParticipantDisconnected(RemoteParticipant participant) {
-    _roomStreamController.add(ParticipantDisconnected(_room.toModel(), participant.toModel()),);
+    _roomStreamController.add(
+      ParticipantDisconnected(_room.toModel(), participant.toModel()),
+    );
     debug('Added ParticipantDisconnected Room Event');
   }
 
@@ -73,9 +74,8 @@ class RoomEventListener extends BaseListener {
     debug('Added RecordingStarted Room Event');
   }
 
-  void onRecordingStopped(){
-      _roomStreamController.add(RecordingStopped(_room.toModel()));
-      debug('Added RecordingStopped Room Event');
+  void onRecordingStopped() {
+    _roomStreamController.add(RecordingStopped(_room.toModel()));
+    debug('Added RecordingStopped Room Event');
   }
-
 }

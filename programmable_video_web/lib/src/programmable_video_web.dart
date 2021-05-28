@@ -60,9 +60,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     });
   }
 
-  static void _addPriorRemoteParticipantListeners(){
+  static void _addPriorRemoteParticipantListeners() {
     final remoteParticipants = _room.participants.values();
-    iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant){
+    iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
       final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController);
       remoteParticipantListener.addListeners();
     });
@@ -91,7 +91,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     }
     debug('Created remote video track widget for: $remoteParticipantSid');
     return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
-
   }
 
   @override
@@ -108,7 +107,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         final localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
         localParticipantListener.addListeners();
         _addPriorRemoteParticipantListeners();
-
       }),
     );
 
@@ -124,10 +122,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<bool> enableAudioTrack({bool enable, String name}) {
     final localAudioTracks = _room?.localParticipant?.audioTracks?.values();
-    iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack){
+    iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
       if (localAudioTrack.trackName == name) {
         enable ? localAudioTrack?.track?.enable() : localAudioTrack?.track?.disable();
-      }});
+      }
+    });
 
     debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
     return Future(() => enable);
@@ -136,10 +135,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<bool> enableVideoTrack({bool enabled, String name}) {
     final localVideoTracks = _room?.localParticipant?.videoTracks?.values();
-    iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack){
+    iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
       if (localVideoTrack.trackName == name) {
         enabled ? localVideoTrack?.track?.enable() : localVideoTrack?.track?.disable();
-      }});
+      }
+    });
 
     debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
     return Future(() => enabled);
@@ -153,9 +153,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       final originalFactory = logger.methodFactory;
       logger.methodFactory = allowInterop((methodName, logLevel, loggerName) {
         var method = originalFactory(methodName, logLevel, loggerName);
-        return allowInterop((datetime, logLevel, component, message, [data='',misc='']){
+        return allowInterop((datetime, logLevel, component, message, [data = '', misc = '']) {
           var output = '[  WEBSDK  ] $datetime $logLevel $component $message $data';
-          method(output,datetime, logLevel, component, message, data);
+          method(output, datetime, logLevel, component, message, data);
         });
       });
       // Can set to 'debug' for more detail.
@@ -200,7 +200,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<void> enableRemoteAudioTrack({bool enable, String sid}) {
     final remoteAudioTracks = _room.participants.toDartMap()[sid].audioTracks.values();
-    iteratorForEach<RemoteAudioTrackPublication>(remoteAudioTracks, (remoteAudioTrack){
+    iteratorForEach<RemoteAudioTrackPublication>(remoteAudioTracks, (remoteAudioTrack) {
       final AudioElement currentTrackElement = document.getElementById(remoteAudioTrack.track.name);
       currentTrackElement.muted = !enable;
     });

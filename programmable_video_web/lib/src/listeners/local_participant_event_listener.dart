@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:js/js.dart';
@@ -16,7 +15,7 @@ import 'package:programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:programmable_video_web/src/listeners/base_listener.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
-class LocalParticipantEventListener extends BaseListener{
+class LocalParticipantEventListener extends BaseListener {
   final LocalParticipant _localParticipant;
   final StreamController<BaseLocalParticipantEvent> _localParticipantController;
 
@@ -53,7 +52,6 @@ class LocalParticipantEventListener extends BaseListener{
       },
     });
   }
-
 
   void onTrackPublicationFailed(TwilioError error, dynamic localTrack) {
     debug('Added Local${capitalize(localTrack.kind)}TrackPublicationFailed Event');

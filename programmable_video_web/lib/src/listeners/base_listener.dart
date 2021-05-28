@@ -1,14 +1,12 @@
-
 import 'package:programmable_video_web/src/programmable_video_web.dart';
 
-class BaseListener{
-
+class BaseListener {
   // Should be overrided by all subclasses
-  void addListeners(){
+  void addListeners() {
     throw UnimplementedError('addListeners has not been implemented');
   }
 
-  void debug(String msg){
+  void debug(String msg) {
     ProgrammableVideoPlugin.debug('Listener Event: $msg');
   }
 
@@ -19,5 +17,4 @@ class BaseListener{
     }
     return string[0].toUpperCase() + string.substring(1);
   }
-
 }

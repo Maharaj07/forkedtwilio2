@@ -3,9 +3,8 @@ library logger;
 
 import 'package:js/js.dart';
 
-
 @JS('Twilio.Video.Logger')
-class Logger{
+class Logger {
   external static LogLevel getLogger(String name);
 }
 
@@ -16,4 +15,3 @@ class LogLevel {
   external void setLevel(String name);
   external factory LogLevel();
 }
-
