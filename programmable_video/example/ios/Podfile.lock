@@ -3,6 +3,7 @@ PODS:
     - Firebase/Functions (= 7.3.0)
     - firebase_core
     - Flutter
+  - device_info (0.0.1):
   - Firebase/CoreOnly (7.3.0):
     - FirebaseCore (= 7.3.0)
   - Firebase/Functions (7.3.0):
