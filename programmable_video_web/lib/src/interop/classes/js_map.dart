@@ -76,6 +76,7 @@ void iteratorForEach<V>(
   Iterator<V> iterator,
   void Function(V value) mapper,
 ) {
+  if (iterator == null) return;
   var result = iterator.next();
   while (!result.done) {
     mapper(result.value);

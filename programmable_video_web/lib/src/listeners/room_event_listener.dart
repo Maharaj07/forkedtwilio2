@@ -13,8 +13,9 @@ class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
+  final StreamController<BaseRemoteDataTrackEvent> _remoteDataTrackController;
 
-  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController);
+  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController, this._remoteDataTrackController);
 
   @override
   void addListeners() {
@@ -48,7 +49,7 @@ class RoomEventListener extends BaseListener {
     _roomStreamController.add(ParticipantConnected(_room.toModel(), participant.toModel()));
     debug('Added ParticipantConnected Room Event');
 
-    final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController);
+    final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController, _remoteDataTrackController);
     remoteParticipantListener.addListeners();
   }
 

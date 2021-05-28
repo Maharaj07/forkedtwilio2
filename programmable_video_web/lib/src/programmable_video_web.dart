@@ -9,6 +9,7 @@ import 'package:js/js.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/local_data_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/remote_participant.dart';
@@ -25,7 +26,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room _room;
 
   static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
-  // TODO add listeners for camera and remotedatatrack stream
+  // TODO add listeners for camera stream
   static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
   static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>.broadcast();
@@ -63,7 +64,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static void _addPriorRemoteParticipantListeners() {
     final remoteParticipants = _room.participants.values();
     iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
-      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController);
+      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
       remoteParticipantListener.addListeners();
     });
   }
@@ -102,7 +103,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         _roomStreamController.add(_roomModel);
         debug('Connecting to room: ${_room.name}');
 
-        final roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController);
+        final roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController, _remoteDataTrackController);
         roomListener.addListeners();
         final localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
         localParticipantListener.addListeners();
@@ -189,11 +190,19 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendMessage({String message, String name}) {
+    debug('Sent the message: $message for local data track: $name');
+    iteratorForEach<LocalDataTrackPublication>(_room.localParticipant.dataTracks.values(), (localDataTrackPublication){
+      localDataTrackPublication?.track?.send(message);
+    });
     return Future(() {});
   }
 
   @override
   Future<void> sendBuffer({ByteBuffer message, String name}) {
+    debug('Sent the message: $message for local data track: $name');
+    iteratorForEach<LocalDataTrackPublication>(_room.localParticipant.dataTracks.values(), (localDataTrackPublication){
+      localDataTrackPublication?.track?.send(message);
+    });
     return Future(() {});
   }
 

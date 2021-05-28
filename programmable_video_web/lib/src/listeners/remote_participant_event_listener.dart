@@ -15,13 +15,15 @@ import 'package:programmable_video_web/src/interop/classes/track.dart';
 import 'package:programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:programmable_video_web/src/listeners/base_listener.dart';
+import 'package:programmable_video_web/src/listeners/remote_data_track_event_listener.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class RemoteParticipantEventListener extends BaseListener {
   final RemoteParticipant _remoteParticipant;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
+  final StreamController<BaseRemoteDataTrackEvent> _remoteDataTrackController;
 
-  RemoteParticipantEventListener(this._remoteParticipant, this._remoteParticipantController);
+  RemoteParticipantEventListener(this._remoteParticipant, this._remoteParticipantController, this._remoteDataTrackController);
 
   @override
   void addListeners() {
@@ -175,6 +177,8 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteDataTrackModel: (track as RemoteDataTrack).toModel(),
           ),
         );
+        final remoteDataTrackListener = RemoteDataTrackEventListener(track as RemoteDataTrack, _remoteDataTrackController);
+        remoteDataTrackListener.addListeners();
       },
       'video': () {
         _remoteParticipantController.add(
