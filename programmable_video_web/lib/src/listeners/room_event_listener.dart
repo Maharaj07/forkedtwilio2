@@ -4,8 +4,8 @@ import 'package:js/js.dart';
 import 'package:programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
 import 'package:programmable_video_web/src/interop/classes/twilio_error.dart';
-import 'package:programmable_video_web/src/listeners/BaseListener.dart';
-import 'package:programmable_video_web/src/listeners/RemoteParticipantEventListener.dart';
+import 'package:programmable_video_web/src/listeners/base_listener.dart';
+import 'package:programmable_video_web/src/listeners/remote_participant_event_listener.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:dartlin/dartlin.dart';
 

@@ -14,7 +14,7 @@ import 'package:programmable_video_web/src/interop/classes/remote_video_track_pu
 import 'package:programmable_video_web/src/interop/classes/track.dart';
 import 'package:programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:programmable_video_web/src/interop/network_quality_level.dart';
-import 'package:programmable_video_web/src/listeners/BaseListener.dart';
+import 'package:programmable_video_web/src/listeners/base_listener.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class RemoteParticipantEventListener extends BaseListener {

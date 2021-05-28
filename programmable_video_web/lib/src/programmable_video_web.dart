@@ -15,9 +15,9 @@ import 'package:programmable_video_web/src/interop/classes/remote_participant.da
 import 'package:programmable_video_web/src/interop/classes/room.dart';
 import 'package:programmable_video_web/src/interop/connect.dart';
 import 'package:programmable_video_web/src/interop/classes/logger.dart';
-import 'package:programmable_video_web/src/listeners//RoomEventListener.dart';
-import 'package:programmable_video_web/src/listeners/LocalParticipantEventListener.dart';
-import 'package:programmable_video_web/src/listeners/RemoteParticipantEventListener.dart';
+import 'package:programmable_video_web/src/listeners//room_event_listener.dart';
+import 'package:programmable_video_web/src/listeners/local_participant_event_listener.dart';
+import 'package:programmable_video_web/src/listeners/remote_participant_event_listener.dart';
 
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
