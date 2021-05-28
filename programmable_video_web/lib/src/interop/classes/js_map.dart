@@ -71,3 +71,14 @@ List<T> iteratorToList<T, V>(
   }
   return list;
 }
+
+void iteratorForEach<V>(
+  Iterator<V> iterator,
+  void Function(V value) mapper,
+) {
+  var result = iterator.next();
+  while (!result.done) {
+    mapper(result.value);
+    result = iterator.next();
+  }
+}

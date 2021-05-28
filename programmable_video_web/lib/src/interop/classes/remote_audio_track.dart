@@ -19,6 +19,7 @@ class RemoteAudioTrack extends RemoteMediaTrack {
   );
 
   external AudioElement attach();
+  external List<dynamic> detach();
 }
 
 extension Interop on RemoteAudioTrack {

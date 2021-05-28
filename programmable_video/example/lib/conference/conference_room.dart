@@ -527,8 +527,8 @@ class ConferenceRoom with ChangeNotifier {
     );
     if (participant != null) {
       Debug.log('Participant found: ${participant.id}, updating A/V enabled values');
-      _setRemoteVideoEnabled(event);
-      _setRemoteAudioEnabled(event);
+      if (event is RemoteVideoTrackEvent) _setRemoteVideoEnabled(event);
+      if (event is RemoteAudioTrackEvent) _setRemoteAudioEnabled(event);
     } else {
       final bufferedParticipant = _participantBuffer.firstWhere(
         (ParticipantBuffer participant) => participant.id == event.remoteParticipant.sid,
