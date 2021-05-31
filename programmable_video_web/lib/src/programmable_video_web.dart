@@ -190,7 +190,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendMessage({String message, String name}) {
-    debug('Sent the message: $message for local data track: $name');
+    debug('Sent the string message: $message for local data track: $name');
     iteratorForEach<LocalDataTrackPublication>(_room.localParticipant.dataTracks.values(), (localDataTrackPublication){
       localDataTrackPublication?.track?.send(message);
     });
@@ -199,7 +199,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendBuffer({ByteBuffer message, String name}) {
-    debug('Sent the message: $message for local data track: $name');
+    debug('Sent the buffer message: $message for local data track: $name');
     iteratorForEach<LocalDataTrackPublication>(_room.localParticipant.dataTracks.values(), (localDataTrackPublication){
       localDataTrackPublication?.track?.send(message);
     });
