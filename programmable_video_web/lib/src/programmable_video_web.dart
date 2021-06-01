@@ -47,7 +47,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static void _createLocalViewFactory() {
     ui.platformViewRegistry.registerViewFactory('local-video-track-html', (int viewId) {
       final localVideoTrackElement = _room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
-      debug('Created local video view factory for:  ${_room.localParticipant.sid}');
+      debug('Created local video track view for:  ${_room.localParticipant.sid}');
       return localVideoTrackElement;
     });
   }
@@ -55,7 +55,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
-      debug('Created remote video view factory for: $remoteParticipantSid');
+      debug('Created remote video track view for: $remoteParticipantSid');
       return remoteVideoTrackElement;
     });
   }
