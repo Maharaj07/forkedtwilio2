@@ -147,7 +147,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> setNativeDebug(bool native) async {
-    // Currently also enabling SDK debugging when native is true
+   // Currently also enabling SDK debugging when native is true
     if (native && !_nativeDebug) {
       final logger = Logger.getLogger('twilio-video');
       final originalFactory = logger.methodFactory;
