@@ -11,18 +11,18 @@ import 'package:programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
 import 'package:programmable_video_web/src/interop/connect.dart';
 import 'package:programmable_video_web/src/interop/classes/logger.dart';
 import 'package:programmable_video_web/src/listeners//room_event_listener.dart';
 import 'package:programmable_video_web/src/listeners/local_participant_event_listener.dart';
-import 'package:programmable_video_web/src/listeners/remote_participant_event_listener.dart';
 
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room _room;
+  static RoomEventListener _roomListener;
+  static LocalParticipantEventListener _localParticipantListener;
 
   // TODO add listeners for camera and remotedatatrack stream
   static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
@@ -60,13 +60,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     });
   }
 
-  static void _addPriorRemoteParticipantListeners() {
-    final remoteParticipants = _room.participants.values();
-    iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
-      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController);
-      remoteParticipantListener.addListeners();
-    });
-  }
+
 
   //#region Functions
   @override
@@ -102,11 +96,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         _roomStreamController.add(_roomModel);
         debug('Connecting to room: ${_room.name}');
 
-        final roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController);
-        roomListener.addListeners();
-        final localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
-        localParticipantListener.addListeners();
-        _addPriorRemoteParticipantListeners();
+        _roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController);
+        _roomListener.addListeners();
+        _localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
+        _localParticipantListener.addListeners();
       }),
     );
 
@@ -115,8 +108,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> disconnect() async {
-    debug('Disconnecting to room: ${_room.name}');
+    debug('Disconnecting to room: ${_room?.name}');
     _room?.disconnect();
+    _roomListener?.removeListeners();
+    _localParticipantListener?.removeListeners();
   }
 
   @override

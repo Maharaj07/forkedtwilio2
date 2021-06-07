@@ -48,7 +48,7 @@ class RemoteParticipantEventListener extends BaseListener {
 
   @override
   void removeListeners() {
-    debug('Adding RemoteParticipantEventListeners for ${_remoteParticipant.sid}');
+    debug('Removing RemoteParticipantEventListeners for ${_remoteParticipant.sid}');
     _off('trackDisabled', onTrackDisabled);
     _off('trackEnabled', onTrackEnabled);
     _off('trackPublished', onTrackPublished);
