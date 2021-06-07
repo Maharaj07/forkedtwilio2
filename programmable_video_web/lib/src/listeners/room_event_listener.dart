@@ -9,6 +9,23 @@ import 'package:programmable_video_web/src/listeners/remote_participant_event_li
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:dartlin/dartlin.dart';
 
+/*
+TODO: Review and potentially add listeners for the following events:
+  participantReconnected
+  participantReconnecting
+  trackDimensionsChanged
+  trackDisabled
+  trackEnabled
+  trackMessage
+  trackPublished
+  trackStarted
+  trackSubscribed
+  trackSwitchedOff
+  trackSwitchedOn
+  trackUnpublished
+  trackUnsubscribed
+ */
+
 class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
@@ -29,10 +46,28 @@ class RoomEventListener extends BaseListener {
     _on('recordingStopped', onRecordingStopped);
   }
 
+  @override
+  void removeListeners() {
+    debug('Removing RoomEventListeners for ${_room.sid}');
+    _off('disconnected', onDisconnected);
+    _off('dominantSpeakerChanged', onDominantSpeakerChanged);
+    _off('participantConnected', onParticipantConnected);
+    _off('participantDisconnected', onParticipantDisconnected);
+    _off('reconnected', onReconnected);
+    _off('reconnecting', onReconnecting);
+    _off('recordingStarted', onRecordingStarted);
+    _off('recordingStopped', onRecordingStopped);
+  }
+
   void _on(String eventName, Function eventHandler) => _room.on(
         eventName,
         allowInterop(eventHandler),
       );
+
+  void _off(String eventName, Function eventHandler) => _room.off(
+    eventName,
+    allowInterop(eventHandler),
+  );
 
   void onDisconnected(Room room, TwilioError error) {
     _roomStreamController.add(Disconnected(room.toModel(), error.let((it) => it.toModel())));

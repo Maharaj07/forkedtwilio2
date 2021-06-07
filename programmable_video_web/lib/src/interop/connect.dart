@@ -70,7 +70,6 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
       ConnectOptions(
         audio: model.audioTracks != null,
         automaticSubscription: model.enableAutomaticSubscription ?? true,
-        //model.enableAutomaticSubscription,
         dominantSpeaker: model.enableDominantSpeaker,
         name: model.roomName,
         networkQuality: model.networkQualityConfiguration != null && model.enableNetworkQuality

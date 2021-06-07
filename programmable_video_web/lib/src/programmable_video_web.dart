@@ -24,8 +24,8 @@ import 'package:twilio_programmable_video_platform_interface/twilio_programmable
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room _room;
 
-  static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
   // TODO add listeners for camera and remotedatatrack stream
+  static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
   static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
   static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>.broadcast();

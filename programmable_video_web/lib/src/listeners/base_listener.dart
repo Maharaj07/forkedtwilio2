@@ -6,9 +6,16 @@ class BaseListener {
     throw UnimplementedError('addListeners has not been implemented');
   }
 
+  void removeListeners() {
+    throw UnimplementedError('removeListeners has not been implemented');
+  }
+
   void debug(String msg) {
     ProgrammableVideoPlugin.debug('Listener Event: $msg');
   }
+
+
+
 
   // Helper for debug statements
   String capitalize(String string) {
