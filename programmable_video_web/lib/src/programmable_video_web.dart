@@ -3,6 +3,7 @@ import 'dart:html';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
@@ -79,12 +80,16 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     bool mirror = true,
     Key key,
   }) {
+    if(remoteParticipantSid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'remoteParticipantSid\' was not given');
+    if(remoteVideoTrackSid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'remoteVideoTrackSid\' was not given');
+    key ??= ValueKey(remoteVideoTrackSid);
+
     if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
       _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
       _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
     }
     debug('Created remote video track widget for: $remoteParticipantSid');
-    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
+    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
   }
 
   @override
@@ -116,6 +121,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<bool> enableAudioTrack({bool enable, String name}) {
+    if(enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
+    if(name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
+
     final localAudioTracks = _room?.localParticipant?.audioTracks?.values();
     iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
       if (localAudioTrack.trackName == name) {
@@ -129,6 +137,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<bool> enableVideoTrack({bool enabled, String name}) {
+    if(enabled == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enabled\' was not given');
+    if(name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
+
     final localVideoTracks = _room?.localParticipant?.videoTracks?.values();
     iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
       if (localVideoTrack.trackName == name) {
@@ -142,7 +153,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> setNativeDebug(bool native) async {
-   // Currently also enabling SDK debugging when native is true
+    if(native == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'native\' was not given');
+
+    // Currently also enabling SDK debugging when native is true
     if (native && !_nativeDebug) {
       final logger = Logger.getLogger('twilio-video');
       final originalFactory = logger.methodFactory;
@@ -194,6 +207,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> enableRemoteAudioTrack({bool enable, String sid}) {
+    if(enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
+    if(sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
+
     final remoteAudioTracks = _room.participants.toDartMap()[sid].audioTracks.values();
     iteratorForEach<RemoteAudioTrackPublication>(remoteAudioTracks, (remoteAudioTrack) {
       final AudioElement currentTrackElement = document.getElementById(remoteAudioTrack.track.name);
@@ -206,6 +222,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<bool> isRemoteAudioTrackPlaybackEnabled(String sid) {
+    if(sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
     final remoteAudioTrackName = _room.participants.toDartMap()[sid].audioTracks.values().next().value?.track?.name;
     final AudioElement remoteAudioTrackElement = document.getElementById(remoteAudioTrackName);
     final isEnabled = !remoteAudioTrackElement.muted;
