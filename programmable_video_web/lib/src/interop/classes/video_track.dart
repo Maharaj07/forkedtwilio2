@@ -10,8 +10,8 @@ class VideoTrack extends Track {
   external bool get isEnabled;
 
   external factory VideoTrack(
-      dynamic isEnabled,
-      dynamic isStarted,
-      dynamic options,
-      );
+    dynamic isEnabled,
+    dynamic isStarted,
+    dynamic options,
+  );
 }

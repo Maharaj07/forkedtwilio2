@@ -55,7 +55,7 @@ class ConnectOptions {
 /// Calls twilio-video.js connect method with values from the [ConnectOptionsModel]
 ///
 /// Setting custom track names is not yet supported.
-Future<Room> connectWithModel(ConnectOptionsModel model) {
+Future<Room> connectWithModel(ConnectOptionsModel model, Function onError) {
   // In the future tracks should be created manually before calling connect.
   // This would make it possible to use custom track names that might be in the provided model.
   //
@@ -110,5 +110,5 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
         final jsTrack = videoTracksIterator.next().value.track;
         videoTrack.enabled ? jsTrack.enable() : jsTrack.disable();
       });
-    });
+    }).catchError(onError);
 }

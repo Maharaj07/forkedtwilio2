@@ -10,8 +10,8 @@ class AudioTrack extends Track {
   external bool get isEnabled;
 
   external factory AudioTrack(
-      dynamic isEnabled,
-      dynamic isStarted,
-      dynamic options,
-      );
+    dynamic isEnabled,
+    dynamic isStarted,
+    dynamic options,
+  );
 }

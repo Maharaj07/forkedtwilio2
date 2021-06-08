@@ -34,6 +34,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static final _loggingStreamController = StreamController<String>.broadcast();
 
   static var _nativeDebug = false;
+  static var _sdkDebugSetup = false;
   static final _registeredRemoteParticipantViewFactories = [];
 
   static void debug(String msg) {
@@ -61,8 +62,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     });
   }
 
-
-
   //#region Functions
   @override
   Widget createLocalVideoTrackWidget({bool mirror = true, Key key}) {
@@ -80,8 +79,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     bool mirror = true,
     Key key,
   }) {
-    if(remoteParticipantSid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'remoteParticipantSid\' was not given');
-    if(remoteVideoTrackSid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'remoteVideoTrackSid\' was not given');
+    if (remoteParticipantSid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'remoteParticipantSid\' was not given');
+    if (remoteVideoTrackSid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'remoteVideoTrackSid\' was not given');
     key ??= ValueKey(remoteVideoTrackSid);
 
     if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
@@ -95,7 +94,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
     unawaited(
-      connectWithModel(connectOptions).then((room) {
+      connectWithModel(connectOptions, (_) => debug('Failed to Connect to Room')).then((room) {
         _room = room;
         final _roomModel = Connected(_room.toModel());
         _roomStreamController.add(_roomModel);
@@ -121,30 +120,33 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<bool> enableAudioTrack({bool enable, String name}) {
-    if(enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
-    if(name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
+    if (enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
+    if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
 
     final localAudioTracks = _room?.localParticipant?.audioTracks?.values();
     iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
-      if (localAudioTrack.trackName == name) {
+      var found = localAudioTrack.trackName == name;
+      if (found) {
         enable ? localAudioTrack?.track?.enable() : localAudioTrack?.track?.disable();
       }
+      return found;
     });
-
     debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
     return Future(() => enable);
   }
 
   @override
   Future<bool> enableVideoTrack({bool enabled, String name}) {
-    if(enabled == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enabled\' was not given');
-    if(name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
+    if (enabled == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enabled\' was not given');
+    if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
 
     final localVideoTracks = _room?.localParticipant?.videoTracks?.values();
     iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
-      if (localVideoTrack.trackName == name) {
+      var found = localVideoTrack.trackName == name;
+      if (found) {
         enabled ? localVideoTrack?.track?.enable() : localVideoTrack?.track?.disable();
       }
+      return found;
     });
 
     debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
@@ -153,11 +155,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> setNativeDebug(bool native) async {
-    if(native == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'native\' was not given');
+    if (native == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'native\' was not given');
 
+    final logger = Logger.getLogger('twilio-video');
     // Currently also enabling SDK debugging when native is true
-    if (native && !_nativeDebug) {
-      final logger = Logger.getLogger('twilio-video');
+    if (native && !_sdkDebugSetup) {
       final originalFactory = logger.methodFactory;
       logger.methodFactory = allowInterop((methodName, logLevel, loggerName) {
         var method = originalFactory(methodName, logLevel, loggerName);
@@ -166,10 +168,13 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           method(output, datetime, logLevel, component, message, data);
         });
       });
-      // Can set to 'debug' for more detail.
-      logger.setLevel('info');
+      _sdkDebugSetup = true;
     }
+    // Adding native debugging
     _nativeDebug = native;
+
+    // Adding sdk debugging (can be set to 'debug' for more detail"
+    native ? logger.setLevel('info') : logger.setLevel('warn');
   }
 
   @override
@@ -207,13 +212,14 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> enableRemoteAudioTrack({bool enable, String sid}) {
-    if(enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
-    if(sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
+    if (enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
+    if (sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
 
     final remoteAudioTracks = _room.participants.toDartMap()[sid].audioTracks.values();
     iteratorForEach<RemoteAudioTrackPublication>(remoteAudioTracks, (remoteAudioTrack) {
       final AudioElement currentTrackElement = document.getElementById(remoteAudioTrack.track.name);
       currentTrackElement.muted = !enable;
+      return false;
     });
 
     debug('${enable ? 'Enabled' : 'Disabled'} Remote Audio Track');
@@ -222,7 +228,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<bool> isRemoteAudioTrackPlaybackEnabled(String sid) {
-    if(sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
+    if (sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
     final remoteAudioTrackName = _room.participants.toDartMap()[sid].audioTracks.values().next().value?.track?.name;
     final AudioElement remoteAudioTrackElement = document.getElementById(remoteAudioTrackName);
     final isEnabled = !remoteAudioTrackElement.muted;

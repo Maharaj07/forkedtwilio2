@@ -31,9 +31,9 @@ class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
-  final Map<String, RemoteParticipantEventListener>_remoteParticipantListeners = {};
+  final Map<String, RemoteParticipantEventListener> _remoteParticipantListeners = {};
 
-  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController){
+  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController) {
     _addPriorRemoteParticipantListeners();
   }
 
@@ -70,6 +70,7 @@ class RoomEventListener extends BaseListener {
       final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController);
       remoteParticipantListener.addListeners();
       _remoteParticipantListeners[remoteParticipant.sid] = remoteParticipantListener;
+      return false;
     });
   }
 
@@ -79,9 +80,9 @@ class RoomEventListener extends BaseListener {
       );
 
   void _off(String eventName, Function eventHandler) => _room.off(
-    eventName,
-    allowInterop(eventHandler),
-  );
+        eventName,
+        allowInterop(eventHandler),
+      );
 
   void onDisconnected(Room room, TwilioError error) {
     _roomStreamController.add(Disconnected(room.toModel(), error.let((it) => it.toModel())));

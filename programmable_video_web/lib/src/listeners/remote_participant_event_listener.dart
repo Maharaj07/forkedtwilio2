@@ -65,11 +65,11 @@ class RemoteParticipantEventListener extends BaseListener {
       );
 
   void _off(String eventName, Function eventHandler) => _remoteParticipant.off(
-    eventName,
-    allowInterop(eventHandler),
-  );
+        eventName,
+        allowInterop(eventHandler),
+      );
 
-  void onTrackDisabled(RemoteTrackPublication publication){
+  void onTrackDisabled(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackDisabled Event');
     when(publication.kind, {
       'audio': () => onTrackDisabledAudio(publication),
@@ -89,7 +89,7 @@ class RemoteParticipantEventListener extends BaseListener {
     ));
   }
 
-  void onTrackEnabled(RemoteTrackPublication publication){
+  void onTrackEnabled(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackEnabled Event');
     when(publication.kind, {
       'audio': () => onTrackEnabledAudio(publication),
@@ -111,13 +111,9 @@ class RemoteParticipantEventListener extends BaseListener {
         ),
       );
 
-  void onTrackPublished(RemoteTrackPublication publication){
+  void onTrackPublished(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackPublished Event');
-    when(publication.kind, {
-      'audio': () => onTrackPublishedAudio(publication),
-      'video': () => onTrackPublishedVideo(publication),
-      'data': () => onTrackPublishedData(publication)
-    });
+    when(publication.kind, {'audio': () => onTrackPublishedAudio(publication), 'video': () => onTrackPublishedVideo(publication), 'data': () => onTrackPublishedData(publication)});
   }
 
   void onTrackPublishedAudio(RemoteAudioTrackPublication publication) => _remoteParticipantController.add(
@@ -143,13 +139,9 @@ class RemoteParticipantEventListener extends BaseListener {
         ),
       );
 
-  void onTrackUnpublished(RemoteTrackPublication publication){
+  void onTrackUnpublished(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackUnpublished Event');
-    when(publication.kind, {
-      'audio': () => onTrackUnpublishedAudio(publication),
-      'video': () => onTrackUnpublishedVideo(publication),
-      'data': () => onTrackUnpublishedData(publication)
-    });
+    when(publication.kind, {'audio': () => onTrackUnpublishedAudio(publication), 'video': () => onTrackUnpublishedVideo(publication), 'data': () => onTrackUnpublishedData(publication)});
   }
 
   void onTrackUnpublishedAudio(RemoteAudioTrackPublication publication) => _remoteParticipantController.add(

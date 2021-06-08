@@ -14,9 +14,6 @@ class BaseListener {
     ProgrammableVideoPlugin.debug('Listener Event: $msg');
   }
 
-
-
-
   // Helper for debug statements
   String capitalize(String string) {
     if (string.isEmpty) {

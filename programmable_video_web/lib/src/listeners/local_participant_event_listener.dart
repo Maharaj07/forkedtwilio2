@@ -23,7 +23,6 @@ TODO: Review and potentially add listeners for the following events:
   trackStopped
  */
 
-
 class LocalParticipantEventListener extends BaseListener {
   final LocalParticipant _localParticipant;
   final StreamController<BaseLocalParticipantEvent> _localParticipantController;
@@ -47,14 +46,14 @@ class LocalParticipantEventListener extends BaseListener {
   }
 
   void _on(String eventName, Function eventHandler) => _localParticipant.on(
-    eventName,
-    allowInterop(eventHandler),
-  );
+        eventName,
+        allowInterop(eventHandler),
+      );
 
   void _off(String eventName, Function eventHandler) => _localParticipant.off(
-    eventName,
-    allowInterop(eventHandler),
-  );
+        eventName,
+        allowInterop(eventHandler),
+      );
 
   void onTrackPublished(LocalTrackPublication publication) {
     debug('Added Local${capitalize(publication.kind)}TrackPublished Event');
@@ -116,6 +115,4 @@ class LocalParticipantEventListener extends BaseListener {
       ),
     );
   }
-
-
 }

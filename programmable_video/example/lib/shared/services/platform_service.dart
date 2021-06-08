@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
+import 'package:uuid/uuid.dart';
 
 class PlatformService {
   static Future<String> get deviceId async {
@@ -11,7 +12,9 @@ class PlatformService {
     } else if (Platform.isAndroid) {
       var androidInfo = await deviceInfo.androidInfo;
       return androidInfo.androidId;
+    } else {
+      // Platform is Web
+      return Uuid().v1();
     }
-    return null;
   }
 }

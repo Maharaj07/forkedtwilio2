@@ -74,11 +74,12 @@ List<T> iteratorToList<T, V>(
 
 void iteratorForEach<V>(
   Iterator<V> iterator,
-  void Function(V value) mapper,
+  bool Function(V value) mapper,
 ) {
   var result = iterator.next();
   while (!result.done) {
-    mapper(result.value);
+    final earlyBreak = mapper(result.value);
+    if (earlyBreak) break;
     result = iterator.next();
   }
 }
