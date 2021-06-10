@@ -62,6 +62,7 @@ class RoomEventListener extends BaseListener {
     _off('recordingStarted', onRecordingStarted);
     _off('recordingStopped', onRecordingStopped);
     _remoteParticipantListeners.values.forEach((remoteParticipantListener) => remoteParticipantListener.removeListeners());
+    _remoteParticipantListeners.clear();
   }
 
   void _addPriorRemoteParticipantListeners() {

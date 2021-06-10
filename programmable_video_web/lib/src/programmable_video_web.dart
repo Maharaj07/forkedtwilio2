@@ -116,6 +116,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     _room?.disconnect();
     _roomListener?.removeListeners();
     _localParticipantListener?.removeListeners();
+    _room = null;
+    _roomListener = null;
+    _localParticipantListener = null;
   }
 
   @override
