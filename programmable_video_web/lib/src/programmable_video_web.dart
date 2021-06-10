@@ -94,7 +94,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
     unawaited(
-      connectWithModel(connectOptions, (_) => debug('Failed to Connect to Room')).then((room) {
+      connectWithModel(connectOptions).then((room) {
         _room = room;
         final _roomModel = Connected(_room.toModel());
         _roomStreamController.add(_roomModel);
