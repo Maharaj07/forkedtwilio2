@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
-import 'package:pedantic/pedantic.dart';
 import 'package:programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
@@ -91,22 +90,27 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
   }
 
+  void _onConnected() async {
+    _roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController);
+    _roomListener.addListeners();
+    _localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
+    _localParticipantListener.addListeners();
+
+    final _roomModel = Connected(_room.toModel());
+    _roomStreamController.add(_roomModel);
+    debug('Connected to room: ${_room.name}');
+    _roomStreamController.onListen = null;
+  }
+
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
-    unawaited(
-      connectWithModel(connectOptions).then((room) {
-        _room = room;
-        final _roomModel = Connected(_room.toModel());
-        _roomStreamController.add(_roomModel);
-        debug('Connecting to room: ${_room.name}');
+    _roomStreamController.onListen = _onConnected;
 
-        _roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController);
-        _roomListener.addListeners();
-        _localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
-        _localParticipantListener.addListeners();
-      }),
-    );
-
+    try {
+      _room = await connectWithModel(connectOptions);
+    } catch (err) {
+      throw PlatformException(code: 'INIT_ERROR', message: 'Failed to connect to room', details: '');
+    }
     return 0;
   }
 

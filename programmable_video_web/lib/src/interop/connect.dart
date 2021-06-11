@@ -2,12 +2,12 @@
 library interop;
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:flutter/services.dart';
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
 import 'package:programmable_video_web/src/interop/classes/local_data_track.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
 import 'package:programmable_video_web/src/interop/classes/track.dart';
+import 'package:programmable_video_web/src/programmable_video_web.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 @JS('Twilio.Video.connect')
@@ -111,5 +111,7 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
         final jsTrack = videoTracksIterator.next().value.track;
         videoTrack.enabled ? jsTrack.enable() : jsTrack.disable();
       });
-    }).catchError((_) => throw PlatformException(code: 'INIT_ERROR', message: 'Failed to connect to room'));
+    }).catchError((err) {
+      ProgrammableVideoPlugin.debug(err.message);
+    });
 }
