@@ -1,6 +1,6 @@
 import 'package:programmable_video_web/src/programmable_video_web.dart';
 
-class BaseListener {
+abstract class BaseListener {
   // Should be overridden by all subclasses.
   void addListeners() {
     throw UnimplementedError('addListeners has not been implemented');

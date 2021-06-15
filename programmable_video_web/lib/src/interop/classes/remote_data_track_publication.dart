@@ -9,7 +9,7 @@ import 'package:twilio_programmable_video_platform_interface/twilio_programmable
 @JS('Twilio.Video.RemoteDataTrackPublication')
 class RemoteDataTrackPublication extends RemoteTrackPublication {
   @override
-  external String get kind; // "data"
+  external String get kind;
   @override
   external RemoteDataTrack get track;
 
