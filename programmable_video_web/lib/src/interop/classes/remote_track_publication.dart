@@ -11,7 +11,7 @@ class RemoteTrackPublication extends TrackPublication {
   external String get kind;
   external dynamic get publishPriority;
 
-  /// track will return either [null] or an instance of: [RemoteAudioTrack], [RemoteDataTrack] or [RemoteVideoTrack]
+  /// Track will return either [null] or an instance of: [RemoteAudioTrack], [RemoteDataTrack] or [RemoteVideoTrack].
   external dynamic get track;
 
   external factory RemoteTrackPublication(
