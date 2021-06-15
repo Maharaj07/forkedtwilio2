@@ -186,29 +186,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   @override
-  Future<bool> setSpeakerphoneOn(bool on) {
-    return Future(() => true);
-  }
-
-  @override
-  Future<bool> getSpeakerphoneOn() {
-    return Future(() => true);
-  }
-
-  @override
-  Future<CameraSource> switchCamera() {
-    return Future(() => CameraSource.FRONT_CAMERA);
-  }
-
-  @override
-  Future<bool> hasTorch() async {
-    return Future(() => false);
-  }
-
-  @override
-  Future<void> setTorch(bool enabled) async {}
-
-  @override
   Future<void> sendMessage({String message, String name}) {
     if (message == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'message\' was not given');
     if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
