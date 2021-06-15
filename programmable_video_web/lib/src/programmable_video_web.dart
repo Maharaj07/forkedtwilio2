@@ -132,7 +132,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
     final localAudioTracks = _room?.localParticipant?.audioTracks?.values();
     iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
-      var found = localAudioTrack.trackName == name;
+      final found = localAudioTrack.trackName == name;
       if (found) {
         enable ? localAudioTrack?.track?.enable() : localAudioTrack?.track?.disable();
       }
@@ -149,7 +149,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
     final localVideoTracks = _room?.localParticipant?.videoTracks?.values();
     iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
-      var found = localVideoTrack.trackName == name;
+      final found = localVideoTrack.trackName == name;
       if (found) {
         enabled ? localVideoTrack?.track?.enable() : localVideoTrack?.track?.disable();
       }
@@ -169,9 +169,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (native && !_sdkDebugSetup) {
       final originalFactory = logger.methodFactory;
       logger.methodFactory = allowInterop((methodName, logLevel, loggerName) {
-        var method = originalFactory(methodName, logLevel, loggerName);
+        final method = originalFactory(methodName, logLevel, loggerName);
         return allowInterop((datetime, logLevel, component, message, [data = '', misc = '']) {
-          var output = '[  WEBSDK  ] $datetime $logLevel $component $message $data';
+          final output = '[  WEBSDK  ] $datetime $logLevel $component $message $data';
           method(output, datetime, logLevel, component, message, data);
         });
       });
