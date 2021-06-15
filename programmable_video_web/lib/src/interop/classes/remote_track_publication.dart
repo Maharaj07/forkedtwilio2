@@ -2,7 +2,6 @@
 library remote_track_publication;
 
 import 'package:js/js.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_track_publication_signaling.dart';
 import 'package:programmable_video_web/src/interop/classes/track_publication.dart';
 
 @JS()
@@ -16,7 +15,6 @@ class RemoteTrackPublication extends TrackPublication {
   external dynamic get track;
 
   external factory RemoteTrackPublication(
-    RemoteTrackPublicationSignaling signaling,
     dynamic options,
   );
 }

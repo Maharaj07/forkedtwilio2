@@ -1,6 +1,10 @@
-## 0.3.2
+## 0.3.3
 
 - Added `createLocalVideoTrackWidget()` and `createRemoteVideoTrackWidget()` methods.
+
+## 0.3.2
+
+- Added method for fetching stats.
 
 ## 0.3.1
 

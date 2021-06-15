@@ -3,8 +3,6 @@ library remote_video_track_publication;
 
 import 'package:js/js.dart';
 import 'package:programmable_video_web/src/interop/classes/remote_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_track_publication_options.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_track_publication_signaling.dart';
 import 'package:programmable_video_web/src/interop/classes/remote_video_track.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
@@ -15,10 +13,7 @@ class RemoteVideoTrackPublication extends RemoteTrackPublication {
   @override
   external RemoteVideoTrack get track;
 
-  external factory RemoteVideoTrackPublication(
-    RemoteTrackPublicationSignaling signaling,
-    RemoteTrackPublicationOptions options,
-  );
+  external factory RemoteVideoTrackPublication();
 }
 
 extension Interop on RemoteVideoTrackPublication {

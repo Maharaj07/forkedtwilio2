@@ -3,27 +3,27 @@ import 'dart:html';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
-import 'package:pedantic/pedantic.dart';
 import 'package:programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/local_data_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
-import 'package:programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
 import 'package:programmable_video_web/src/interop/connect.dart';
 import 'package:programmable_video_web/src/interop/classes/logger.dart';
 import 'package:programmable_video_web/src/listeners//room_event_listener.dart';
 import 'package:programmable_video_web/src/listeners/local_participant_event_listener.dart';
-import 'package:programmable_video_web/src/listeners/remote_participant_event_listener.dart';
 
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room _room;
+  static RoomEventListener _roomListener;
+  static LocalParticipantEventListener _localParticipantListener;
 
   static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
   // TODO add listeners for camera stream
@@ -34,6 +34,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static final _loggingStreamController = StreamController<String>.broadcast();
 
   static var _nativeDebug = false;
+  static var _sdkDebugSetup = false;
   static final _registeredRemoteParticipantViewFactories = [];
 
   static void debug(String msg) {
@@ -48,7 +49,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static void _createLocalViewFactory() {
     ui.platformViewRegistry.registerViewFactory('local-video-track-html', (int viewId) {
       final localVideoTrackElement = _room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
-      debug('Created local video view factory for:  ${_room.localParticipant.sid}');
+      debug('Created local video track view for:  ${_room.localParticipant.sid}');
       return localVideoTrackElement;
     });
   }
@@ -56,16 +57,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       final remoteVideoTrackElement = _room.participants.toDartMap()[remoteParticipantSid].videoTracks.toDartMap()[remoteVideoTrackSid].track.attach()..style.objectFit = 'cover';
-      debug('Created remote video view factory for: $remoteParticipantSid');
+      debug('Created remote video track view for: $remoteParticipantSid');
       return remoteVideoTrackElement;
-    });
-  }
-
-  static void _addPriorRemoteParticipantListeners() {
-    final remoteParticipants = _room.participants.values();
-    iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
-      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
-      remoteParticipantListener.addListeners();
     });
   }
 
@@ -86,60 +79,82 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     bool mirror = true,
     Key key,
   }) {
+    if (remoteParticipantSid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'remoteParticipantSid\' was not given');
+    if (remoteVideoTrackSid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'remoteVideoTrackSid\' was not given');
+    key ??= ValueKey(remoteVideoTrackSid);
+
     if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
       _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
       _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
     }
     debug('Created remote video track widget for: $remoteParticipantSid');
-    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html');
+    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
+  }
+
+  void _onConnected() async {
+    _roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController, _remoteDataTrackController);
+    _roomListener.addListeners();
+    _localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
+    _localParticipantListener.addListeners();
+
+    final _roomModel = Connected(_room.toModel());
+    _roomStreamController.add(_roomModel);
+    debug('Connected to room: ${_room.name}');
+    _roomStreamController.onListen = null;
   }
 
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
-    unawaited(
-      connectWithModel(connectOptions).then((room) {
-        _room = room;
-        final _roomModel = Connected(_room.toModel());
-        _roomStreamController.add(_roomModel);
-        debug('Connecting to room: ${_room.name}');
+    _roomStreamController.onListen = _onConnected;
 
-        final roomListener = RoomEventListener(_room, _roomStreamController, _remoteParticipantController, _remoteDataTrackController);
-        roomListener.addListeners();
-        final localParticipantListener = LocalParticipantEventListener(_room.localParticipant, _localParticipantController);
-        localParticipantListener.addListeners();
-        _addPriorRemoteParticipantListeners();
-      }),
-    );
-
+    try {
+      _room = await connectWithModel(connectOptions);
+    } catch (err) {
+      throw PlatformException(code: 'INIT_ERROR', message: 'Failed to connect to room', details: '');
+    }
     return 0;
   }
 
   @override
   Future<void> disconnect() async {
-    debug('Disconnecting to room: ${_room.name}');
+    debug('Disconnecting to room: ${_room?.name}');
     _room?.disconnect();
+    _roomListener?.removeListeners();
+    _localParticipantListener?.removeListeners();
+    _room = null;
+    _roomListener = null;
+    _localParticipantListener = null;
   }
 
   @override
   Future<bool> enableAudioTrack({bool enable, String name}) {
+    if (enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
+    if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
+
     final localAudioTracks = _room?.localParticipant?.audioTracks?.values();
     iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
-      if (localAudioTrack.trackName == name) {
+      var found = localAudioTrack.trackName == name;
+      if (found) {
         enable ? localAudioTrack?.track?.enable() : localAudioTrack?.track?.disable();
       }
+      return found;
     });
-
     debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
     return Future(() => enable);
   }
 
   @override
   Future<bool> enableVideoTrack({bool enabled, String name}) {
+    if (enabled == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enabled\' was not given');
+    if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
+
     final localVideoTracks = _room?.localParticipant?.videoTracks?.values();
     iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
-      if (localVideoTrack.trackName == name) {
+      var found = localVideoTrack.trackName == name;
+      if (found) {
         enabled ? localVideoTrack?.track?.enable() : localVideoTrack?.track?.disable();
       }
+      return found;
     });
 
     debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
@@ -148,9 +163,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> setNativeDebug(bool native) async {
+    if (native == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'native\' was not given');
+
+    final logger = Logger.getLogger('twilio-video');
     // Currently also enabling SDK debugging when native is true
-    if (native && !_nativeDebug) {
-      final logger = Logger.getLogger('twilio-video');
+    if (native && !_sdkDebugSetup) {
       final originalFactory = logger.methodFactory;
       logger.methodFactory = allowInterop((methodName, logLevel, loggerName) {
         var method = originalFactory(methodName, logLevel, loggerName);
@@ -159,10 +176,13 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           method(output, datetime, logLevel, component, message, data);
         });
       });
-      // Can set to 'debug' for more detail.
-      logger.setLevel('info');
+      _sdkDebugSetup = true;
     }
+    // Adding native debugging
     _nativeDebug = native;
+
+    // Adding sdk debugging (can be set to 'debug' for more detail"
+    native ? logger.setLevel('info') : logger.setLevel('warn');
   }
 
   @override
@@ -190,28 +210,40 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendMessage({String message, String name}) {
+    if (message == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'message\' was not given');
+    if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
+
     debug('Sent the string message: $message for local data track: $name');
     iteratorForEach<LocalDataTrackPublication>(_room.localParticipant.dataTracks.values(), (localDataTrackPublication){
       localDataTrackPublication?.track?.send(message);
+      return false;
     });
     return Future(() {});
   }
 
   @override
   Future<void> sendBuffer({ByteBuffer message, String name}) {
+    if (message == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'message\' was not given');
+    if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
+
     debug('Sent the buffer message: $message for local data track: $name');
     iteratorForEach<LocalDataTrackPublication>(_room.localParticipant.dataTracks.values(), (localDataTrackPublication){
       localDataTrackPublication?.track?.send(message);
+      return false;
     });
     return Future(() {});
   }
 
   @override
   Future<void> enableRemoteAudioTrack({bool enable, String sid}) {
+    if (enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
+    if (sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
+
     final remoteAudioTracks = _room.participants.toDartMap()[sid].audioTracks.values();
     iteratorForEach<RemoteAudioTrackPublication>(remoteAudioTracks, (remoteAudioTrack) {
       final AudioElement currentTrackElement = document.getElementById(remoteAudioTrack.track.name);
       currentTrackElement.muted = !enable;
+      return false;
     });
 
     debug('${enable ? 'Enabled' : 'Disabled'} Remote Audio Track');
@@ -220,6 +252,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<bool> isRemoteAudioTrackPlaybackEnabled(String sid) {
+    if (sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
+
     final remoteAudioTrackName = _room.participants.toDartMap()[sid].audioTracks.values().next().value?.track?.name;
     final AudioElement remoteAudioTrackElement = document.getElementById(remoteAudioTrackName);
     final isEnabled = !remoteAudioTrackElement.muted;

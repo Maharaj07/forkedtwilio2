@@ -7,6 +7,7 @@ import 'package:js/js_util.dart';
 import 'package:programmable_video_web/src/interop/classes/local_data_track.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
 import 'package:programmable_video_web/src/interop/classes/track.dart';
+import 'package:programmable_video_web/src/programmable_video_web.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 @JS('Twilio.Video.connect')
@@ -70,7 +71,6 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
       ConnectOptions(
         audio: model.audioTracks != null,
         automaticSubscription: model.enableAutomaticSubscription ?? true,
-        //model.enableAutomaticSubscription,
         dominantSpeaker: model.enableDominantSpeaker,
         name: model.roomName,
         networkQuality: model.networkQualityConfiguration != null && model.enableNetworkQuality
@@ -111,5 +111,7 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
         final jsTrack = videoTracksIterator.next().value.track;
         videoTrack.enabled ? jsTrack.enable() : jsTrack.disable();
       });
+    }).catchError((err) {
+      ProgrammableVideoPlugin.debug(err.message);
     });
 }

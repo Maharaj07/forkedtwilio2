@@ -18,6 +18,12 @@ class RemoteDataTrackEventListener extends BaseListener {
     _remoteDataTrack.on('message', allowInterop(onMessage));
   }
 
+  @override
+  void removeListeners() {
+    debug('Removing RemoteDataTrackListeners for ${_remoteDataTrack.sid}');
+    _remoteDataTrack.off('message', allowInterop(onMessage));
+  }
+
   void onMessage(dynamic data, RemoteDataTrack track) {
     if (data is String) {
       debug('Added RemoteDataTrack StringMessage Event');
