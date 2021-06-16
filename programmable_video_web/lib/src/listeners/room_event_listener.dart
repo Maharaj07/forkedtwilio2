@@ -10,23 +10,6 @@ import 'package:programmable_video_web/src/listeners/remote_participant_event_li
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:dartlin/dartlin.dart';
 
-/*
-TODO: Review and potentially add listeners for the following events:
-  participantReconnected
-  participantReconnecting
-  trackDimensionsChanged
-  trackDisabled
-  trackEnabled
-  trackMessage
-  trackPublished
-  trackStarted
-  trackSubscribed
-  trackSwitchedOff
-  trackSwitchedOn
-  trackUnpublished
-  trackUnsubscribed
- */
-
 class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
@@ -37,7 +20,6 @@ class RoomEventListener extends BaseListener {
     _addPriorRemoteParticipantListeners();
   }
 
-  @override
   void addListeners() {
     debug('Adding RoomEventListeners for ${_room.sid}');
     _on('disconnected', onDisconnected);
@@ -50,7 +32,6 @@ class RoomEventListener extends BaseListener {
     _on('recordingStopped', onRecordingStopped);
   }
 
-  @override
   void removeListeners() {
     debug('Removing RoomEventListeners for ${_room.sid} - ${_remoteParticipantListeners.length}');
     _off('disconnected', onDisconnected);
