@@ -30,7 +30,7 @@ class NetworkQualityConfiguration {
 @anonymous
 class ConnectOptions {
   external factory ConnectOptions({
-    bool audio,
+    dynamic audio,
     bool automaticSubscription,
     dynamic bandwidthProfile,
     bool dominantSpeaker,
@@ -53,6 +53,14 @@ class ConnectOptions {
   });
 }
 
+@JS()
+@anonymous
+class CreateLocalTrackOptions {
+  external factory CreateLocalTrackOptions({
+    String name,
+  });
+}
+
 /// Calls twilio-video.js connect method with values from the [ConnectOptionsModel]
 ///
 /// Setting custom track names is not yet supported.
@@ -69,7 +77,7 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
       // Some named parameters are assigned their default values with the ?? operator.
       // This is because those paramaters are optional non nullable parameters in js.
       ConnectOptions(
-        audio: model.audioTracks != null,
+        audio: model.audioTracks == null ? true : CreateLocalTrackOptions(name: model.audioTracks.first.name), // only looks at first audio track
         automaticSubscription: model.enableAutomaticSubscription ?? true,
         dominantSpeaker: model.enableDominantSpeaker,
         name: model.roomName,
@@ -82,18 +90,18 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
         region: EnumToString.convertToString(model.region) ?? 'gll',
         preferredAudioCodecs: model?.preferredAudioCodecs?.map((e) => e.name)?.toList() ?? [],
         preferredVideoCodecs: model?.preferredVideoCodecs?.map((e) => e.name)?.toList() ?? [],
-        video: model.videoTracks != null,
+        video: model.videoTracks == null ? true : CreateLocalTrackOptions(name: model.videoTracks.first.name),
       ),
     ),
   )..then((room) {
       final audioTracksIterator = room.localParticipant.audioTracks.values();
-      model.audioTracks.forEach((audioTrack) {
+      model.audioTracks?.forEach((audioTrack) {
         final jsTrack = audioTracksIterator.next().value.track;
         audioTrack.enabled ? jsTrack.enable() : jsTrack.disable();
       });
 
       // DataTracks are published here manually because they don't need a mediaStream from getUserMedia()
-      model.dataTracks.forEach((dataTrack) {
+      model.dataTracks?.forEach((dataTrack) {
         final jsTrack = LocalDataTrack(
           LocalDataTrackOptions(
             maxPacketLifeTime: dataTrack.maxPacketLifeTime,
@@ -107,11 +115,11 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
 
       //TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
       final videoTracksIterator = room.localParticipant.videoTracks.values();
-      model.videoTracks.forEach((videoTrack) {
+      model.videoTracks?.forEach((videoTrack) {
         final jsTrack = videoTracksIterator.next().value.track;
         videoTrack.enabled ? jsTrack.enable() : jsTrack.disable();
       });
     }).catchError((err) {
-      ProgrammableVideoPlugin.debug(err.message);
+      ProgrammableVideoPlugin.debug(err.toString());
     });
 }

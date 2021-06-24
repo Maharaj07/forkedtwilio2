@@ -10,7 +10,9 @@ import 'package:js/js.dart';
 import 'package:programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/remote_audio_track.dart';
 import 'package:programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
+import 'package:programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
 import 'package:programmable_video_web/src/interop/connect.dart';
 import 'package:programmable_video_web/src/interop/classes/logger.dart';
@@ -217,17 +219,31 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     return Future(() {});
   }
 
+  RemoteAudioTrack _getRemoteAudioTrack(String sid) {
+    var remoteAudioTrack;
+    iteratorForEach<RemoteParticipant>(_room.participants.values(), (remoteParticipant) {
+      var found = false;
+      iteratorForEach<RemoteAudioTrackPublication>(remoteParticipant.audioTracks.values(), (audioTrack) {
+        if (audioTrack.trackSid == sid) {
+          remoteAudioTrack = audioTrack.track;
+          found = true;
+        }
+        return found;
+      });
+      return found;
+    });
+    if (remoteAudioTrack == null) throw PlatformException(code: 'NOT_FOUND', message: 'The track with sid: $sid was not found');
+    return remoteAudioTrack;
+  }
+
   @override
   Future<void> enableRemoteAudioTrack({bool enable, String sid}) {
     if (enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
     if (sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
 
-    final remoteAudioTracks = _room.participants.toDartMap()[sid].audioTracks.values();
-    iteratorForEach<RemoteAudioTrackPublication>(remoteAudioTracks, (remoteAudioTrack) {
-      final AudioElement currentTrackElement = document.getElementById(remoteAudioTrack.track.name);
-      currentTrackElement.muted = !enable;
-      return false;
-    });
+    final remoteAudioTrack = _getRemoteAudioTrack(sid);
+    final AudioElement remoteTrackElement = document.getElementById(remoteAudioTrack.name);
+    remoteTrackElement.muted = !enable;
 
     debug('${enable ? 'Enabled' : 'Disabled'} Remote Audio Track');
     return Future(() {});
@@ -236,9 +252,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<bool> isRemoteAudioTrackPlaybackEnabled(String sid) {
     if (sid == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'sid\' was not given');
-    final remoteAudioTrackName = _room.participants.toDartMap()[sid].audioTracks.values().next().value?.track?.name;
-    final AudioElement remoteAudioTrackElement = document.getElementById(remoteAudioTrackName);
-    final isEnabled = !remoteAudioTrackElement.muted;
+    final remoteAudioTrack = _getRemoteAudioTrack(sid);
+    final AudioElement remoteTrackElement = document.getElementById(remoteAudioTrack.name);
+    final isEnabled = !remoteTrackElement.muted;
     return Future(() => isEnabled);
   }
 
