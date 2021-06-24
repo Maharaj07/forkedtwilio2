@@ -22,7 +22,7 @@ import 'package:programmable_video_web/src/listeners/local_participant_event_lis
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
-  static Room _room;
+  static Room? _room;
   static RoomEventListener _roomListener;
   static LocalParticipantEventListener _localParticipantListener;
 
@@ -65,12 +65,16 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   //#region Functions
   @override
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key key}) {
-    if (_room == null) {
-      return null;
+  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+    final room = _room;
+
+    if (room != null) {
+      debug('Created local video track widget for: ${room.localParticipant.sid}');
+      return HtmlElementView(viewType: 'local-video-track-html', key: key);
+    } else {
+      throw Exception(
+          'NotConnected. LocalVideoTrack is not fully initialized until connection.');
     }
-    debug('Created local video track widget for: ${_room.localParticipant.sid}');
-    return HtmlElementView(viewType: 'local-video-track-html', key: key);
   }
 
   @override
@@ -128,38 +132,40 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   @override
-  Future<bool> enableAudioTrack({bool enable, String name}) {
-    if (enable == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enable\' was not given');
-    if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
-
+  Future<bool> enableAudioTrack(bool enable, String name) {
     final localAudioTracks = _room?.localParticipant?.audioTracks?.values();
-    iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
-      final found = localAudioTrack.trackName == name;
-      if (found) {
-        enable ? localAudioTrack?.track?.enable() : localAudioTrack?.track?.disable();
-      }
-      return found;
-    });
-    debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
-    return Future(() => enable);
+    if (localAudioTracks != null) {
+      iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
+        final found = localAudioTrack.trackName == name;
+        if (found) {
+          enable ? localAudioTrack?.track?.enable() : localAudioTrack?.track?.disable();
+        }
+        return found;
+      });
+      debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
+      return Future(() => enable);
+    } else {
+      throw PlatformException('NOT_FOUND', 'No LocalAudioTrack found with the name \'$name\'');
+    }
   }
 
   @override
-  Future<bool> enableVideoTrack({bool enabled, String name}) {
-    if (enabled == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'enabled\' was not given');
-    if (name == null) throw PlatformException(code: 'MISSING_PARAMS', message: 'The parameter \'name\' was not given');
-
+  Future<bool> enableVideoTrack(bool enabled, String name) {
     final localVideoTracks = _room?.localParticipant?.videoTracks?.values();
-    iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
-      final found = localVideoTrack.trackName == name;
-      if (found) {
-        enabled ? localVideoTrack?.track?.enable() : localVideoTrack?.track?.disable();
-      }
-      return found;
-    });
+    if (localVideoTracks != null) {
+      iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
+        final found = localVideoTrack.trackName == name;
+        if (found) {
+          enabled ? localVideoTrack?.track?.enable() : localVideoTrack?.track?.disable();
+        }
+        return found;
+      });
 
-    debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
-    return Future(() => enabled);
+      debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
+      return Future(() => enabled);
+    } else {
+      throw PlatformException('NOT_FOUND', 'No LocalVideoTrack found with the name \'$name\'');
+    }
   }
 
   @override

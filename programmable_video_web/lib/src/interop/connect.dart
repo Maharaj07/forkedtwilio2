@@ -33,7 +33,7 @@ class ConnectOptions {
     dynamic audio,
     bool automaticSubscription,
     dynamic bandwidthProfile,
-    bool dominantSpeaker,
+    bool? dominantSpeaker,
     bool dscpTagging,
     bool enableDscp,
     dynamic iceServers,
@@ -41,8 +41,8 @@ class ConnectOptions {
     bool insights,
     int maxAudioBitrate,
     int maxVideoBitrate,
-    String name,
-    dynamic networkQuality,
+    String? name,
+    dynamic networkQuality = false,
     String region,
     List<dynamic> preferredAudioCodecs,
     List<dynamic> preferredVideoCodecs,
@@ -71,6 +71,8 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
   // See:
   // https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/global.html#ConnectOptions__anchor
   // https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/global.html#LocalTrackOptions
+  final networkQualityConfiguration = model.networkQualityConfiguration;
+
   return promiseToFuture<Room>(
     connect(
       model.accessToken,
@@ -81,13 +83,13 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
         automaticSubscription: model.enableAutomaticSubscription ?? true,
         dominantSpeaker: model.enableDominantSpeaker,
         name: model.roomName,
-        networkQuality: model.networkQualityConfiguration != null && model.enableNetworkQuality
+        networkQuality: networkQualityConfiguration != null && model.enableNetworkQuality
             ? NetworkQualityConfiguration(
-                local: model.networkQualityConfiguration.local.index,
-                remote: model.networkQualityConfiguration.remote.index,
+                local: networkQualityConfiguration.local.index,
+                remote: networkQualityConfiguration.remote.index,
               )
             : model.enableNetworkQuality,
-        region: EnumToString.convertToString(model.region) ?? 'gll',
+        region: model.region != null ? EnumToString.convertToString(model.region) : 'gll',
         preferredAudioCodecs: model?.preferredAudioCodecs?.map((e) => e.name)?.toList() ?? [],
         preferredVideoCodecs: model?.preferredVideoCodecs?.map((e) => e.name)?.toList() ?? [],
         video: model.videoTracks == null ? true : CreateLocalTrackOptions(name: model.videoTracks.first.name),
