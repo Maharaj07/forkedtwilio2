@@ -11,7 +11,7 @@ class RemoteAudioTrackPublication extends RemoteTrackPublication {
   @override
   external String get kind; // "audio"
   @override
-  external RemoteAudioTrack get track;
+  external RemoteAudioTrack? get track;
 
   external factory RemoteAudioTrackPublication();
 }

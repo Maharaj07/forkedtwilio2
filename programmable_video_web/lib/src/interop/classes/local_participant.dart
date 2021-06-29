@@ -53,6 +53,8 @@ class LocalParticipant extends Participant {
 
   /// [localTrack] must be an instance of either: [LocalAudioTrack], [LocalDataTrack] or [LocalVideoTrack]
   external Future<LocalTrackPublication> publishTrack(dynamic localTrack);
+
+  external List<LocalTrackPublication> unpublishTrack(dynamic track);
 }
 
 extension Interop on LocalParticipant {

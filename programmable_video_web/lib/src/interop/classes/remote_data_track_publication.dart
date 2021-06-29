@@ -11,7 +11,7 @@ class RemoteDataTrackPublication extends RemoteTrackPublication {
   @override
   external String get kind;
   @override
-  external RemoteDataTrack get track;
+  external RemoteDataTrack? get track;
 
   external factory RemoteDataTrackPublication();
 }

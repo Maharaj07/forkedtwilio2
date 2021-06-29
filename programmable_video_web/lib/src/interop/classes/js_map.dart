@@ -18,6 +18,8 @@ class JSMap<K, V> {
   @JS('prototype.values')
   external Iterator<V> values();
 
+  external int get size;
+
   external factory JSMap();
 }
 

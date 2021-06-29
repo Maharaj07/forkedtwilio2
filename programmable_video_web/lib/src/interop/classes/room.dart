@@ -18,7 +18,7 @@ class Room extends EventEmitter {
   external String get name;
   external LocalParticipant get localParticipant;
   external bool get isRecording;
-  external RemoteParticipant get dominantSpeaker;
+  external RemoteParticipant? get dominantSpeaker;
 
   external factory Room(
     dynamic localParticipant,
