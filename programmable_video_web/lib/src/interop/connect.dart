@@ -92,8 +92,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
   if (audioTracks != null) {
     await Future.forEach(audioTracks, (LocalAudioTrackModel track) async {
       final options = CreateLocalTrackOptions(name: track.name);
-      final jsTrack = await promiseToFuture<LocalAudioTrack>(
-          createLocalAudioTrack(options));
+      final jsTrack = await promiseToFuture<LocalAudioTrack>(createLocalAudioTrack(options));
       tracks.add(jsTrack);
     });
   }
@@ -110,12 +109,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
   final dataTracks = model.dataTracks;
   dataTracks?.forEach((track) async {
     final jsTrack = LocalDataTrack(
-      LocalDataTrackOptions(
-          maxRetransmits:
-              track.maxRetransmits >= 0 ? track.maxRetransmits : null,
-          maxPacketLifeTime:
-              track.maxPacketLifeTime >= 0 ? track.maxPacketLifeTime : null,
-          ordered: track.ordered),
+      LocalDataTrackOptions(maxRetransmits: track.maxRetransmits >= 0 ? track.maxRetransmits : null, maxPacketLifeTime: track.maxPacketLifeTime >= 0 ? track.maxPacketLifeTime : null, ordered: track.ordered),
     );
     tracks.add(jsTrack);
   });
@@ -129,53 +123,38 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
         automaticSubscription: model.enableAutomaticSubscription ?? true,
         dominantSpeaker: model.enableDominantSpeaker,
         name: model.roomName,
-        networkQuality:
-            networkQualityConfiguration != null && model.enableNetworkQuality
-                ? NetworkQualityConfiguration(
-                    local: networkQualityConfiguration.local.index,
-                    remote: networkQualityConfiguration.remote.index,
-                  )
-                : model.enableNetworkQuality,
-        region: model.region != null
-            ? EnumToString.convertToString(model.region)
-            : 'gll',
-        preferredAudioCodecs:
-            model.preferredAudioCodecs?.map((e) => e.name).toList() ?? [],
-        preferredVideoCodecs:
-            model.preferredVideoCodecs?.map((e) => e.name).toList() ?? [],
+        networkQuality: networkQualityConfiguration != null && model.enableNetworkQuality
+            ? NetworkQualityConfiguration(
+                local: networkQualityConfiguration.local.index,
+                remote: networkQualityConfiguration.remote.index,
+              )
+            : model.enableNetworkQuality,
+        region: model.region != null ? EnumToString.convertToString(model.region) : 'gll',
+        preferredAudioCodecs: model.preferredAudioCodecs?.map((e) => e.name).toList() ?? [],
+        preferredVideoCodecs: model.preferredVideoCodecs?.map((e) => e.name).toList() ?? [],
         tracks: tracks,
       ),
     ),
   );
 
-  iteratorForEach<LocalAudioTrackPublication>(
-      room.localParticipant.audioTracks.values(), (publication) {
+  iteratorForEach<LocalAudioTrackPublication>(room.localParticipant.audioTracks.values(), (publication) {
     if (audioTracks != null) {
-      final modelTrack = audioTracks
-          .firstWhereOrNull((track) => track.name == publication.trackName);
+      final modelTrack = audioTracks.firstWhereOrNull((track) => track.name == publication.trackName);
       if (modelTrack != null) {
-        ProgrammableVideoPlugin.debug(
-            'ProgrammableVideoWeb::connectWithModel => enableAudioTrack(${modelTrack.name}): ${modelTrack.enabled}');
-        modelTrack.enabled
-            ? publication.track.enable()
-            : publication.track.disable();
+        ProgrammableVideoPlugin.debug('ProgrammableVideoWeb::connectWithModel => enableAudioTrack(${modelTrack.name}): ${modelTrack.enabled}');
+        modelTrack.enabled ? publication.track.enable() : publication.track.disable();
       }
     }
     return false;
   });
 
   //TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
-  iteratorForEach<LocalVideoTrackPublication>(
-      room.localParticipant.videoTracks.values(), (publication) {
+  iteratorForEach<LocalVideoTrackPublication>(room.localParticipant.videoTracks.values(), (publication) {
     if (videoTracks != null) {
-      final modelTrack = videoTracks
-          .firstWhereOrNull((track) => track.name == publication.trackName);
+      final modelTrack = videoTracks.firstWhereOrNull((track) => track.name == publication.trackName);
       if (modelTrack != null) {
-        ProgrammableVideoPlugin.debug(
-            'ProgrammableVideoWeb::connectWithModel => enableVideoTrack(${modelTrack.name}): ${modelTrack.enabled}');
-        modelTrack.enabled
-            ? publication.track.enable()
-            : publication.track.disable();
+        ProgrammableVideoPlugin.debug('ProgrammableVideoWeb::connectWithModel => enableVideoTrack(${modelTrack.name}): ${modelTrack.enabled}');
+        modelTrack.enabled ? publication.track.enable() : publication.track.disable();
       }
     }
     return false;

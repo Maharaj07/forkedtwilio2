@@ -28,16 +28,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static LocalParticipantEventListener? _localParticipantListener;
 
   // TODO add listeners for camera and remotedatatrack stream
-  static final _roomStreamController =
-      StreamController<BaseRoomEvent>.broadcast();
-  static final _cameraStreamController =
-      StreamController<BaseCameraEvent>.broadcast();
-  static final _localParticipantController =
-      StreamController<BaseLocalParticipantEvent>.broadcast();
-  static final _remoteParticipantController =
-      StreamController<BaseRemoteParticipantEvent>.broadcast();
-  static final _remoteDataTrackController =
-      StreamController<BaseRemoteDataTrackEvent>.broadcast();
+  static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
+  static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
+  static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
+  static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>.broadcast();
+  static final _remoteDataTrackController = StreamController<BaseRemoteDataTrackEvent>.broadcast();
   static final _loggingStreamController = StreamController<String>.broadcast();
 
   static var _nativeDebug = false;
@@ -54,19 +49,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   static void _createLocalViewFactory() {
-    ui.platformViewRegistry.registerViewFactory('local-video-track-html',
-        (int viewId) {
+    ui.platformViewRegistry.registerViewFactory('local-video-track-html', (int viewId) {
       final room = _room;
       if (room != null) {
-        final localVideoTrackElement = room.localParticipant.videoTracks
-            .values()
-            .next()
-            .value
-            .track
-            .attach()
-              ..style.objectFit = 'cover';
-        debug(
-            'Created local video track view for:  ${room.localParticipant.sid}');
+        final localVideoTrackElement = room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
+        debug('Created local video track view for:  ${room.localParticipant.sid}');
         return localVideoTrackElement;
       } else {
         // TODO: review behaviour in scenario where `_room` is `null`.
@@ -75,19 +62,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     });
   }
 
-  static void _createRemoteViewFactory(
-      String remoteParticipantSid, String remoteVideoTrackSid) {
-    ui.platformViewRegistry.registerViewFactory(
-        'remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
-      final remoteVideoTrack = _room?.participants
-          .toDartMap()[remoteParticipantSid]
-          ?.videoTracks
-          .toDartMap()[remoteVideoTrackSid]
-          ?.track;
+  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
+    ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
+      final remoteVideoTrack = _room?.participants.toDartMap()[remoteParticipantSid]?.videoTracks.toDartMap()[remoteVideoTrackSid]?.track;
       // TODO: flatten this out
       if (remoteVideoTrack != null) {
-        final remoteVideoTrackElement = remoteVideoTrack.attach()
-          ..style.objectFit = 'cover';
+        final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'cover';
         debug('Created remote video track view for: $remoteParticipantSid');
         return remoteVideoTrackElement;
       } else {
@@ -103,12 +83,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final room = _room;
 
     if (room != null) {
-      debug(
-          'Created local video track widget for: ${room.localParticipant.sid}');
+      debug('Created local video track widget for: ${room.localParticipant.sid}');
       return HtmlElementView(viewType: 'local-video-track-html', key: key);
     } else {
-      throw Exception(
-          'NotConnected. LocalVideoTrack is not fully initialized until connection.');
+      throw Exception('NotConnected. LocalVideoTrack is not fully initialized until connection.');
     }
   }
 
@@ -121,24 +99,20 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }) {
     key ??= ValueKey(remoteVideoTrackSid);
 
-    if (!_registeredRemoteParticipantViewFactories
-        .contains(remoteParticipantSid)) {
+    if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
       _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
       _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
     }
     debug('Created remote video track widget for: $remoteParticipantSid');
-    return HtmlElementView(
-        viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
+    return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
   }
 
   void _onConnected() async {
     final room = _room;
     if (room != null) {
-      _roomListener = RoomEventListener(
-          room, _roomStreamController, _remoteParticipantController);
+      _roomListener = RoomEventListener(room, _roomStreamController, _remoteParticipantController);
       _roomListener!.addListeners();
-      _localParticipantListener = LocalParticipantEventListener(
-          room.localParticipant, _localParticipantController);
+      _localParticipantListener = LocalParticipantEventListener(room.localParticipant, _localParticipantController);
       _localParticipantListener!.addListeners();
 
       final _roomModel = Connected(room.toModel());
@@ -156,10 +130,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       _room = await connectWithModel(connectOptions);
     } catch (err) {
       ProgrammableVideoPlugin.debug(err.toString());
-      throw PlatformException(
-          code: 'INIT_ERROR',
-          message: 'Failed to connect to room',
-          details: '');
+      throw PlatformException(code: 'INIT_ERROR', message: 'Failed to connect to room', details: '');
     }
     return 0;
   }
@@ -173,28 +144,24 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (localParticipant != null) {
       final audioTracks = localParticipant.audioTracks.values();
       iteratorForEach<LocalAudioTrackPublication>(audioTracks, (publication) {
-        debug(
-            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
 
       final videoTracks = localParticipant.videoTracks.values();
       iteratorForEach<LocalVideoTrackPublication>(videoTracks, (publication) {
-        debug(
-            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
 
       final dataTracks = localParticipant.dataTracks.values();
       iteratorForEach<LocalDataTrackPublication>(dataTracks, (publication) {
-        debug(
-            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
-
     }
     _room?.disconnect();
     _room = null;
@@ -206,22 +173,17 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<bool> enableAudioTrack(bool enable, String name) {
     final localAudioTracks = _room?.localParticipant.audioTracks.values();
     if (localAudioTracks != null) {
-      iteratorForEach<LocalAudioTrackPublication>(localAudioTracks,
-          (localAudioTrack) {
+      iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
         final found = localAudioTrack.trackName == name;
         if (found) {
-          enable
-              ? localAudioTrack.track.enable()
-              : localAudioTrack.track.disable();
+          enable ? localAudioTrack.track.enable() : localAudioTrack.track.disable();
         }
         return found;
       });
       debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
       return Future(() => enable);
     } else {
-      throw PlatformException(
-          code: 'NOT_FOUND',
-          message: 'No LocalAudioTrack found with the name \'$name\'');
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$name\'');
     }
   }
 
@@ -229,13 +191,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<bool> enableVideoTrack(bool enabled, String name) {
     final localVideoTracks = _room?.localParticipant.videoTracks.values();
     if (localVideoTracks != null) {
-      iteratorForEach<LocalVideoTrackPublication>(localVideoTracks,
-          (localVideoTrack) {
+      iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
         final found = localVideoTrack.trackName == name;
         if (found) {
-          enabled
-              ? localVideoTrack.track.enable()
-              : localVideoTrack.track.disable();
+          enabled ? localVideoTrack.track.enable() : localVideoTrack.track.disable();
         }
         return found;
       });
@@ -243,9 +202,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
       return Future(() => enabled);
     } else {
-      throw PlatformException(
-          code: 'NOT_FOUND',
-          message: 'No LocalVideoTrack found with the name \'$name\'');
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalVideoTrack found with the name \'$name\'');
     }
   }
 
@@ -257,10 +214,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       final originalFactory = logger.methodFactory;
       logger.methodFactory = allowInterop((methodName, logLevel, loggerName) {
         final method = originalFactory(methodName, logLevel, loggerName);
-        return allowInterop((datetime, logLevel, component, message,
-            [data = '', misc = '']) {
-          final output =
-              '[  WEBSDK  ] $datetime $logLevel $component $message $data';
+        return allowInterop((datetime, logLevel, component, message, [data = '', misc = '']) {
+          final output = '[  WEBSDK  ] $datetime $logLevel $component $message $data';
           method(output, datetime, logLevel, component, message, data);
         });
       });
@@ -310,11 +265,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     var remoteAudioTrack;
     final room = _room;
     if (room != null) {
-      iteratorForEach<RemoteParticipant>(room.participants.values(),
-          (remoteParticipant) {
+      iteratorForEach<RemoteParticipant>(room.participants.values(), (remoteParticipant) {
         var found = false;
-        iteratorForEach<RemoteAudioTrackPublication>(
-            remoteParticipant.audioTracks.values(), (audioTrack) {
+        iteratorForEach<RemoteAudioTrackPublication>(remoteParticipant.audioTracks.values(), (audioTrack) {
           if (audioTrack.trackSid == sid) {
             remoteAudioTrack = audioTrack.track;
             found = true;
@@ -324,9 +277,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         return found;
       });
       if (remoteAudioTrack == null) {
-        throw PlatformException(
-            code: 'NOT_FOUND',
-            message: 'The track with sid: $sid was not found');
+        throw PlatformException(code: 'NOT_FOUND', message: 'The track with sid: $sid was not found');
       }
       return remoteAudioTrack;
     }
@@ -343,8 +294,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       );
     }
 
-    final remoteTrackElement =
-        document.getElementById(remoteAudioTrack.name) as AudioElement?;
+    final remoteTrackElement = document.getElementById(remoteAudioTrack.name) as AudioElement?;
     if (remoteTrackElement == null) {
       throw PlatformException(
         code: 'NOT_FOUND',
@@ -365,10 +315,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (remoteAudioTrack == null) {
       return Future.value(false);
     }
-    final remoteTrackElement =
-        document.getElementById(remoteAudioTrack.name) as AudioElement?;
-    final isEnabled =
-        remoteTrackElement != null ? !remoteTrackElement.muted : false;
+    final remoteTrackElement = document.getElementById(remoteAudioTrack.name) as AudioElement?;
+    final isEnabled = remoteTrackElement != null ? !remoteTrackElement.muted : false;
     return Future(() => isEnabled);
   }
 

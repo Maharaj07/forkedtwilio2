@@ -13,13 +13,10 @@ import 'package:dartlin/dartlin.dart';
 class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
-  final StreamController<BaseRemoteParticipantEvent>
-      _remoteParticipantController;
-  final Map<String, RemoteParticipantEventListener>
-      _remoteParticipantListeners = {};
+  final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
+  final Map<String, RemoteParticipantEventListener> _remoteParticipantListeners = {};
 
-  RoomEventListener(this._room, this._roomStreamController,
-      this._remoteParticipantController) {
+  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController) {
     _addPriorRemoteParticipantListeners();
   }
 
@@ -36,8 +33,7 @@ class RoomEventListener extends BaseListener {
   }
 
   void removeListeners() {
-    debug(
-        'Removing RoomEventListeners for ${_room.sid} - ${_remoteParticipantListeners.length}');
+    debug('Removing RoomEventListeners for ${_room.sid} - ${_remoteParticipantListeners.length}');
     _off('disconnected', onDisconnected);
     _off('dominantSpeakerChanged', onDominantSpeakerChanged);
     _off('participantConnected', onParticipantConnected);
@@ -46,19 +42,16 @@ class RoomEventListener extends BaseListener {
     _off('reconnecting', onReconnecting);
     _off('recordingStarted', onRecordingStarted);
     _off('recordingStopped', onRecordingStopped);
-    _remoteParticipantListeners.values.forEach((remoteParticipantListener) =>
-        remoteParticipantListener.removeListeners());
+    _remoteParticipantListeners.values.forEach((remoteParticipantListener) => remoteParticipantListener.removeListeners());
     _remoteParticipantListeners.clear();
   }
 
   void _addPriorRemoteParticipantListeners() {
     final remoteParticipants = _room.participants.values();
     iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
-      final remoteParticipantListener = RemoteParticipantEventListener(
-          remoteParticipant, _remoteParticipantController);
+      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController);
       remoteParticipantListener.addListeners();
-      _remoteParticipantListeners[remoteParticipant.sid] =
-          remoteParticipantListener;
+      _remoteParticipantListeners[remoteParticipant.sid] = remoteParticipantListener;
       return false;
     });
   }
@@ -74,24 +67,20 @@ class RoomEventListener extends BaseListener {
       );
 
   void onDisconnected(Room room, TwilioError? error) {
-    _roomStreamController
-        .add(Disconnected(room.toModel(), error?.let((it) => it.toModel())));
+    _roomStreamController.add(Disconnected(room.toModel(), error?.let((it) => it.toModel())));
     debug('Added Disconnected Room Event');
   }
 
   void onDominantSpeakerChanged(RemoteParticipant? dominantSpeaker) {
-    _roomStreamController.add(
-        DominantSpeakerChanged(_room.toModel(), dominantSpeaker?.toModel()));
+    _roomStreamController.add(DominantSpeakerChanged(_room.toModel(), dominantSpeaker?.toModel()));
     debug('Added DominantSpeakerChanged Room Event');
   }
 
   void onParticipantConnected(RemoteParticipant participant) {
-    _roomStreamController
-        .add(ParticipantConnected(_room.toModel(), participant.toModel()));
+    _roomStreamController.add(ParticipantConnected(_room.toModel(), participant.toModel()));
     debug('Added ParticipantConnected Room Event');
 
-    final remoteParticipantListener = RemoteParticipantEventListener(
-        participant, _remoteParticipantController);
+    final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController);
     remoteParticipantListener.addListeners();
     _remoteParticipantListeners[participant.sid] = remoteParticipantListener;
   }
@@ -100,8 +89,7 @@ class RoomEventListener extends BaseListener {
     _roomStreamController.add(
       ParticipantDisconnected(_room.toModel(), participant.toModel()),
     );
-    final remoteParticipantListener =
-        _remoteParticipantListeners.remove(participant.sid);
+    final remoteParticipantListener = _remoteParticipantListeners.remove(participant.sid);
     remoteParticipantListener?.removeListeners();
     debug('Added ParticipantDisconnected Room Event');
   }
