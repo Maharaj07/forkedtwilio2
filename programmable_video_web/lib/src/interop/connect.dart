@@ -11,6 +11,7 @@ import 'package:programmable_video_web/src/interop/classes/local_audio_track_pub
 import 'package:programmable_video_web/src/interop/classes/local_data_track.dart';
 import 'package:programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:programmable_video_web/src/interop/classes/room.dart';
+import 'package:programmable_video_web/twilio_programmable_video_web.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 @JS('Twilio.Video.connect')
@@ -153,7 +154,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       final modelTrack = audioTracks
           .firstWhereOrNull((track) => track.name == publication.trackName);
       if (modelTrack != null) {
-        print(
+        ProgrammableVideoPlugin.debug(
             'ProgrammableVideoWeb::connectWithModel => enableAudioTrack(${modelTrack.name}): ${modelTrack.enabled}');
         modelTrack.enabled
             ? publication.track.enable()
@@ -170,7 +171,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       final modelTrack = videoTracks
           .firstWhereOrNull((track) => track.name == publication.trackName);
       if (modelTrack != null) {
-        print(
+        ProgrammableVideoPlugin.debug(
             'ProgrammableVideoWeb::connectWithModel => enableVideoTrack(${modelTrack.name}): ${modelTrack.enabled}');
         modelTrack.enabled
             ? publication.track.enable()

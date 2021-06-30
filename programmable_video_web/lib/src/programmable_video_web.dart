@@ -173,7 +173,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (localParticipant != null) {
       final audioTracks = localParticipant.audioTracks.values();
       iteratorForEach<LocalAudioTrackPublication>(audioTracks, (publication) {
-        print(
+        debug(
             'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
@@ -181,17 +181,15 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
       final videoTracks = localParticipant.videoTracks.values();
       iteratorForEach<LocalVideoTrackPublication>(videoTracks, (publication) {
-        print(
+        debug(
             'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
 
       final dataTracks = localParticipant.dataTracks.values();
-      print(
-          'ProgrammableVideoWeb::disconnect => unpublishing ${localParticipant.dataTracks.size} ');
       iteratorForEach<LocalDataTrackPublication>(dataTracks, (publication) {
-        print(
+        debug(
             'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
