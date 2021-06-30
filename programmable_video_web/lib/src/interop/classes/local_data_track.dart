@@ -32,7 +32,7 @@ extension Interop on LocalDataTrack {
     return LocalDataTrackModel(
       name: name,
       maxPacketLifeTime: maxPacketLifeTime ?? -1,
-      maxRetransmits: maxRetransmits != null ? maxRetransmits! : -1,
+      maxRetransmits: maxRetransmits ?? -1,
       ordered: ordered,
       reliable: reliable,
       enabled: enabled,
