@@ -9,7 +9,7 @@ class LocalTrackPublication extends TrackPublication {
   external String get kind;
   external dynamic get priority;
 
-  /// track will return either [null] or an instance of: [LocalAudioTrack], [LocalDataTrack] or [LocalVideoTrack]
+  /// Track will return either [null] or an instance of: [LocalAudioTrack], [LocalDataTrack] or [LocalVideoTrack].
   external dynamic get track;
 
   external factory LocalTrackPublication(

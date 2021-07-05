@@ -11,7 +11,7 @@ class RemoteVideoTrackPublication extends RemoteTrackPublication {
   @override
   external String get kind; // "video"
   @override
-  external RemoteVideoTrack get track;
+  external RemoteVideoTrack? get track;
 
   external factory RemoteVideoTrackPublication();
 }

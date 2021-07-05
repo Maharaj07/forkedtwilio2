@@ -10,23 +10,6 @@ import 'package:programmable_video_web/src/listeners/remote_participant_event_li
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:dartlin/dartlin.dart';
 
-/*
-TODO: Review and potentially add listeners for the following events:
-  participantReconnected
-  participantReconnecting
-  trackDimensionsChanged
-  trackDisabled
-  trackEnabled
-  trackMessage
-  trackPublished
-  trackStarted
-  trackSubscribed
-  trackSwitchedOff
-  trackSwitchedOn
-  trackUnpublished
-  trackUnsubscribed
- */
-
 class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
@@ -38,7 +21,6 @@ class RoomEventListener extends BaseListener {
     _addPriorRemoteParticipantListeners();
   }
 
-  @override
   void addListeners() {
     debug('Adding RoomEventListeners for ${_room.sid}');
     _on('disconnected', onDisconnected);
@@ -51,7 +33,6 @@ class RoomEventListener extends BaseListener {
     _on('recordingStopped', onRecordingStopped);
   }
 
-  @override
   void removeListeners() {
     debug('Removing RoomEventListeners for ${_room.sid} - ${_remoteParticipantListeners.length}');
     _off('disconnected', onDisconnected);
@@ -67,7 +48,7 @@ class RoomEventListener extends BaseListener {
   }
 
   void _addPriorRemoteParticipantListeners() {
-    final remoteParticipants = _room?.participants?.values();
+    final remoteParticipants = _room.participants.values();
     iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
       final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
       remoteParticipantListener.addListeners();
@@ -86,12 +67,12 @@ class RoomEventListener extends BaseListener {
         allowInterop(eventHandler),
       );
 
-  void onDisconnected(Room room, TwilioError error) {
-    _roomStreamController.add(Disconnected(room.toModel(), error.let((it) => it.toModel())));
+  void onDisconnected(Room room, TwilioError? error) {
+    _roomStreamController.add(Disconnected(room.toModel(), error?.let((it) => it.toModel())));
     debug('Added Disconnected Room Event');
   }
 
-  void onDominantSpeakerChanged(RemoteParticipant dominantSpeaker) {
+  void onDominantSpeakerChanged(RemoteParticipant? dominantSpeaker) {
     _roomStreamController.add(DominantSpeakerChanged(_room.toModel(), dominantSpeaker?.toModel()));
     debug('Added DominantSpeakerChanged Room Event');
   }
@@ -110,7 +91,7 @@ class RoomEventListener extends BaseListener {
       ParticipantDisconnected(_room.toModel(), participant.toModel()),
     );
     final remoteParticipantListener = _remoteParticipantListeners.remove(participant.sid);
-    remoteParticipantListener.removeListeners();
+    remoteParticipantListener?.removeListeners();
     debug('Added ParticipantDisconnected Room Event');
   }
 

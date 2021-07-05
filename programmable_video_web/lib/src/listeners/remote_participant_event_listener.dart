@@ -18,16 +18,6 @@ import 'package:programmable_video_web/src/listeners/base_listener.dart';
 import 'package:programmable_video_web/src/listeners/remote_data_track_event_listener.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
-/*
-TODO: Review and potentially add listeners for the following events:
-  trackDimensionsChanged
-  trackStarted
-  trackStopped
-  trackMessage
-  trackSwitchedOn
-  trackSwitchedOff
- */
-
 class RemoteParticipantEventListener extends BaseListener {
   final RemoteParticipant _remoteParticipant;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
@@ -36,7 +26,6 @@ class RemoteParticipantEventListener extends BaseListener {
 
   RemoteParticipantEventListener(this._remoteParticipant, this._remoteParticipantController, this._remoteDataTrackController);
 
-  @override
   void addListeners() {
     debug('Adding RemoteParticipantEventListeners for ${_remoteParticipant.sid}');
     _on('trackDisabled', onTrackDisabled);
@@ -49,7 +38,6 @@ class RemoteParticipantEventListener extends BaseListener {
     _on('networkQualityLevelChanged', onNetworkQualityLevelChanged);
   }
 
-  @override
   void removeListeners() {
     debug('Removing RemoteParticipantEventListeners for ${_remoteParticipant.sid}');
     _off('trackDisabled', onTrackDisabled);
@@ -77,8 +65,8 @@ class RemoteParticipantEventListener extends BaseListener {
   void onTrackDisabled(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackDisabled Event');
     when(publication.kind, {
-      'audio': () => onTrackDisabledAudio(publication),
-      'video': () => onTrackDisabledVideo(publication),
+      'audio': () => onTrackDisabledAudio(publication as RemoteAudioTrackPublication),
+      'video': () => onTrackDisabledVideo(publication as RemoteVideoTrackPublication),
     });
   }
 
@@ -97,8 +85,8 @@ class RemoteParticipantEventListener extends BaseListener {
   void onTrackEnabled(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackEnabled Event');
     when(publication.kind, {
-      'audio': () => onTrackEnabledAudio(publication),
-      'video': () => onTrackEnabledVideo(publication),
+      'audio': () => onTrackEnabledAudio(publication as RemoteAudioTrackPublication),
+      'video': () => onTrackEnabledVideo(publication as RemoteVideoTrackPublication),
     });
   }
 
@@ -118,7 +106,11 @@ class RemoteParticipantEventListener extends BaseListener {
 
   void onTrackPublished(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackPublished Event');
-    when(publication.kind, {'audio': () => onTrackPublishedAudio(publication), 'video': () => onTrackPublishedVideo(publication), 'data': () => onTrackPublishedData(publication)});
+    when(publication.kind, {
+      'audio': () => onTrackPublishedAudio(publication as RemoteAudioTrackPublication),
+      'video': () => onTrackPublishedVideo(publication as RemoteVideoTrackPublication),
+      'data': () => onTrackPublishedData(publication as RemoteDataTrackPublication)
+    });
   }
 
   void onTrackPublishedAudio(RemoteAudioTrackPublication publication) => _remoteParticipantController.add(
@@ -146,7 +138,11 @@ class RemoteParticipantEventListener extends BaseListener {
 
   void onTrackUnpublished(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackUnpublished Event');
-    when(publication.kind, {'audio': () => onTrackUnpublishedAudio(publication), 'video': () => onTrackUnpublishedVideo(publication), 'data': () => onTrackUnpublishedData(publication)});
+    when(publication.kind, {
+      'audio': () => onTrackUnpublishedAudio(publication as RemoteAudioTrackPublication),
+      'video': () => onTrackUnpublishedVideo(publication as RemoteVideoTrackPublication),
+      'data': () => onTrackUnpublishedData(publication as RemoteDataTrackPublication)
+    });
   }
 
   void onTrackUnpublishedAudio(RemoteAudioTrackPublication publication) => _remoteParticipantController.add(
@@ -174,10 +170,10 @@ class RemoteParticipantEventListener extends BaseListener {
     debug('Added Remote${capitalize(track.kind)}TrackSubscribed Event');
     when(track.kind, {
       'audio': () {
-        final RemoteAudioTrack audioTrack = track;
+        final audioTrack = track as RemoteAudioTrack;
         final audioElement = audioTrack.attach();
         audioElement.id = track.name;
-        document.body.append(audioElement);
+        document.body?.append(audioElement);
         debug('Attached audio element');
         _remoteParticipantController.add(
           RemoteAudioTrackSubscribed(
@@ -195,9 +191,9 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteDataTrackModel: (track as RemoteDataTrack).toModel(),
           ),
         );
-        final remoteDataTrackListener = RemoteDataTrackEventListener(track as RemoteDataTrack, _remoteDataTrackController);
+        final remoteDataTrackListener = RemoteDataTrackEventListener(track, _remoteDataTrackController);
         remoteDataTrackListener.addListeners();
-        _remoteDataTrackListeners[(track as RemoteDataTrack).sid] = remoteDataTrackListener;
+        _remoteDataTrackListeners[track.sid] = remoteDataTrackListener;
       },
       'video': () {
         _remoteParticipantController.add(
@@ -215,7 +211,7 @@ class RemoteParticipantEventListener extends BaseListener {
     debug('Added Remote${capitalize(track.kind)}TrackUnsubscribed Event');
     when(track.kind, {
       'audio': () {
-        final RemoteAudioTrack audioTrack = track;
+        final audioTrack = track as RemoteAudioTrack;
         final mediaElements = audioTrack.detach();
         mediaElements.forEach((element) => (element as MediaElement).remove());
         debug('Detached audio element');
@@ -223,7 +219,7 @@ class RemoteParticipantEventListener extends BaseListener {
           RemoteAudioTrackUnsubscribed(
             remoteParticipantModel: _remoteParticipant.toModel(),
             remoteAudioTrackPublicationModel: (publication as RemoteAudioTrackPublication).toModel(),
-            remoteAudioTrackModel: (track as RemoteAudioTrack).toModel(),
+            remoteAudioTrackModel: audioTrack.toModel(),
           ),
         );
       },
@@ -236,8 +232,8 @@ class RemoteParticipantEventListener extends BaseListener {
           ),
         );
 
-        final remoteDataTrackListener = _remoteDataTrackListeners.remove((track as RemoteDataTrack).sid);
-        remoteDataTrackListener.removeListeners();
+        final remoteDataTrackListener = _remoteDataTrackListeners.remove(track.sid);
+        remoteDataTrackListener?.removeListeners();
       },
       'video': () {
         _remoteParticipantController.add(

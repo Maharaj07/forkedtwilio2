@@ -1,6 +1,10 @@
-## 0.3.3
+## 0.4.0+1
 
-- Added `createLocalVideoTrackWidget()` and `createRemoteVideoTrackWidget()` methods.
+- Resolve "'!' used on CameraSource enum which does not include 'null'"
+
+## 0.4.0
+
+- Resolve "Sound null safety"
 
 ## 0.3.2
 

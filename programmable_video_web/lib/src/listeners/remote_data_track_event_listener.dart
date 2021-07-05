@@ -12,13 +12,11 @@ class RemoteDataTrackEventListener extends BaseListener {
 
   RemoteDataTrackEventListener(this._remoteDataTrack, this._remoteDataTrackController);
 
-  @override
   void addListeners() {
     debug('Adding RemoteDataTrackListeners for ${_remoteDataTrack.sid}');
     _remoteDataTrack.on('message', allowInterop(onMessage));
   }
 
-  @override
   void removeListeners() {
     debug('Removing RemoteDataTrackListeners for ${_remoteDataTrack.sid}');
     _remoteDataTrack.off('message', allowInterop(onMessage));

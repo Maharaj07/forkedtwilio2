@@ -18,7 +18,7 @@ class Room extends EventEmitter {
   external String get name;
   external LocalParticipant get localParticipant;
   external bool get isRecording;
-  external RemoteParticipant get dominantSpeaker;
+  external RemoteParticipant? get dominantSpeaker;
 
   external factory Room(
     dynamic localParticipant,
@@ -35,9 +35,10 @@ extension Interop on Room {
       sid: sid,
       name: name,
       state: EnumToString.fromString<RoomState>(
-        RoomState.values,
-        state.toUpperCase(),
-      ),
+            RoomState.values,
+            state.toUpperCase(),
+          ) ??
+          RoomState.DISCONNECTED,
       mediaRegion: EnumToString.fromString<Region>(
         Region.values,
         mediaRegion,

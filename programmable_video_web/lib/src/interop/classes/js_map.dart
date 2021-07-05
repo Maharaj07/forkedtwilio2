@@ -18,6 +18,8 @@ class JSMap<K, V> {
   @JS('prototype.values')
   external Iterator<V> values();
 
+  external int get size;
+
   external factory JSMap();
 }
 
@@ -76,7 +78,6 @@ void iteratorForEach<V>(
   Iterator<V> iterator,
   bool Function(V value) mapper,
 ) {
-  if (iterator == null) return;
   var result = iterator.next();
   while (!result.done) {
     final earlyBreak = mapper(result.value);

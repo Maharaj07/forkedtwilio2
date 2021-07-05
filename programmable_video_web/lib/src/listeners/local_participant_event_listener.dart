@@ -14,14 +14,6 @@ import 'package:programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:programmable_video_web/src/listeners/base_listener.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
-/*
-TODO: Review and potentially add listeners for the following events:
-  trackDimensionsChanged
-  trackDisabled
-  trackEnabled
-  trackStarted
-  trackStopped
- */
 
 class LocalParticipantEventListener extends BaseListener {
   final LocalParticipant _localParticipant;
@@ -29,7 +21,6 @@ class LocalParticipantEventListener extends BaseListener {
 
   LocalParticipantEventListener(this._localParticipant, this._localParticipantController);
 
-  @override
   void addListeners() {
     debug('Adding LocalParticipantEventListeners for ${_localParticipant.sid}');
     _on('trackPublished', onTrackPublished);
@@ -37,7 +28,6 @@ class LocalParticipantEventListener extends BaseListener {
     _on('networkQualityLevelChanged', onNetworkQualityLevelChanged);
   }
 
-  @override
   void removeListeners() {
     debug('Removed LocalParticipantEventListeners for ${_localParticipant.sid}');
     _off('trackPublished', onTrackPublished);
