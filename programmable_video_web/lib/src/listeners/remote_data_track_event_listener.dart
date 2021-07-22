@@ -26,7 +26,7 @@ class RemoteDataTrackEventListener extends BaseListener {
     if (data is String) {
       debug('Added RemoteDataTrack StringMessage Event');
       _remoteDataTrackController.add(StringMessage(track.toModel(), data));
-    } else if (data is ByteBuffer){
+    } else if (data is ByteBuffer) {
       debug('Added RemoteDataTrack BufferMessage Event');
       _remoteDataTrackController.add(BufferMessage(track.toModel(), data));
     } else {
