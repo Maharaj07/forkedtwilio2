@@ -63,6 +63,27 @@ class TwilioRoomResponse {
   });
 
   factory TwilioRoomResponse.fromMap(Map<String, dynamic> data) {
+    Region? getMediaRegion() {
+      try {
+        return EnumToString.fromString(Region.values, data['mediaRegion']);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    List<TwilioVideoCodec?> getVideoCodecs() {
+      try {
+        return (List<String>.from(data['videoCodecs']))
+            .map(
+              (String videoCodec) =>
+                  EnumToString.fromString(TwilioVideoCodec.values, videoCodec),
+            )
+            .toList();
+      } catch (e) {
+        return List.empty();
+      }
+    }
+
     return TwilioRoomResponse(
       accountSid: data['accountSid'],
       duration: data['duration'],
@@ -72,7 +93,7 @@ class TwilioRoomResponse {
       endTime: DateTime.tryParse(data['endTime'] ?? ''),
       links: TwilioRoomLinks.fromMap(Map<String, String>.from(data['links'])),
       maxParticipants: data['maxParticipants'],
-      mediaRegion: EnumToString.fromString(Region.values, data['mediaRegion']),
+      mediaRegion: getMediaRegion(),
       recordParticipantsOnConnect: data['recordParticipantsOnConnect'],
       sid: data['sid'],
       status: EnumToString.fromString(TwilioRoomStatus.values, data['status'].toString().camelCase),
@@ -81,11 +102,7 @@ class TwilioRoomResponse {
       type: EnumToString.fromString(TwilioRoomType.values, data['type'].toString().camelCase),
       uniqueName: data['uniqueName'],
       url: data['url'],
-      videoCodecs: (List<String>.from(data['videoCodecs']))
-          .map(
-            (String videoCodec) => EnumToString.fromString(TwilioVideoCodec.values, videoCodec),
-          )
-          .toList(),
+      videoCodecs: getVideoCodecs(),
     );
   }
 }

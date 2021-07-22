@@ -88,7 +88,7 @@ class _JoinRoomFormState extends State<JoinRoomForm> {
                 color: Colors.grey,
               ),
               isExpanded: true,
-              items: <TwilioRoomType>[TwilioRoomType.group, TwilioRoomType.groupSmall].map<DropdownMenuItem<TwilioRoomType>>((TwilioRoomType value) {
+              items: <TwilioRoomType>[TwilioRoomType.group, TwilioRoomType.groupSmall, TwilioRoomType.peerToPeer].map<DropdownMenuItem<TwilioRoomType>>((TwilioRoomType value) {
                 return DropdownMenuItem<TwilioRoomType>(
                   value: value,
                   child: Text(RoomModel.getTypeText(value)),
