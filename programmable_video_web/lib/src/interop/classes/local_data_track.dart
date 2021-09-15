@@ -21,6 +21,7 @@ class LocalDataTrack extends Track {
   external int? get maxRetransmits;
   external bool get ordered;
   external bool get reliable;
+  external void send(dynamic data);
 
   external factory LocalDataTrack(
     LocalDataTrackOptions options,

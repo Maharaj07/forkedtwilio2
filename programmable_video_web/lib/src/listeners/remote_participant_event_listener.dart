@@ -15,13 +15,16 @@ import 'package:programmable_video_web/src/interop/classes/track.dart';
 import 'package:programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:programmable_video_web/src/listeners/base_listener.dart';
+import 'package:programmable_video_web/src/listeners/remote_data_track_event_listener.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class RemoteParticipantEventListener extends BaseListener {
   final RemoteParticipant _remoteParticipant;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
+  final StreamController<BaseRemoteDataTrackEvent> _remoteDataTrackController;
+  final Map<String, RemoteDataTrackEventListener> _remoteDataTrackListeners = {};
 
-  RemoteParticipantEventListener(this._remoteParticipant, this._remoteParticipantController);
+  RemoteParticipantEventListener(this._remoteParticipant, this._remoteParticipantController, this._remoteDataTrackController);
 
   void addListeners() {
     debug('Adding RemoteParticipantEventListeners for ${_remoteParticipant.sid}');
@@ -45,6 +48,8 @@ class RemoteParticipantEventListener extends BaseListener {
     _off('trackUnsubscribed', onTrackUnsubscribed);
     _off('trackSubscriptionFailed', onTrackSubscriptionFailed);
     _off('networkQualityLevelChanged', onNetworkQualityLevelChanged);
+    _remoteDataTrackListeners.values.forEach((remoteDataTrackListener) => remoteDataTrackListener.removeListeners());
+    _remoteDataTrackListeners.clear();
   }
 
   void _on(String eventName, Function eventHandler) => _remoteParticipant.on(
@@ -186,6 +191,9 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteDataTrackModel: (track as RemoteDataTrack).toModel(),
           ),
         );
+        final remoteDataTrackListener = RemoteDataTrackEventListener(track, _remoteDataTrackController);
+        remoteDataTrackListener.addListeners();
+        _remoteDataTrackListeners[track.sid] = remoteDataTrackListener;
       },
       'video': () {
         _remoteParticipantController.add(
@@ -223,6 +231,9 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteDataTrackModel: (track as RemoteDataTrack).toModel(),
           ),
         );
+
+        final remoteDataTrackListener = _remoteDataTrackListeners.remove(track.sid);
+        remoteDataTrackListener?.removeListeners();
       },
       'video': () {
         _remoteParticipantController.add(

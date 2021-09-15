@@ -27,8 +27,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static RoomEventListener? _roomListener;
   static LocalParticipantEventListener? _localParticipantListener;
 
-  // TODO add listeners for camera and remotedatatrack stream
   static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
+  // TODO add listeners for camera stream
   static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
   static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>.broadcast();
@@ -110,7 +110,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   void _onConnected() async {
     final room = _room;
     if (room != null) {
-      _roomListener = RoomEventListener(room, _roomStreamController, _remoteParticipantController);
+      _roomListener = RoomEventListener(room, _roomStreamController, _remoteParticipantController, _remoteDataTrackController);
       _roomListener!.addListeners();
       _localParticipantListener = LocalParticipantEventListener(room.localParticipant, _localParticipantController);
       _localParticipantListener!.addListeners();
@@ -253,11 +253,45 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendMessage(String message, String name) {
+    final localDataTracks = _room?.localParticipant.dataTracks.values();
+    var found = false;
+    if (localDataTracks != null) {
+      iteratorForEach<LocalDataTrackPublication>(localDataTracks, (localDataTrackPublication) {
+        if (localDataTrackPublication.trackName == name) {
+          localDataTrackPublication.track.send(message);
+          found = true;
+        }
+        return found;
+      });
+    }
+
+    if (found) {
+      debug('Sent the string message: $message for local data track: $name');
+    } else {
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalDataTrack found with the name \'$name\'');
+    }
     return Future(() {});
   }
 
   @override
   Future<void> sendBuffer(ByteBuffer message, String name) {
+    final localDataTracks = _room?.localParticipant.dataTracks.values();
+    var found = false;
+    if (localDataTracks != null) {
+      iteratorForEach<LocalDataTrackPublication>(localDataTracks, (localDataTrackPublication) {
+        if (localDataTrackPublication.trackName == name) {
+          localDataTrackPublication.track.send(message);
+          found = true;
+        }
+        return found;
+      });
+    }
+
+    if (found) {
+      debug('Sent the buffer message: $message for local data track: $name');
+    } else {
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalDataTrack found with the name \'$name\'');
+    }
     return Future(() {});
   }
 

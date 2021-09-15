@@ -14,9 +14,10 @@ class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
+  final StreamController<BaseRemoteDataTrackEvent> _remoteDataTrackController;
   final Map<String, RemoteParticipantEventListener> _remoteParticipantListeners = {};
 
-  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController) {
+  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController, this._remoteDataTrackController) {
     _addPriorRemoteParticipantListeners();
   }
 
@@ -49,7 +50,7 @@ class RoomEventListener extends BaseListener {
   void _addPriorRemoteParticipantListeners() {
     final remoteParticipants = _room.participants.values();
     iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
-      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController);
+      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
       remoteParticipantListener.addListeners();
       _remoteParticipantListeners[remoteParticipant.sid] = remoteParticipantListener;
       return false;
@@ -80,7 +81,7 @@ class RoomEventListener extends BaseListener {
     _roomStreamController.add(ParticipantConnected(_room.toModel(), participant.toModel()));
     debug('Added ParticipantConnected Room Event');
 
-    final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController);
+    final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController, _remoteDataTrackController);
     remoteParticipantListener.addListeners();
     _remoteParticipantListeners[participant.sid] = remoteParticipantListener;
   }
