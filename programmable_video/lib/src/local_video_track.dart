@@ -6,6 +6,8 @@ class LocalVideoTrack extends VideoTrack {
 
   final VideoCapturer _videoCapturer;
 
+  bool? _mirror;
+
   /// Check if it is enabled.
   ///
   /// When the value is `false`, blank video frames are sent. When the value is `true`, frames from the [CameraSource] are provided.
@@ -53,7 +55,9 @@ class LocalVideoTrack extends VideoTrack {
   /// By default the widget will be mirrored, to change that set [mirror] to false.
   /// If you provide a [key] make sure it is unique among all [VideoTrack]s otherwise Flutter might send the wrong creation params to the native side.
   Widget widget({bool mirror = true, Key key}) {
-    key ??= ValueKey('Twilio_LocalParticipant');
+    if (_widget != null && _mirror == mirror) return _widget!;
+
+    key ??= ValueKey('Twilio_LocalParticipant_$mirror');
 
     var creationParams = {
       'isLocal': true,
@@ -61,7 +65,7 @@ class LocalVideoTrack extends VideoTrack {
     };
 
     if (Platform.isAndroid) {
-      return _widget ??= AndroidView(
+      _widget = AndroidView(
         key: key,
         viewType: 'twilio_programmable_video/views',
         creationParams: creationParams,
@@ -70,10 +74,12 @@ class LocalVideoTrack extends VideoTrack {
           TwilioProgrammableVideo._log('LocalVideoTrack => View created: $viewId, creationParams: $creationParams');
         },
       );
+      _mirror = mirror;
+      return _widget!;
     }
 
     if (Platform.isIOS) {
-      return _widget ??= UiKitView(
+      _widget = UiKitView(
         key: key,
         viewType: 'twilio_programmable_video/views',
         creationParams: creationParams,
@@ -82,6 +88,8 @@ class LocalVideoTrack extends VideoTrack {
           TwilioProgrammableVideo._log('LocalVideoTrack => View created: $viewId, creationParams: $creationParams');
         },
       );
+      _mirror = mirror;
+      return _widget!;
     }
 
     throw Exception('No widget implementation found for platform \'${Platform.operatingSystem}\'');

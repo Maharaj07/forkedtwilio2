@@ -196,6 +196,20 @@ class ConferenceRoom with ChangeNotifier {
         'ConferenceRoom.switchCamera() failed because of FormatException with message: ${e.message}',
       );
     }
+
+    var index = _participants.indexWhere((ParticipantWidget participant) => !participant.isRemote);
+    if (index < 0) {
+      return;
+    }
+    final localParticipant = _room.localParticipant;
+    if (localParticipant == null) return;
+
+    final isFront = _cameraCapturer.source!.isFrontFacing;
+    _participants[index] = _participants[index].copyWith(
+      child: localParticipant.localVideoTracks[0].localVideoTrack.widget(mirror: isFront),
+    );
+    Debug.log('ConferenceRoom.switchCamera() => $isFront');
+    notifyListeners();
   }
 
   Future<void> toggleFlashlight() async {
