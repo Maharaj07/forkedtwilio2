@@ -1,6 +1,22 @@
+## 1.0.0-alpha.2
+
+- Integrates updates for audio settings and video preview from version 0.0.7.1
+
 ## 1.0.0-alpha.1
 
 - Initial pre-release of the web implementation.
+
+## 0.7.1
+
+- Added `createVideoTrack`.
+- Added `publishVideoTrack`.
+- Added `unpublishVideoTrack`.
+- Added `releaseVideoTrack`.
+
+## 0.7.0
+
+- Added `setAudioSettings`.
+- Added `disableAudioSettings`.
 
 ## 0.6.0+1
 

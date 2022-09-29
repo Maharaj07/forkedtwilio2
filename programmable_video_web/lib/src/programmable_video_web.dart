@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -214,7 +213,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   @override
-  Future<void> setNativeDebug(bool native) async {
+  Future<void> setNativeDebug(bool native, bool audio) async {
     final logger = Logger.getLogger('twilio-video');
     // Currently also enabling SDK debugging when native is true
     if (native && !_sdkDebugSetup) {
@@ -288,6 +287,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       }
       return remoteAudioTrack;
     }
+    return null;
   }
 
   @override

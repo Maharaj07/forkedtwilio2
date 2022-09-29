@@ -20,6 +20,8 @@ class ConferenceRoom with ChangeNotifier {
   late Stream<bool> onVideoEnabled;
   late final StreamController<Map<String, bool>> _flashStateStreamController;
   late Stream<Map<String, bool>> flashStateStream;
+  late final StreamController<Map<String, bool>> _speakerStateStreamController;
+  late Stream<Map<String, bool>> speakerStateStream;
   final StreamController<Exception> _onExceptionStreamController = StreamController<Exception>.broadcast();
   late Stream<Exception> onException;
   final StreamController<NetworkQualityLevel> _onNetworkQualityStreamController = StreamController<NetworkQualityLevel>.broadcast();
@@ -35,9 +37,11 @@ class ConferenceRoom with ChangeNotifier {
 
   late CameraCapturer _cameraCapturer;
   late Room _room;
-  Timer? _timer;
+  late Timer _timer;
 
   bool flashEnabled = false;
+  bool speakerphoneEnabled = true;
+  bool bluetoothPreferred = true;
   var trackId;
 
   ConferenceRoom({
@@ -50,7 +54,11 @@ class ConferenceRoom with ChangeNotifier {
     _flashStateStreamController = StreamController<Map<String, bool>>.broadcast(onListen: () {
       _updateFlashState();
     });
+    _speakerStateStreamController = StreamController<Map<String, bool>>.broadcast(onListen: () {
+      _updateSpeakerState();
+    });
     flashStateStream = _flashStateStreamController.stream;
+    speakerStateStream = _speakerStateStreamController.stream;
     onException = _onExceptionStreamController.stream;
     onNetworkQualityLevel = _onNetworkQualityStreamController.stream;
   }
@@ -62,8 +70,11 @@ class ConferenceRoom with ChangeNotifier {
   Future<Room> connect() async {
     Debug.log('ConferenceRoom.connect()');
     try {
-      await TwilioProgrammableVideo.debug(dart: true, native: true);
-      await TwilioProgrammableVideo.setSpeakerphoneOn(true);
+      await TwilioProgrammableVideo.debug(dart: true, native: true, audio: true);
+      _streamSubscriptions.add(TwilioProgrammableVideo.onAudioNotification.listen((event) {
+        print('ConferenceRoom::onAudioNotificationEvent => $event');
+      }));
+      await TwilioProgrammableVideo.setAudioSettings(speakerphoneEnabled: speakerphoneEnabled, bluetoothPreferred: bluetoothPreferred);
 
       final sources = await CameraSource.getSources();
       _cameraCapturer = CameraCapturer(
@@ -98,6 +109,7 @@ class ConferenceRoom with ChangeNotifier {
       _streamSubscriptions.add(_cameraCapturer.onCameraSwitched!.listen(_onCameraSwitched));
 
       await _updateFlashState();
+      await _updateSpeakerState();
 
       return _completer.future;
     } catch (err) {
@@ -108,7 +120,8 @@ class ConferenceRoom with ChangeNotifier {
 
   Future<void> disconnect() async {
     Debug.log('ConferenceRoom.disconnect()');
-    _timer?.cancel();
+    _timer.cancel();
+    await TwilioProgrammableVideo.disableAudioSettings();
     await _room.disconnect();
   }
 
@@ -123,6 +136,7 @@ class ConferenceRoom with ChangeNotifier {
     await _onAudioEnabledStreamController.close();
     await _onVideoEnabledStreamController.close();
     await _flashStateStreamController.close();
+    await _speakerStateStreamController.close();
     await _onExceptionStreamController.close();
     await _onNetworkQualityStreamController.close();
     for (var streamSubscription in _streamSubscriptions) {
@@ -222,6 +236,19 @@ class ConferenceRoom with ChangeNotifier {
     await _cameraCapturer.switchCamera(source);
   }
 
+  Future<void> toggleSpeaker() async {
+    Debug.log('ConferenceRoom.toggleSpeaker()');
+
+    speakerphoneEnabled = !speakerphoneEnabled;
+
+    await TwilioProgrammableVideo.setAudioSettings(
+      speakerphoneEnabled: speakerphoneEnabled,
+      bluetoothPreferred: bluetoothPreferred,
+    );
+
+    await _updateSpeakerState();
+  }
+
   Future<void> toggleFlashlight() async {
     await _cameraCapturer.setTorch(!flashEnabled);
     flashEnabled = !flashEnabled;
@@ -262,12 +289,12 @@ class ConferenceRoom with ChangeNotifier {
 
   void _onDisconnected(RoomDisconnectedEvent event) {
     Debug.log('ConferenceRoom._onDisconnected');
-    _timer?.cancel();
+    _timer.cancel();
   }
 
   void _onReconnecting(RoomReconnectingEvent room) {
     Debug.log('ConferenceRoom._onReconnecting');
-    _timer?.cancel();
+    _timer.cancel();
   }
 
   void _onConnected(Room room) {
@@ -367,6 +394,13 @@ class ConferenceRoom with ChangeNotifier {
       'flashEnabled': flashEnabled,
     };
     _flashStateStreamController.add(flashState);
+  }
+
+  Future _updateSpeakerState() async {
+    var speakerState = <String, bool>{
+      'speakerOn': speakerphoneEnabled,
+    };
+    _speakerStateStreamController.add(speakerState);
   }
 
   ParticipantWidget _buildParticipant({
@@ -565,8 +599,11 @@ class ConferenceRoom with ChangeNotifier {
     );
     if (participant != null) {
       Debug.log('Participant found: ${participant.id}, updating A/V enabled values');
-      if (event is RemoteVideoTrackEvent) _setRemoteVideoEnabled(event);
-      if (event is RemoteAudioTrackEvent) _setRemoteAudioEnabled(event);
+      if (event is RemoteVideoTrackEvent) {
+        _setRemoteVideoEnabled(event);
+      } else if (event is RemoteAudioTrackEvent) {
+        _setRemoteAudioEnabled(event);
+      }
     } else {
       final bufferedParticipant = _participantBuffer.firstWhereOrNull(
         (ParticipantBuffer participant) => participant.id == event.remoteParticipant.sid,
