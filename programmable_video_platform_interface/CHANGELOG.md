@@ -1,7 +1,3 @@
-## 1.0.0
-
-- Released `web` as a supported platform.
-
 ## 1.0.0-alpha.2
 
 - Integrates updates for audio settings and video preview from version 0.0.7.1

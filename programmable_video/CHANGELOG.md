@@ -1,6 +1,3 @@
-## 1.0.0
-
-- Released `web` as a supported platform.
 ## 1.0.0-alpha.3
 
 - Integrates updates for mobile platforms from version 0.13.0
