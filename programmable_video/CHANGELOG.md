@@ -1,3 +1,7 @@
+## 1.0.0
+
+- Released `web` as a supported platform.
+
 ## 1.0.0-alpha.2
 
 - Added `web` as supported platform.

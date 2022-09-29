@@ -1,4 +1,4 @@
-image: cirrusci/flutter:stable
+image: cirrusci/flutter:2.12
 
 stages:
   - lint
@@ -18,8 +18,8 @@ dartdoc:
   script:
     - cd "${PROJECT}"
     - flutter pub get
-    - pub global activate dartdoc
-    - pub global run dartdoc:dartdoc --no-auto-include-dependencies --quiet
+    - flutter pub global activate dartdoc
+    - flutter pub global run dartdoc:dartdoc --no-auto-include-dependencies --quiet
   only:
     refs:
       - merge_requests
