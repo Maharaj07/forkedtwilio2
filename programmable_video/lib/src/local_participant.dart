@@ -112,7 +112,9 @@ class LocalParticipant implements Participant {
   /// Dispose the LocalParticipant
   void _dispose() {
     _closeStreams();
-    _localVideoTrackPublications.forEach((videoTrack) => videoTrack.localVideoTrack._dispose());
+    for (final videoTrack in _localVideoTrackPublications) {
+      videoTrack.localVideoTrack._dispose();
+    }
   }
 
   /// Dispose the event streams.
@@ -173,7 +175,7 @@ class LocalParticipant implements Participant {
 
   /// Parse the native local participant events to the right event streams.
   void _parseEvents(BaseLocalParticipantEvent event) {
-    if (event is SkipAbleLocalParticipantEvent) return;
+    if (event is SkippableLocalParticipantEvent) return;
     _updateFromModel(event.localParticipantModel!);
 
     if (event is LocalAudioTrackPublished) {

@@ -12,7 +12,7 @@ void main() {
   group('.debug()', () {
     test('should call interface code to enable native debug', () async {
       final mockInterface = MockInterface();
-      final nativeDebugBool = true;
+      const nativeDebugBool = true;
       ProgrammableVideoPlatform.instance = mockInterface;
       await TwilioProgrammableVideo.debug(native: nativeDebugBool, dart: !nativeDebugBool);
 
@@ -22,7 +22,7 @@ void main() {
 
     test('should call interface code to disable native debug', () async {
       final mockInterface = MockInterface();
-      final nativeDebugBool = false;
+      const nativeDebugBool = false;
       ProgrammableVideoPlatform.instance = mockInterface;
       await TwilioProgrammableVideo.debug(native: nativeDebugBool, dart: !nativeDebugBool);
 
@@ -31,20 +31,47 @@ void main() {
     });
   });
 
-  group('.setSpeakerPhoneOn() & .getSpeakerPhoneOn()', () {
+  group('.setAudioSettings() & .getAudioSettings()', () {
     final mockInterface = MockInterface();
-    final on = true;
+    const speakerphoneOn = true;
+    const bluetoothOn = true;
     setUpAll(() => ProgrammableVideoPlatform.instance = mockInterface);
 
     test('should call interface code to enable speakerphone', () async {
-      await TwilioProgrammableVideo.setSpeakerphoneOn(on);
-      expect(mockInterface.setSpeakerPhoneOnWasCalled, true);
+      await TwilioProgrammableVideo.setAudioSettings(
+        speakerphoneEnabled: speakerphoneOn,
+        bluetoothPreferred: bluetoothOn,
+      );
+      expect(mockInterface.setSpeakerPhoneOnWasCalled, false);
+      expect(mockInterface.setAudioSettingsWasCalled, true);
     });
 
     test('should call interface code to check speaker mode', () async {
-      final result = await TwilioProgrammableVideo.getSpeakerphoneOn();
-      expect(mockInterface.getSpeakerPhoneOnWasCalled, true);
-      expect(result, on);
+      await TwilioProgrammableVideo.setAudioSettings(
+        speakerphoneEnabled: false,
+        bluetoothPreferred: false,
+      );
+
+      final result = await TwilioProgrammableVideo.getAudioSettings();
+      expect(mockInterface.getSpeakerPhoneOnWasCalled, false);
+      expect(mockInterface.getAudioSettingsWasCalled, true);
+
+      expect(result.speakerphoneEnabled, false);
+      expect(result.bluetoothPreferred, false);
+
+      await TwilioProgrammableVideo.setAudioSettings(
+        speakerphoneEnabled: true,
+        bluetoothPreferred: true,
+      );
+
+      final result2 = await TwilioProgrammableVideo.getAudioSettings();
+      expect(result2.speakerphoneEnabled, true);
+      expect(result2.bluetoothPreferred, true);
+    });
+
+    test('should call interface code to disable audio settings', () async {
+      await TwilioProgrammableVideo.disableAudioSettings();
+      expect(mockInterface.disableAudioSettingsWasCalled, true);
     });
   });
 
@@ -75,7 +102,7 @@ void main() {
       var nativeRequestPermissionsIsCalled = false;
       var nativeCheckPermissionStatusIsCalled = false;
 
-      MethodChannel('flutter.baseflow.com/permissions/methods').setMockMethodCallHandler((MethodCall methodCall) async {
+      const MethodChannel('flutter.baseflow.com/permissions/methods').setMockMethodCallHandler((MethodCall methodCall) async {
         switch (methodCall.method) {
           case 'requestPermissions':
             nativeRequestPermissionsIsCalled = true;
@@ -98,7 +125,7 @@ void main() {
       var nativeRequestPermissionsIsCalled = false;
       var nativeCheckPermissionStatusIsCalled = false;
 
-      MethodChannel('flutter.baseflow.com/permissions/methods').setMockMethodCallHandler((MethodCall methodCall) async {
+      const MethodChannel('flutter.baseflow.com/permissions/methods').setMockMethodCallHandler((MethodCall methodCall) async {
         switch (methodCall.method) {
           case 'requestPermissions':
             if (nativeRequestPermissionsIsCalled) {
@@ -128,7 +155,7 @@ void main() {
       var nativeCheckPermissionStatusIsCalled = false;
       var nativeOpenAppSettingsIsCalled = false;
 
-      MethodChannel('flutter.baseflow.com/permissions/methods').setMockMethodCallHandler((MethodCall methodCall) async {
+      const MethodChannel('flutter.baseflow.com/permissions/methods').setMockMethodCallHandler((MethodCall methodCall) async {
         switch (methodCall.method) {
           case 'requestPermissions':
             nativeRequestPermissionsIsCalled = true;
@@ -156,7 +183,7 @@ void main() {
       final mockInterface = MockInterface();
       ProgrammableVideoPlatform.instance = mockInterface;
 
-      MethodChannel('flutter.baseflow.com/permissions/methods').setMockMethodCallHandler((MethodCall methodCall) async {
+      const MethodChannel('flutter.baseflow.com/permissions/methods').setMockMethodCallHandler((MethodCall methodCall) async {
         switch (methodCall.method) {
           case 'requestPermissions':
             return {1: 1, 7: 1}; // {camera: granted, microphone: granted}
