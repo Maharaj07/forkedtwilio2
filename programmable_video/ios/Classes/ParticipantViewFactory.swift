@@ -18,11 +18,13 @@ class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
      public func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
          var shouldMirror = false
          var isLocal = false
+         var renderMode = 0
          var videoTrack: VideoTrack?
 
          if let params = args as? [String: Any] {
              shouldMirror = params["mirror"] as? Bool ?? false
              isLocal = params["isLocal"] as? Bool ?? false
+             renderMode = params["renderMode"] as? Int ?? 0
 
              if isLocal {
                  let name = params["name"] as? String ?? ""
@@ -44,8 +46,8 @@ class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
          }
 
          let videoView = VideoView.init(frame: frame)
-         videoView.shouldMirror = shouldMirror
-         videoView.contentMode = .scaleAspectFill
+         let mode = UIView.ContentMode(rawValue: renderMode) ?? .scaleToFillvideoView.shouldMirror = shouldMirror
+         videoView.contentMode = mode
          return ParticipantView(videoView, videoTrack: videoTrack!)
      }
 
