@@ -7,6 +7,7 @@ import 'package:twilio_programmable_video_platform_interface/src/camera_source.d
 
 import 'method_channel_programmable_video.dart';
 import 'models/model_exports.dart';
+import 'enums/video_render_mode.dart';
 
 export 'audio_codecs/audio_codec.dart';
 export 'enums/enum_exports.dart';
@@ -42,7 +43,11 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
 
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({
+    bool mirror = true,
+    VideoRenderMode mode = VideoRenderMode.Hidden,
+    Key? key,
+  }) {
     throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
   }
 
@@ -51,6 +56,7 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
     required String remoteParticipantSid,
     required String remoteVideoTrackSid,
     bool mirror = true,
+    VideoRenderMode mode = VideoRenderMode.Hidden,
     Key? key,
   }) {
     throw UnimplementedError('createRemoteVideoTrackWidget() has not been implemented.');

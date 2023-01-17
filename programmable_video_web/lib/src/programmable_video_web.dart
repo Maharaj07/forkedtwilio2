@@ -80,7 +80,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   //#region Functions
   @override
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({
+    bool mirror = true,
+    VideoRenderMode mode = VideoRenderMode.Hidden,
+    Key? key,
+  }) {
     final room = _room;
 
     if (room != null) {
@@ -96,6 +100,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     required String remoteParticipantSid,
     required String remoteVideoTrackSid,
     bool mirror = true,
+    VideoRenderMode mode = VideoRenderMode.Hidden,
     Key? key,
   }) {
     key ??= ValueKey(remoteVideoTrackSid);

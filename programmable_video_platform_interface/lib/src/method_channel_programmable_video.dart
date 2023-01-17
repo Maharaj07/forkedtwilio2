@@ -62,12 +62,17 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
   @override
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({
+    bool mirror = true,
+    VideoRenderMode mode = VideoRenderMode.Hidden,
+    Key? key,
+  }) {
     key ??= ValueKey('Twilio_LocalParticipant');
 
     final creationParams = {
       'isLocal': true,
       'mirror': mirror,
+      'renderMode': mode.index,
     };
 
     return _videoTrackWidget(creationParams, key);
@@ -79,6 +84,7 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     required String remoteParticipantSid,
     required String remoteVideoTrackSid,
     bool mirror = true,
+    VideoRenderMode mode = VideoRenderMode.Hidden,
     Key? key,
   }) {
     key ??= ValueKey(remoteParticipantSid);
@@ -87,6 +93,7 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
       'remoteParticipantSid': remoteParticipantSid,
       'remoteVideoTrackSid': remoteVideoTrackSid,
       'mirror': mirror,
+      'renderMode': mode.index,
     };
 
     return _videoTrackWidget(creationParams, key);
