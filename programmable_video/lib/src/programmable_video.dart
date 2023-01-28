@@ -166,10 +166,12 @@ class TwilioProgrammableVideo {
       return true;
     }
 
-    await [Permission.camera, Permission.microphone].request();
+    /// bluetoothConnect is required for bluetooth audio routing on Android.
+    await [Permission.camera, Permission.microphone, Permission.bluetoothConnect].request();
     final micPermission = await Permission.microphone.status;
     final camPermission = await Permission.camera.status;
-    _log('Permissions => Microphone: $micPermission, Camera: $camPermission');
+    final bluetoothConnectPermission = await Permission.bluetoothConnect.status;
+    _log('Permissions => Microphone: $micPermission, Camera: $camPermission, Bluetooth Connect: $bluetoothConnectPermission');
 
     if (micPermission == PermissionStatus.granted && camPermission == PermissionStatus.granted) {
       return true;
