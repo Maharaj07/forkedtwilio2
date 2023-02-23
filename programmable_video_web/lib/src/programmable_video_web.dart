@@ -35,6 +35,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static final _remoteParticipantController = StreamController<BaseRemoteParticipantEvent>.broadcast();
   static final _remoteDataTrackController = StreamController<BaseRemoteDataTrackEvent>.broadcast();
   static final _loggingStreamController = StreamController<String>.broadcast();
+  static final _audioNotificationStreamController = StreamController<BaseAudioNotificationEvent>.broadcast();
 
   static var _nativeDebug = false;
   static var _sdkDebugSetup = false;
@@ -327,6 +328,35 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     return Future(() => isEnabled);
   }
 
+  /// No-op on web as there is no official way to do this on web.
+  @override
+  Future<bool> deviceHasReceiver() {
+    return Future.value(true);
+  }
+
+  /// No-op on web as there is no official way to do this on web.
+  @override
+  Future disableAudioSettings() {
+    return Future.value(true);
+  }
+
+  /// Using default values as there is no official way to do this on web.
+  /// There is a bluetoothDevice browser api but it is not widely supported.
+  /// Speaker defaults to true based on default of deprecated method [setSpeakerphoneOn]
+  @override
+  Future<Map<String, dynamic>> getAudioSettings() {
+    return Future.value({
+      'speakerphoneEnabled': true,
+      'bluetoothPreferred': false,
+    });
+  }
+
+  /// No-op on web as there is no official way to do this on web.
+  @override
+  Future setAudioSettings(bool speakerphoneEnabled, bool bluetoothPreferred) {
+    return Future.value(true);
+  }
+
   //#endregion
 
   //#region Streams
@@ -358,6 +388,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Stream<dynamic> loggingStream() {
     return _loggingStreamController.stream;
+  }
+
+  @override
+  Stream<BaseAudioNotificationEvent> audioNotificationStream() {
+    return _audioNotificationStreamController.stream;
   }
 //#endregion
 }
