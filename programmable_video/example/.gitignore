@@ -83,5 +83,7 @@ lib/generated_plugin_registrant.dart
 
 # Firebase configuration files
 ios/Runner/GoogleService-Info.plist
+ios/firebase_app_id_file.json
 android/app/google-services.json
 web/configuration.js
+lib/firebase_options.dart
