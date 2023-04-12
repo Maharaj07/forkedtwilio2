@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:twilio_programmable_video_example/debug.dart';
+import 'package:twilio_programmable_video_example/firebase_options.dart';
 import 'package:twilio_programmable_video_example/room/selection_page.dart';
 import 'package:twilio_programmable_video_example/shared/services/backend_service.dart';
 
@@ -21,8 +22,9 @@ void main() {
 class TwilioProgrammableVideoExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // DefaultFirebaseOptions.currentPlatform is auto generated. See readme for instructions
     return FutureBuilder(
-      future: Firebase.initializeApp(),
+      future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return Provider<BackendService>(

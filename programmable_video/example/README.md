@@ -139,6 +139,14 @@ Below we will take you through this setup for each platform.
 7. Create a file called `configuration.js` in the `web` folder and copy the `firebaseConfig` constant into it
 8. Finally hit `Continue to the console`
 
+### Configure via FlutterFire
+
+[FlutterFire Docs](https://firebase.flutter.dev/docs/overview/#initializing-flutterfire)
+1. Verify you are in the `example` directory
+2. Run `dart pub global activate flutterfire_cli`
+3. Run `flutterfire configure` and select your project and the platforms
+4. This should generate the file `firebase_options.dart` which defines `DefaultFirebaseOptions.currentPlatform` referenced in `main.dart`
+
 ### Run the application
 
 Before opening XCode, run `flutter build ios --debug` from the `example` directory.
