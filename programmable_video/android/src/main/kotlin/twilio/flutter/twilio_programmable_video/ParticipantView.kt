@@ -8,6 +8,7 @@ class ParticipantView(private var videoView: VideoView, videoTrack: VideoTrack) 
     private val TAG = "ParticipantView"
 
     init {
+        debug("init => Initializing ParticipantView")
         videoTrack.addSink(videoView)
     }
 
@@ -17,6 +18,7 @@ class ParticipantView(private var videoView: VideoView, videoTrack: VideoTrack) 
 
     override fun dispose() {
         debug("dispose => Disposing ParticipantView")
+        videoTrack.removeSink(videoView)
     }
 
     internal fun debug(msg: String) {
