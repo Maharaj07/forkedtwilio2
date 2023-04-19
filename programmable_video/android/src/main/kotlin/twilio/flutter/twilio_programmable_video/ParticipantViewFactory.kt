@@ -1,6 +1,9 @@
 package twilio.flutter.twilio_programmable_video
 
 import android.content.Context
+import android.view.Gravity
+import android.widget.FrameLayout
+import com.twilio.video.VideoScaleType
 import com.twilio.video.VideoTrack
 import com.twilio.video.VideoView
 import io.flutter.plugin.common.MessageCodec
@@ -40,11 +43,32 @@ class ParticipantViewFactory(createArgsCodec: MessageCodec<Any>, private val plu
             throw IllegalStateException("Could not create VideoTrack")
         }
         val videoView = VideoView(context as Context)
+        val layoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            gravity = Gravity.CENTER
+        }
+        videoView.setLayoutParams(layoutParams)
+
+        val scaleType = this.getScaleTypeFromInt(params["renderMode"] as Int)
         videoView.mirror = params["mirror"] as Boolean
+        videoView.videoScaleType = scaleType
+
         return ParticipantView(videoView, videoTrack)
     }
 
     internal fun debug(msg: String) {
         TwilioProgrammableVideoPlugin.debug("$TAG::$msg")
+    }
+
+    private fun getScaleTypeFromInt(typeInt: Int): VideoScaleType {
+        if (typeInt == 2) {
+            return VideoScaleType.ASPECT_FILL
+        } else if (typeInt == 1) {
+            return VideoScaleType.ASPECT_FIT
+        } else {
+            return VideoScaleType.ASPECT_BALANCED
+        }
     }
 }
