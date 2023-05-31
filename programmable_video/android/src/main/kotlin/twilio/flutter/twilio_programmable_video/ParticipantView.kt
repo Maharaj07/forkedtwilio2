@@ -4,10 +4,11 @@ import com.twilio.video.VideoTrack
 import com.twilio.video.VideoView
 import io.flutter.plugin.platform.PlatformView
 
-class ParticipantView(private var videoView: VideoView, videoTrack: VideoTrack) : PlatformView {
+class ParticipantView(private var videoView: VideoView, private var videoTrack: VideoTrack) : PlatformView {
     private val TAG = "ParticipantView"
 
     init {
+        debug("init => Initializing ParticipantView")
         videoTrack.addSink(videoView)
     }
 
@@ -17,6 +18,7 @@ class ParticipantView(private var videoView: VideoView, videoTrack: VideoTrack) 
 
     override fun dispose() {
         debug("dispose => Disposing ParticipantView")
+        videoTrack.removeSink(videoView)
     }
 
     internal fun debug(msg: String) {
