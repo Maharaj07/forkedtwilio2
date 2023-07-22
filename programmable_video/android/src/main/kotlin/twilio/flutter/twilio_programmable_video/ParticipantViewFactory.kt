@@ -44,18 +44,17 @@ class ParticipantViewFactory(createArgsCodec: MessageCodec<Any>, private val plu
         }
         val videoView = VideoView(context as Context)
         val layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    gravity = Gravity.CENTER
-                }
-                videoView.setLayoutParams(layoutParams)
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            gravity = Gravity.CENTER
+        }
+        videoView.setLayoutParams(layoutParams)
 
-                val scaleType = this.getScaleTypeFromInt(params["renderMode"] as Int)
-                val mirror = params["mirror"] as Boolean
+        val scaleType = this.getScaleTypeFromInt(params["renderMode"] as Int)
+        videoView.mirror = params["mirror"] as Boolean
+        videoView.videoScaleType = scaleType
 
-                videoView.mirror = mirror
-                videoView.videoScaleType = scaleType
         return ParticipantView(videoView, videoTrack)
     }
 

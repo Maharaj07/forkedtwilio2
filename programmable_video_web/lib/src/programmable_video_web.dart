@@ -38,6 +38,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   static var _nativeDebug = false;
   static var _sdkDebugSetup = false;
+  static final _registeredLocalParticipantViewFactories = [];
   static final _registeredRemoteParticipantViewFactories = [];
 
   static void debug(String msg) {
@@ -46,15 +47,14 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   static void registerWith(Registrar registrar) {
     ProgrammableVideoPlatform.instance = ProgrammableVideoPlugin();
-    _createLocalViewFactory();
   }
 
-  static void _createLocalViewFactory() {
+  static void _createLocalViewFactory(String localParticipantSid, VideoRenderMode mode) {
     ui.platformViewRegistry.registerViewFactory('local-video-track-html', (int viewId) {
       final room = _room;
       if (room != null) {
-        final localVideoTrackElement = room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
-        debug('Created local video track view for:  ${room.localParticipant.sid}');
+        final localVideoTrackElement = room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = _getObjectFit(mode);
+        debug('Created local video track view for: $localParticipantSid');
         return localVideoTrackElement;
       } else {
         // TODO: review behaviour in scenario where `_room` is `null`.
@@ -63,12 +63,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     });
   }
 
-  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
+  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid, VideoRenderMode mode) {
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       final remoteVideoTrack = _room?.participants.toDartMap()[remoteParticipantSid]?.videoTracks.toDartMap()[remoteVideoTrackSid]?.track;
       // TODO: flatten this out
       if (remoteVideoTrack != null) {
-        final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'cover';
+        final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = _getObjectFit(mode);
         debug('Created remote video track view for: $remoteParticipantSid');
         return remoteVideoTrackElement;
       } else {
@@ -80,14 +80,13 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   //#region Functions
   @override
-  Widget createLocalVideoTrackWidget({
-    bool mirror = true,
-    VideoRenderMode mode = VideoRenderMode.Hidden,
-    Key? key,
-  }) {
+  Widget createLocalVideoTrackWidget({bool mirror = true, VideoRenderMode mode = VideoRenderMode.BALANCED, Key? key}) {
     final room = _room;
 
     if (room != null) {
+      if (!_registeredLocalParticipantViewFactories.contains(room.localParticipant.sid)) {
+        _createLocalViewFactory(room.localParticipant.sid, mode);
+      }
       debug('Created local video track widget for: ${room.localParticipant.sid}');
       return HtmlElementView(viewType: 'local-video-track-html', key: key);
     } else {
@@ -100,13 +99,13 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     required String remoteParticipantSid,
     required String remoteVideoTrackSid,
     bool mirror = true,
-    VideoRenderMode mode = VideoRenderMode.Hidden,
+    VideoRenderMode mode = VideoRenderMode.BALANCED,
     Key? key,
   }) {
     key ??= ValueKey(remoteVideoTrackSid);
 
     if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
-      _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
+      _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid, mode);
       _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
     }
     debug('Created remote video track widget for: $remoteParticipantSid');
@@ -156,6 +155,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       final audioTracks = localParticipant.audioTracks.values();
       iteratorForEach<LocalAudioTrackPublication>(audioTracks, (publication) {
         debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        publication.track.stop();
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
@@ -163,6 +163,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       final videoTracks = localParticipant.videoTracks.values();
       iteratorForEach<LocalVideoTrackPublication>(videoTracks, (publication) {
         debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        publication.track.stop();
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
@@ -332,6 +333,16 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     return Future(() => isEnabled);
   }
 
+  static String _getObjectFit(VideoRenderMode mode) {
+    switch (mode) {
+      case VideoRenderMode.FILL:
+        return 'fill';
+      case VideoRenderMode.FIT:
+        return 'contain';
+      case VideoRenderMode.BALANCED:
+        return 'cover';
+    }
+  }
   //#endregion
 
   //#region Streams

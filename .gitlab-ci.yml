@@ -18,15 +18,15 @@ dartdoc:
   script:
     - cd "${PROJECT}"
     - flutter pub get
-    - flutter pub global activate dartdoc 4.1.0
-    - flutter pub global run dartdoc 4.1.0 --no-auto-include-dependencies --quiet # until the issue is resolved https://github.com/dart-lang/dartdoc/issues/2934 
+    - flutter pub global activate dartdoc
+    - flutter pub global run dartdoc --no-auto-include-dependencies --quiet # until the issue is resolved https://github.com/dart-lang/dartdoc/issues/2934 
   only:
     refs:
       - merge_requests
       - master
     changes:
-      - ./**/*.dart
-      - ./**/README.md
+      - "**/*.dart"
+      - "**/README.md"
       - .gitlab-ci.yml
 
 firebase_functions_programmable_video:
@@ -51,14 +51,15 @@ flutter_analyze:
     - cd "${PROJECT}"
     - flutter pub get
     - flutter analyze --pub
-    - flutter format -l 240 -n . --set-exit-if-changed
+    - dart format -l 240 . --set-exit-if-changed
   only:
     refs:
       - merge_requests
       - master
     changes:
-      - ./**/*.dart
-      - ./**/test/**/*.dart
+      - "**/pubspec.yaml"
+      - "**/*.dart"
+      - "**/test/**/*.dart"
       - .gitlab-ci.yml
 
 kotlin_analyze_programmable_video:
@@ -121,6 +122,7 @@ unit_test:
       - merge_requests
       - master
     changes:
+      - "**/pubspec.yaml"
       - programmable_video/lib/**/*
       - programmable_video/test/**/*
       - programmable_video_platform_interface/lib/**/*

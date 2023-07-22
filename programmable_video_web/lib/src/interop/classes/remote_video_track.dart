@@ -4,10 +4,10 @@ library remote_video_track;
 import 'dart:html';
 
 import 'package:js/js.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/video_track.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/video_track.dart';
 
-@JS('Twilio.Video.RemoteAudioTrack')
+@JS('Twilio.Video.RemoteVideoTrack')
 class RemoteVideoTrack extends VideoTrack {
   external String get sid;
   external bool get isSwitchedOff;

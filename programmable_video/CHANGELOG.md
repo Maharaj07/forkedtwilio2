@@ -1,3 +1,16 @@
+## 1.1.1
+
+- Fixed Android build error due to the deprecation of the `kotlin-android-extensions` plugin.
+
+## 1.1.0
+
+- Added `VideoRenderMode mode` as an optional parameter to the `widget` method of the `LocalVideoTrack`, and the `RemoteVideoTrack` classes. For backwards compatibility, it defaults to `VideoRenderMode.BALANCED`. 
+- **Web** Fixed some small annotation errors in the Web implementation.
+
+## 1.0.2
+
+- **Web**: Stop video and audio tracks on disconnect. This helps turn off the camera light when not in use.
+
 ## 1.0.1
 
 - Updated `permission_handler` dependency from 9.2.0 to 10.2.0

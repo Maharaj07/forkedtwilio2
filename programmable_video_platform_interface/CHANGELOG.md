@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Added `VideoRenderMode mode` as an optional parameter to the `widget` method of the `LocalVideoTrack`, and the `RemoteVideoTrack` classes. For backwards compatibility, it defaults to `VideoRenderMode.BALANCED`.
+
 ## 1.0.0
 
 - Integrates updates for audio settings and video preview from version 0.7.1
