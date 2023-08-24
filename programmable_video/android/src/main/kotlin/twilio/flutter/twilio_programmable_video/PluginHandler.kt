@@ -423,7 +423,11 @@ class PluginHandler : MethodCallHandler, ActivityAware, BaseListener {
     }
 
     private fun setSpeakerPhoneOnInternal() {
-        val bluetoothProfileConnectionState = BluetoothAdapter.getDefaultAdapter().getProfileConnectionState(BluetoothProfile.HEADSET)
+        val bluetoothProfileConnectionState = BluetoothAdapter
+            .getDefaultAdapter()
+            ?.getProfileConnectionState(BluetoothProfile.HEADSET)
+            // Devices without a built-in Bluetooth systems can be marked as disconnected so we'll set up the normal speakers
+            ?: BluetoothProfile.STATE_DISCONNECTED
         debug("setSpeakerPhoneOnInternal => on: ${audioSettings.speakerEnabled}\n bluetoothEnable: ${audioSettings.bluetoothPreferred}\n bluetoothScoOn: ${audioManager.isBluetoothScoOn}\n bluetoothProfileConnectionState: $bluetoothProfileConnectionState")
 
         // Even if already enabled, setting `audioManager.isSpeakerphoneOn` to true
