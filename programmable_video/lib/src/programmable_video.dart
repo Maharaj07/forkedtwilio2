@@ -167,19 +167,36 @@ class TwilioProgrammableVideo {
     }
 
     await [Permission.camera, Permission.microphone].request();
-    final micPermission = await Permission.microphone.status;
-    final camPermission = await Permission.camera.status;
+    final micPermission = await Permission.microphone.request().isGranted; //.status;
+    final camPermission = await Permission.camera.request().isGranted; //.status;
     _log('Permissions => Microphone: $micPermission, Camera: $camPermission');
 
-    if (micPermission == PermissionStatus.granted && camPermission == PermissionStatus.granted) {
+    if (micPermission /* == PermissionStatus.granted*/ && camPermission/*== PermissionStatus.granted*/) {
       return true;
     }
 
-    if (micPermission == PermissionStatus.denied || camPermission == PermissionStatus.denied) {
-      return requestPermissionForCameraAndMicrophone();
+    bool openSettings = false;
+
+    if (!micPermission /* == PermissionStatus.denied || !camPermission== PermissionStatus.denied*/) {
+      await Permission.microphone.onPermanentlyDeniedCallback(() {
+        openSettings = true;
+      });
+      if (!openSettings) {
+        return requestPermissionForCameraAndMicrophone();
+      }
     }
 
-    if (micPermission == PermissionStatus.permanentlyDenied || camPermission == PermissionStatus.permanentlyDenied) {
+    if (!camPermission) {
+      await Permission.camera.onPermanentlyDeniedCallback(() {
+        openSettings = true;
+      });
+      if (!openSettings) {
+        return requestPermissionForCameraAndMicrophone();
+      }
+    }
+
+    if (openSettings) {
+      // if (micPermission == PermissionStatus.permanentlyDenied || camPermission == PermissionStatus.permanentlyDenied) {
       _log('Permissions => Opening App Settings');
       await openAppSettings();
     }
