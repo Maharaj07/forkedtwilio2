@@ -1,3 +1,7 @@
+## 1.1.1
+
+- Updates maximum supported SDK version to Dart 3.x
+
 ## 1.1.0
 
 - Added `VideoRenderMode mode` as an optional parameter to the `widget` method of the `LocalVideoTrack`, and the `RemoteVideoTrack` classes. For backwards compatibility, it defaults to `VideoRenderMode.BALANCED`.
