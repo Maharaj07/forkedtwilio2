@@ -136,28 +136,19 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       ),
     ),
   );
-  print(room);
-  print("1");
-  print(room.localParticipant.audioTracks.values());
-  print("2");
+
   iteratorForEach<LocalAudioTrackPublication>(room.localParticipant.audioTracks.values(), (publication) {
-    print("3");
     if (audioTracks != null) {
-      print("4");
       final modelTrack = audioTracks.firstWhereOrNull((track) => track.name == publication.trackName);
-      print("5");
       if (modelTrack != null) {
-        print("6");
         ProgrammableVideoPlugin.debug('ProgrammableVideoWeb::connectWithModel => enableAudioTrack(${modelTrack.name}): ${modelTrack.enabled}');
-        print("7");
         modelTrack.enabled ? publication.track.enable() : publication.track.disable();
-        print("8");
       }
     }
     return false;
   });
-  print("9");
-  //TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
+
+  // TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
   iteratorForEach<LocalVideoTrackPublication>(room.localParticipant.videoTracks.values(), (publication) {
     if (videoTracks != null) {
       final modelTrack = videoTracks.firstWhereOrNull((track) => track.name == publication.trackName);
@@ -168,6 +159,6 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     }
     return false;
   });
-  print("7");
+
   return room;
 }
