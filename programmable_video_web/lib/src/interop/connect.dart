@@ -87,7 +87,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
   // https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/global.html#LocalTrackOptions
   final networkQualityConfiguration = model.networkQualityConfiguration;
   final tracks = <dynamic>[];
-
+  print("1");
   final audioTracks = model.audioTracks;
   if (audioTracks != null) {
     await Future.forEach(audioTracks, (LocalAudioTrackModel track) async {
@@ -96,7 +96,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       tracks.add(jsTrack);
     });
   }
-
+  print("2");
   final videoTracks = model.videoTracks;
   if (videoTracks != null) {
     await Future.forEach(videoTracks, (LocalVideoTrackModel track) async {
@@ -105,7 +105,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       tracks.add(jsTrack);
     });
   }
-
+  print("3");
   final dataTracks = model.dataTracks;
   dataTracks?.forEach((track) async {
     final jsTrack = LocalDataTrack(
@@ -113,7 +113,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     );
     tracks.add(jsTrack);
   });
-
+  print("4");
   final room = await promiseToFuture<Room>(
     connect(
       model.accessToken,
@@ -136,7 +136,8 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       ),
     ),
   );
-
+  print(room);
+  print("5");
   iteratorForEach<LocalAudioTrackPublication>(room.localParticipant.audioTracks.values(), (publication) {
     if (audioTracks != null) {
       final modelTrack = audioTracks.firstWhereOrNull((track) => track.name == publication.trackName);
@@ -147,7 +148,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     }
     return false;
   });
-
+  print("6");
   //TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
   iteratorForEach<LocalVideoTrackPublication>(room.localParticipant.videoTracks.values(), (publication) {
     if (videoTracks != null) {
@@ -159,6 +160,6 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     }
     return false;
   });
-
+  print("7");
   return room;
 }

@@ -140,11 +140,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       _room = await connectWithModel(connectOptions);
     } catch (err) {
       ProgrammableVideoPlugin.debug(err.toString());
-      throw PlatformException(
-          code: 'INIT_ERROR',
-          message: 'Failed to connect to room',
-          details: //''
-              err.toString());
+      throw PlatformException(code: 'INIT_ERROR', message: 'Failed to connect to room', details: '');
     }
     return 0;
   }
