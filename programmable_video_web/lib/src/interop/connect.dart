@@ -87,7 +87,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
   // https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/global.html#LocalTrackOptions
   final networkQualityConfiguration = model.networkQualityConfiguration;
   final tracks = <dynamic>[];
-  print("1");
+
   final audioTracks = model.audioTracks;
   if (audioTracks != null) {
     await Future.forEach(audioTracks, (LocalAudioTrackModel track) async {
@@ -96,7 +96,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       tracks.add(jsTrack);
     });
   }
-  print("2");
+
   final videoTracks = model.videoTracks;
   if (videoTracks != null) {
     await Future.forEach(videoTracks, (LocalVideoTrackModel track) async {
@@ -105,7 +105,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       tracks.add(jsTrack);
     });
   }
-  print("3");
+
   final dataTracks = model.dataTracks;
   dataTracks?.forEach((track) async {
     final jsTrack = LocalDataTrack(
@@ -113,7 +113,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     );
     tracks.add(jsTrack);
   });
-  print("4");
+
   final room = await promiseToFuture<Room>(
     connect(
       model.accessToken,
@@ -137,18 +137,26 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     ),
   );
   print(room);
-  print("5");
+  print("1");
+  print(room.localParticipant.audioTracks.values());
+  print("2");
   iteratorForEach<LocalAudioTrackPublication>(room.localParticipant.audioTracks.values(), (publication) {
+    print("3");
     if (audioTracks != null) {
+      print("4");
       final modelTrack = audioTracks.firstWhereOrNull((track) => track.name == publication.trackName);
+      print("5");
       if (modelTrack != null) {
+        print("6");
         ProgrammableVideoPlugin.debug('ProgrammableVideoWeb::connectWithModel => enableAudioTrack(${modelTrack.name}): ${modelTrack.enabled}');
+        print("7");
         modelTrack.enabled ? publication.track.enable() : publication.track.disable();
+        print("8");
       }
     }
     return false;
   });
-  print("6");
+  print("9");
   //TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
   iteratorForEach<LocalVideoTrackPublication>(room.localParticipant.videoTracks.values(), (publication) {
     if (videoTracks != null) {
