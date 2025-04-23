@@ -148,7 +148,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     return false;
   });
 
-  //TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
+  // TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
   iteratorForEach<LocalVideoTrackPublication>(room.localParticipant.videoTracks.values(), (publication) {
     if (videoTracks != null) {
       final modelTrack = videoTracks.firstWhereOrNull((track) => track.name == publication.trackName);
