@@ -12,7 +12,6 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformViewRegistry
 import tvi.webrtc.Camera1Enumerator
@@ -47,13 +46,6 @@ class TwilioProgrammableVideoPlugin : FlutterPlugin {
     // depending on the user's project. onAttachedToEngine or registerWith must both be defined
     // in the same class.
     companion object {
-        @Suppress("unused")
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            val instance = TwilioProgrammableVideoPlugin()
-            instance.onAttachedToEngine(registrar.context(), registrar.messenger(), registrar.platformViewRegistry())
-        }
-
         @JvmStatic
         val LOG_TAG = "Twilio_PVideo"
 
